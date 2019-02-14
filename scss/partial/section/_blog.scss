@@ -1,0 +1,40 @@
+.blog {
+	.sec-header {
+		margin-bottom: $def_ver_com_margin + 30;
+	}
+	.crd-info {
+		background: $dominate_color1;
+		padding: $def_padding/2 $def_padding;
+		
+		span {
+			float: right;
+		}
+
+		.avatar {
+			img {
+				display: inline-block;
+				width: auto;
+				height: 25px;
+			}
+		}
+		.date {
+			margin-left: $default_margin;
+			color: $default_color_strong;
+			font-size: $mid_headline_size;
+		}
+	}
+	h3 {
+		margin: 0px;
+	}
+	a {
+		color: $default_color_strong; 
+	}
+}
+
+@media all and (max-width: 767px) { 
+    .blog {
+    	.item {
+        	margin-bottom: $def_mob_col_margin	;
+        }
+    }
+}

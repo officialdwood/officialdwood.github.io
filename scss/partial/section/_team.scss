@@ -1,0 +1,57 @@
+.team {
+    text-align: center;
+    
+    .social {
+        float: left;
+        width: 100px;
+        text-align: left; 
+        margin-right: $default_margin + 5;
+
+        li{
+            float: left;
+            width: 50%;
+            text-align: center;
+            background: $dominate_color1;
+            a {
+                padding: $def_padding 0px; 
+            }
+                
+            &:first-child {
+                width: 100%;
+                border-bottom: 1px solid $default_color_alt;
+                i {
+                    font-size: $h3_font_size ;
+                }
+            }
+            &:nth-child(2) {
+                border-right: 1px solid $default_color_alt;
+            } 
+        }
+
+        i {
+            color: $default_color;
+            display: inline-block;
+            margin-right: 0px;
+            padding: $def_padding 0;
+        }
+    }
+    
+    .info {
+        float: left;
+        font-family: $font-family1;
+        font-weight: $reg_font_weight;
+        font-size: $mid_headline_size;
+        padding: $def_padding*2 0;
+    }
+    .pos {
+        color: $default_color1;
+        font-family: $font-family1;
+        font-weight: $reg_font_weight;
+        font-size: $default_font_size;
+        text-transform: uppercase;
+        text-align: left;
+    }
+    .name {
+        text-align: left;
+    }
+}

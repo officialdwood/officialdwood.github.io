@@ -1,0 +1,10 @@
+//reset bootstrap modal
+.modal-dialog {
+    max-width: 768px;
+    width: auto;
+}
+.modal-content {
+    box-shadow : none;
+    -webkit-box-shadow : none;
+    @include border-radius(0px);
+}

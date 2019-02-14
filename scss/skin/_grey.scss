@@ -1,0 +1,84 @@
+//Padding
+$sec_padding_left       : 0px;
+$sec_padding_right      : 0px;
+$sec_padding_top        : 60px;
+$sec_padding_bottom     : 90px;
+$def_padding            : 10px;
+
+//Margin
+$default_margin         : 10px;
+$def_ver_margin         : 15px;
+$def_ver_com_margin     : 60px;
+$def_mob_ver_com_margin     : 60px;
+$def_mob_col_margin		: 20px;
+
+//Color 
+$default_color          : #000000;
+$default_color1			: #959595;
+$default_color_strong   : #000000;
+$default_color_alt      : #FFFFFF;
+$header_color           : #000000;
+$dominate_color			: #393939;
+$dominate_color1		: #EFEEEF;
+
+//Font
+$font_family 	: 'Roboto Condensed', sans-serif;
+$font_family1 	: 'Lato', sans-serif;
+
+//Font size
+$default_font_size  : 14px;
+$h1_font_size       : 48px;
+$h2_font_size       : 40px;
+$h3_font_size       : 30px;
+$h4_font_size       : 20px;
+$sub_headline_size  : 16px;
+$mid_headline_size  : $sub_headline_size + 2;
+
+$def_font_weight    : 300;
+$reg_font_weight    : 400;
+
+$default_line_height    : 1.5;
+
+
+//Section header
+$sec_h2_padding_top     : 0px;
+$sec_h2_padding_bottom  : 0px;
+$sec_h2_margin-top      : 10px;
+$sec_h2_margin-bottom   : 10px;
+
+//Service section
+$icon_font_size			: 30px;
+
+//Testimonial section
+$avatar_width           : 130px;
+
+//Achievement 
+$sep_acv_width          : 100px;
+
+//Pricing Section
+$emphasize_padding		: 40px;
+
+//Map section
+$map_height		: 300px;
+
+//Icon size
+$default_icon_size  : 24px;
+$sep_width          : 150px;
+
+//Menu
+$m_icon_size	: 200px;
+
+//Place holder text 
+::-webkit-input-placeholder {
+   color: $default_color1;
+}
+:-moz-placeholder { /* Firefox 18- */
+   color: $default_color1;  
+}
+::-moz-placeholder {  /* Firefox 19+ */
+   color: $default_color1;  
+}
+:-ms-input-placeholder {  
+   color: $default_color1;  
+}
+//End place holder text

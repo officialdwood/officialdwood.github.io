@@ -1,0 +1,16 @@
+.service {
+    .sec-header {
+        margin-bottom: $def_ver_com_margin - 5; 
+    }
+    .item {
+        i {
+            float: left;
+            display: inline-block;
+            margin-top: $default_margin;
+            font-size: $icon_font_size;
+        }
+        h3 {
+            margin-bottom: 0px;
+        }
+    }
+}

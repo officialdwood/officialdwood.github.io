@@ -1,0 +1,55 @@
+.contact {
+    padding-bottom: 0px;
+
+    .con-wrap {
+        background: white;
+        color: $default_color;
+        padding: $sec_padding_top 0;
+
+        h1, h2, h3, h4 {
+            color: $default_color_strong;
+        }
+        p {
+            color: $default_color;
+        }
+        i {
+            color: $default_color1;
+            font-size: $default_font_size;
+        }
+
+        h3 {
+            margin-top: 0px; 
+            text-transform: uppercase;
+            font-size: $sub_headline_size;
+        }
+
+        li {
+            font-family: $font_family1;
+        }
+
+        textarea, input {
+            width: 100%;
+            border: 1px solid $default_color_strong;
+            padding: $def_padding;
+        }
+
+        textarea {
+            margin-bottom: $default_margin;
+            height: 160px;
+        }
+
+        .btn {
+            float: right;
+        }
+
+    }
+    .item {
+        margin-bottom: $def_mob_col_margin ;
+    }
+    .sec-header {
+        margin-bottom: $def_ver_com_margin / 2;
+    }
+    input {
+        margin-bottom: $def_ver_margin;
+    }
+}

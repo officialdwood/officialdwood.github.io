@@ -1,0 +1,35 @@
+.sec-header {
+    text-align: center;
+    margin-bottom: $def_ver_com_margin + 20;
+    
+    i { 
+        color: $default_color_strong;
+    }
+    
+    h2 {
+        margin: $sec_h2_margin_top 0 $sec_h2_margin_top; 
+        font-size: $h1_font_size;
+        line-height: 1.1;
+    }
+    
+    h3.sub-title { 
+        font-size: $sub_headline_size; 
+        color: $default_color1;
+        text-transform: uppercase;
+        margin-top: 0px;
+    }    
+    
+    .sep {
+        height: 1px;
+        margin: 0 auto $default_margin ; 
+        display: block;
+        width: $sep_width; 
+        background: $default_color_strong;
+    }
+}
+
+@media all and (max-width: 767px) { 
+    .sec-header {
+        margin-bottom: $def_mob_ver_com_margin;
+    }
+}

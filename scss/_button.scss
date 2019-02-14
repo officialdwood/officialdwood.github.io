@@ -1,0 +1,10 @@
+.btn {
+	font-family: $font_family1;
+	background: $dominate_color;
+	color: $default_color_alt;
+	border-radius: 0px;
+
+	&:hover {
+		@include transition(0.25s);
+	}
+}

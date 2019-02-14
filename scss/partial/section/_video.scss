@@ -1,0 +1,18 @@
+.video {
+	text-align: center;
+	
+	.sec-header {
+		margin-bottom: $def_ver_com_margin - 10; 
+	}
+
+	h4 {
+		font-size: $h2_font_size - 4;
+		margin-bottom: $def_ver_com_margin  - 10;
+		margin-top: 0px;
+		line-height: 1.5;
+	}
+	i[data-toggle] { 
+		font-size: $h1_font_size;
+		cursor: pointer;
+	}
+}
