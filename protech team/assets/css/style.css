@@ -1,0 +1,99 @@
+:root{
+  --pt-bg:#0f1214;          /* charcoal background */
+  --pt-card:#151a1e;        /* darker card */
+  --pt-text:#e8edf1;        /* near-white text */
+  --pt-muted:#a9b1b8;       /* muted gray */
+  --pt-accent:#c7ced4;      /* light gray accent */
+  --pt-border:rgba(255,255,255,0.06);
+  --pt-glow:0 0 8px rgba(200,208,216,.25), 0 0 16px rgba(200,208,216,.12); /* subtle light gray glow */
+}
+.pt-team-wrap{position:relative;background:linear-gradient(180deg,var(--pt-bg),#0c0f12);padding:18px;border-radius:16px;box-shadow:0 12px 48px rgba(0,0,0,.45);overflow:hidden;}
+.pt-team-track{display:flex;gap:16px;scroll-snap-type:x mandatory;overflow-x:auto;scroll-behavior:smooth;padding:8px;--card-w:260px;}
+.pt-team-track::-webkit-scrollbar{height:10px}
+.pt-team-track::-webkit-scrollbar-thumb{background:#1b2329;border-radius:10px}
+.pt-card{scroll-snap-align:center;flex:0 0 var(--card-w);background:var(--pt-card);border:1px solid var(--pt-border);border-radius:14px;padding:16px;text-align:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.03);}
+/* Photo: preserve original shape (round PNG stays round), no forced crop */
+.pt-photo{display:flex;justify-content:center;align-items:center;margin:0 auto 12px;background:transparent;border:none;box-shadow:none;padding:0;}
+.pt-photo img{display:block;width:var(--pt-photo-size,120px);height:auto;object-fit:contain;background:transparent;transition:transform .25s ease; transition: transform .25s ease; transform-origin: center; }
+.pt-name{margin:6px 0 2px 0;font:600 18px/1.2 ui-sans-serif,system-ui,"Inter","Manrope",Arial;color:var(--pt-text);}
+.pt-role{font-size:13px;color:var(--pt-muted);margin-bottom:8px;}
+.pt-contact{display:flex;flex-direction:column;gap:6px}
+.pt-contact a{color:var(--pt-text);text-decoration:none;border:1px solid var(--pt-border);padding:8px 10px;border-radius:10px;background:#0e1317;transition: .15s; font-size:14px;}
+.pt-contact a:hover,.pt-contact a:focus{outline:none;border-color:rgba(255,255,255,.16);box-shadow:var(--pt-glow);background:rgba(220,228,236,.06);}
+.pt-empty{color:var(--pt-muted);padding:10px 4px;}
+.pt-nav{position:absolute;top:50%;transform:translateY(-50%);background:#0f1519;border:1px solid var(--pt-border);color:var(--pt-text);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer;box-shadow:var(--pt-glow);}
+.pt-nav:hover{background:rgba(220,228,236,.06)}
+.pt-nav.prev{left:8px}
+.pt-nav.next{right:8px}
+.pt-dots{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.pt-dots button{width:8px;height:8px;border-radius:50%;border:0;background:#303a41;opacity:.7;cursor:pointer}
+.pt-dots button.active{opacity:1;background:var(--pt-accent);box-shadow:0 0 0 2px rgba(200,208,216,.25)}
+@media (max-width:480px){ .pt-team-track{--card-w:78vw;} }
+
+.pt-card:hover .pt-photo img{transform:scale(1.08); transition: transform .25s ease; transform-origin: center; } /* slight enlarge on hover */
+
+
+.pt-card:hover .pt-photo img{ transform: scale(1.06); }
+@media (prefers-reduced-motion: reduce){
+  .pt-photo img{ transition: none; }
+}
+
+
+/* Background & mask */
+.pt-team-wrap.has-bg{
+  background-color: var(--pt-bg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+}
+.pt-team-wrap.has-bg .pt-mask-layer{
+  position:absolute;inset:0;pointer-events:none;
+  background: color-mix(in srgb, var(--pt-mask, #000) calc(var(--pt-mask-alpha, .35)*100%), transparent);
+}
+@supports not (background: color-mix(in srgb, #000 50%, transparent)){
+  .pt-team-wrap.has-bg .pt-mask-layer{ background: rgba(0,0,0, calc(var(--pt-mask-alpha, .35))); }
+}
+
+/* Center the row when content is narrower than the viewport */
+.pt-team-track{justify-content:flex-start;}
+.pt-team-track.is-centered{justify-content:center;}
+
+/* Extra liveliness */
+.pt-card{transition: transform .25s ease, box-shadow .25s ease;}
+.pt-card:hover{transform: translateY(-3px);}
+
+
+/* Taller section by default when no explicit bg_height provided */
+.pt-team-wrap{ min-height: 560px; padding-top: 32px; padding-bottom: 28px; }
+
+/* Subtle animated 'tech' grid overlay atop the mask */
+.pt-team-wrap.has-bg::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(1000px 300px at 50% -200px, rgba(255,255,255,.06), transparent 60%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0, rgba(255,255,255,.04) 1px, transparent 1px, transparent 32px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0, rgba(255,255,255,.03) 1px, transparent 1px, transparent 28px);
+  mix-blend-mode: overlay;
+  animation: pt-grid-move 16s linear infinite;
+  opacity:.25;
+}
+@keyframes pt-grid-move{
+  0%{ background-position: 0 0, 0 0, 0 0; }
+  100%{ background-position: 0 0, 160px 0, 0 160px; }
+}
+
+/* Focus falloff via CSS variable --vis (set per card) */
+.pt-card{
+  opacity: var(--vis, 1);
+  transition: transform .25s ease, box-shadow .25s ease, opacity .25s ease;
+  transform: translateY(calc(-2px * var(--vis, 1)));
+}
+.pt-card:hover{ transform: translateY(-3px); }
+
+/* Keep photo hover scale; multiply by visibility for subtle effect */
+.pt-card .pt-photo img{
+  transition: transform .25s ease;
+}
+.pt-card:hover .pt-photo img{ transform: scale(1.06); }
