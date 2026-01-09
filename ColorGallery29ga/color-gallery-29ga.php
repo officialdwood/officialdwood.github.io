@@ -16,14 +16,29 @@ define('CG29GA_PATH', plugin_dir_path(__FILE__));
 
 class ColorGallery29ga {
     
-    public function __construct() {
+    private static $instance = null;
+    
+    public static function get_instance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    private function __construct() {
         add_action('init', [$this, 'register_post_types']);
+        add_action('init', [$this, 'load_textdomain']);
         add_action('add_meta_boxes', [$this, 'add_meta_boxes']);
         add_action('save_post_cg29ga_gallery', [$this, 'save_gallery_meta']);
         add_action('save_post_cg29ga_color', [$this, 'save_color_meta']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
         add_shortcode('color_gallery_29ga', [$this, 'render_shortcode']);
+        add_action('init', [$this, 'register_dynamic_shortcodes'], 20);
+    }
+    
+    public function load_textdomain() {
+        load_plugin_textdomain('color-gallery-29ga', false, dirname(plugin_basename(__FILE__)) . '/languages');
     }
     
     public function register_post_types() {
@@ -138,17 +153,10 @@ class ColorGallery29ga {
         </div>
         <div class="cg29ga-meta-field">
             <label for="cg29ga_color_value"><?php _e('Color Value (Hex):', 'color-gallery-29ga'); ?></label>
-            <input type="text" id="cg29ga_color_value" name="cg29ga_color_value" value="<?php echo esc_attr($color_value); ?>" placeholder="#FF5733" />
+            <input type="text" id="cg29ga_color_value" name="cg29ga_color_value" value="<?php echo esc_attr($color_value); ?>" placeholder="#FF5733" class="cg29ga-color-input" />
             <div class="cg29ga-color-preview" style="background-color: <?php echo esc_attr($color_value); ?>;"></div>
             <p class="description"><?php _e('Enter hex color code (e.g., #FF5733). You can also upload an image using the Featured Image.', 'color-gallery-29ga'); ?></p>
         </div>
-        <script>
-        jQuery(document).ready(function($) {
-            $('#cg29ga_color_value').on('input', function() {
-                $('.cg29ga-color-preview').css('background-color', $(this).val());
-            });
-        });
-        </script>
         <?php
     }
     
@@ -189,6 +197,37 @@ class ColorGallery29ga {
         if (('post.php' === $hook || 'post-new.php' === $hook) && 
             ($post_type === 'cg29ga_gallery' || $post_type === 'cg29ga_color')) {
             wp_enqueue_media();
+            wp_enqueue_script('cg29ga-admin', CG29GA_URL . 'assets/admin/admin.js', ['jquery'], CG29GA_VERSION, true);
+        }
+    }
+    
+    public function register_dynamic_shortcodes() {
+        // Only register on frontend to avoid unnecessary queries in admin
+        if (is_admin()) {
+            return;
+        }
+        
+        // Use transient cache to avoid repeated queries
+        $galleries = get_transient('cg29ga_gallery_shortcodes');
+        
+        if (false === $galleries) {
+            $galleries = get_posts([
+                'post_type' => 'cg29ga_gallery',
+                'posts_per_page' => -1,
+                'post_status' => 'publish',
+                'fields' => 'ids,post_name',
+                'no_found_rows' => true,
+                'update_post_meta_cache' => false,
+                'update_post_term_cache' => false
+            ]);
+            
+            // Cache for 1 hour
+            set_transient('cg29ga_gallery_shortcodes', $galleries, HOUR_IN_SECONDS);
+        }
+        
+        foreach ($galleries as $gallery) {
+            $slug = is_object($gallery) ? $gallery->post_name : get_post_field('post_name', $gallery);
+            add_shortcode('color_gallery_29ga_' . $slug, [$this, 'render_shortcode']);
         }
     }
     
@@ -267,18 +306,15 @@ class ColorGallery29ga {
 }
 
 // Initialize the plugin
-new ColorGallery29ga();
+ColorGallery29ga::get_instance();
 
-// Register dynamic shortcode handler
-add_action('init', function() {
-    $galleries = get_posts([
-        'post_type' => 'cg29ga_gallery',
-        'posts_per_page' => -1,
-        'post_status' => 'publish'
-    ]);
-    
-    foreach ($galleries as $gallery) {
-        $slug = $gallery->post_name;
-        add_shortcode('color_gallery_29ga_' . $slug, [new ColorGallery29ga(), 'render_shortcode']);
+// Clear shortcode cache when galleries are updated
+add_action('save_post_cg29ga_gallery', function($post_id) {
+    delete_transient('cg29ga_gallery_shortcodes');
+}, 10, 1);
+
+add_action('delete_post', function($post_id) {
+    if (get_post_type($post_id) === 'cg29ga_gallery') {
+        delete_transient('cg29ga_gallery_shortcodes');
     }
-});
+}, 10, 1);
