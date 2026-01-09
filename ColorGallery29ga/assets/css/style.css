@@ -1,0 +1,182 @@
+/* Color Gallery 29ga Styles */
+
+.cg29ga-gallery {
+    width: 100%;
+    margin: 20px auto;
+    padding: 0;
+}
+
+.cg29ga-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(6, 1fr); /* Default 6 columns */
+}
+
+.cg29ga-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.cg29ga-chip {
+    width: 100%;
+    padding-bottom: 100%; /* Creates square aspect ratio */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: none;
+    border-radius: 0; /* Sharp edges, no rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+}
+
+.cg29ga-tile:hover .cg29ga-chip {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+.cg29ga-name {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 12px;
+    color: #333;
+    font-weight: normal;
+    word-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Modal styles */
+.cg29ga-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8);
+    animation: fadeIn 0.3s ease;
+}
+
+.cg29ga-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cg29ga-modal-content {
+    position: relative;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 0; /* Sharp edges */
+    max-width: 600px;
+    max-height: 90vh;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: zoomIn 0.3s ease;
+}
+
+.cg29ga-modal-chip {
+    width: 100%;
+    max-width: 500px;
+    padding-bottom: 100%; /* Square aspect ratio */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 0; /* Sharp edges */
+    margin: 0 auto;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+}
+
+.cg29ga-modal-name {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.cg29ga-close {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    color: #333;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.3s ease;
+    z-index: 10000;
+}
+
+.cg29ga-close:hover,
+.cg29ga-close:focus {
+    color: #000;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .cg29ga-grid {
+        grid-template-columns: repeat(5, 1fr) !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .cg29ga-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .cg29ga-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+    
+    .cg29ga-modal-content {
+        max-width: 90%;
+        padding: 20px;
+    }
+    
+    .cg29ga-close {
+        font-size: 30px;
+        right: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cg29ga-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .cg29ga-name {
+        font-size: 10px;
+    }
+}
