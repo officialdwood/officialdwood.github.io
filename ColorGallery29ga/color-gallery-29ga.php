@@ -427,6 +427,8 @@ class ColorGallery29ga {
         <!-- Modal for expanded view -->
         <div id="cg29ga-modal" class="cg29ga-modal">
             <span class="cg29ga-close">&times;</span>
+            <button class="cg29ga-nav-arrow prev" aria-label="Previous color">‹</button>
+            <button class="cg29ga-nav-arrow next" aria-label="Next color">›</button>
             <div class="cg29ga-modal-content">
                 <div class="cg29ga-modal-chip"></div>
                 <div class="cg29ga-modal-name"></div>

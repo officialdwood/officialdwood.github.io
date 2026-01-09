@@ -38,7 +38,7 @@
 }
 
 .cg29ga-tile:hover .cg29ga-chip {
-    transform: scale(1.1);
+    transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     z-index: 10;
 }
@@ -62,7 +62,7 @@
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
     background-color: rgba(0, 0, 0, 0.7);
     animation: fadeIn 0.3s ease;
 }
@@ -75,55 +75,88 @@
 
 .cg29ga-modal-content {
     position: relative;
-    background-color: #fff;
-    padding: 50px;
-    border-radius: 0; /* Sharp edges */
-    width: 800px;
-    height: 800px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    animation: zoomIn 0.3s ease;
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    animation: zoomIn 0.3s ease;
 }
 
 .cg29ga-modal-chip {
-    width: 700px;
-    height: 700px;
+    width: 250%;
+    padding-bottom: 250%;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    border-radius: 0; /* Sharp edges */
+    border-radius: 0;
     image-rendering: crisp-edges;
     image-rendering: -webkit-optimize-contrast;
-    flex-shrink: 0;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    position: relative;
 }
 
 .cg29ga-modal-name {
-    margin-top: 30px;
+    margin-top: 20px;
     text-align: center;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: bold;
-    color: #333;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .cg29ga-close {
     position: absolute;
-    top: 15px;
-    right: 25px;
-    color: #333;
-    font-size: 50px;
+    top: 20px;
+    right: 20px;
+    color: #fff;
+    font-size: 40px;
     font-weight: bold;
     cursor: pointer;
     line-height: 1;
-    transition: color 0.3s ease;
+    transition: opacity 0.3s ease;
     z-index: 10000;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    opacity: 0.8;
 }
 
 .cg29ga-close:hover,
 .cg29ga-close:focus {
-    color: #000;
+    opacity: 1;
+}
+
+/* Navigation arrows */
+.cg29ga-nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 60px;
+    font-weight: 300;
+    cursor: pointer;
+    padding: 20px;
+    line-height: 1;
+    transition: opacity 0.3s ease;
+    z-index: 10001;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    opacity: 0.6;
+    user-select: none;
+}
+
+.cg29ga-nav-arrow:hover {
+    opacity: 1;
+}
+
+.cg29ga-nav-arrow.prev {
+    left: 30px;
+}
+
+.cg29ga-nav-arrow.next {
+    right: 30px;
 }
 
 /* Animations */
@@ -159,19 +192,17 @@
         grid-template-columns: repeat(4, 1fr) !important;
     }
     
-    .cg29ga-modal-content {
-        width: 90vw;
-        height: 90vw;
-        max-width: 700px;
-        max-height: 700px;
-        padding: 40px;
+    .cg29ga-nav-arrow {
+        font-size: 50px;
+        padding: 15px;
     }
     
-    .cg29ga-modal-chip {
-        width: calc(100% - 40px);
-        height: calc(100% - 80px);
-        max-width: 620px;
-        max-height: 620px;
+    .cg29ga-nav-arrow.prev {
+        left: 20px;
+    }
+    
+    .cg29ga-nav-arrow.next {
+        right: 20px;
     }
 }
 
@@ -180,28 +211,28 @@
         grid-template-columns: repeat(3, 1fr) !important;
     }
     
-    .cg29ga-modal-content {
-        width: 95vw;
-        height: 95vw;
-        max-width: 600px;
-        max-height: 600px;
-        padding: 30px;
-    }
-    
-    .cg29ga-modal-chip {
-        width: calc(100% - 20px);
-        height: calc(100% - 70px);
-    }
-    
     .cg29ga-modal-name {
-        font-size: 20px;
+        font-size: 16px;
         margin-top: 15px;
     }
     
     .cg29ga-close {
-        font-size: 40px;
+        font-size: 35px;
         right: 15px;
-        top: 10px;
+        top: 15px;
+    }
+    
+    .cg29ga-nav-arrow {
+        font-size: 40px;
+        padding: 10px;
+    }
+    
+    .cg29ga-nav-arrow.prev {
+        left: 10px;
+    }
+    
+    .cg29ga-nav-arrow.next {
+        right: 10px;
     }
 }
 
