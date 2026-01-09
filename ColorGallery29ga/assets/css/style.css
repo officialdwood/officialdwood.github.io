@@ -33,6 +33,8 @@
     position: relative;
     image-rendering: crisp-edges;
     image-rendering: -webkit-optimize-contrast;
+    min-height: 0; /* Ensures consistent sizing */
+}
 }
 
 .cg29ga-tile:hover .cg29ga-chip {
@@ -74,9 +76,9 @@
 .cg29ga-modal-content {
     position: relative;
     background-color: #fff;
-    padding: 30px;
+    padding: 40px;
     border-radius: 0; /* Sharp edges */
-    max-width: 600px;
+    max-width: 1000px;
     max-height: 90vh;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     animation: zoomIn 0.3s ease;
@@ -84,7 +86,7 @@
 
 .cg29ga-modal-chip {
     width: 100%;
-    max-width: 500px;
+    max-width: 900px;
     padding-bottom: 100%; /* Square aspect ratio */
     background-size: cover;
     background-position: center;
@@ -96,19 +98,19 @@
 }
 
 .cg29ga-modal-name {
-    margin-top: 20px;
+    margin-top: 30px;
     text-align: center;
-    font-size: 18px;
+    font-size: 24px;
     font-weight: bold;
     color: #333;
 }
 
 .cg29ga-close {
     position: absolute;
-    top: 10px;
-    right: 20px;
+    top: 15px;
+    right: 25px;
     color: #333;
-    font-size: 40px;
+    font-size: 50px;
     font-weight: bold;
     cursor: pointer;
     line-height: 1;
@@ -161,13 +163,24 @@
     }
     
     .cg29ga-modal-content {
-        max-width: 90%;
-        padding: 20px;
+        max-width: 95%;
+        padding: 25px;
+        max-height: 95vh;
+    }
+    
+    .cg29ga-modal-chip {
+        max-width: 100%;
+    }
+    
+    .cg29ga-modal-name {
+        font-size: 20px;
+        margin-top: 20px;
     }
     
     .cg29ga-close {
-        font-size: 30px;
-        right: 10px;
+        font-size: 40px;
+        right: 15px;
+        top: 10px;
     }
 }
 
