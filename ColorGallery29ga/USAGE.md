@@ -25,20 +25,23 @@ Color Gallery 29ga is a WordPress plugin designed to create beautiful, interacti
 1. Go to **Color Galleries > Colors > Add New**
 2. Enter the color name (this will appear below the color chip)
 3. Assign the color to a gallery using the dropdown
-4. Choose one of two options for the color display:
-   - **Option A:** Enter a hex color value (e.g., `#FF5733`)
-   - **Option B:** Upload a custom image using "Set featured image"
-5. Publish the color
+4. **Upload an image from your media library** (recommended):
+   - Click "Set featured image" in the sidebar
+   - Select or upload your color image
+5. **OR** enter a hex color value (e.g., `#FF5733`) if you don't have an image
+6. Publish the color
+
+**Note:** Featured images take priority over hex values, so use images from your media library if you already have them.
 
 ### Step 3: Display Your Gallery
 
 Use the shortcode on any page or post:
 
 ```
-[color_gallery_29ga_standard-colors]
+[color_gallery_29ga_29ga_standard_color]
 ```
 
-Replace `standard-colors` with the slug of your gallery name.
+Replace `29ga_standard_color` with your gallery name converted to lowercase with spaces replaced by underscores.
 
 ## Features
 
@@ -78,9 +81,10 @@ The gallery automatically adjusts columns based on screen size:
 
 The shortcode format is: `[color_gallery_29ga_<gallery-slug>]`
 
-Where `<gallery-slug>` is the URL-friendly version of your gallery name:
-- "Standard Colors" → `[color_gallery_29ga_standard-colors]`
-- "Primary Palette" → `[color_gallery_29ga_primary-palette]`
+Where `<gallery-slug>` is the gallery title converted to lowercase with spaces replaced by underscores:
+- "29ga_Standard_Color" → `[color_gallery_29ga_29ga_standard_color]`
+- "Standard Colors" → `[color_gallery_29ga_standard_colors]`
+- "Primary Palette" → `[color_gallery_29ga_primary_palette]`
 - "MyGallery" → `[color_gallery_29ga_mygallery]`
 
 ## Customization Options
@@ -95,8 +99,8 @@ You can set the number of columns per row in the gallery settings:
 ### Color Display Options
 
 Each color can display either:
-1. **Solid Color:** Use hex values like `#FF5733`, `#3498DB`
-2. **Custom Image:** Upload any image as the Featured Image
+1. **Custom Image (Recommended):** Upload any image from your WordPress media library using "Set featured image" - perfect if you already have color images
+2. **Solid Color:** Use hex values like `#FF5733`, `#3498DB` (optional if using images)
 
 ## Technical Details
 

@@ -28,8 +28,9 @@ Color Gallery 29ga is a modern WordPress plugin designed for showcasing color pa
 
 1. Create a new Color Gallery from the admin menu
 2. Add colors to your gallery by creating Color items and assigning them to a gallery
-3. Use the shortcode to display your gallery: [color_gallery_29ga_standard]
-   (where "standard" is the slug of your gallery name)
+3. Upload color images from your WordPress media library using "Set featured image"
+4. Use the shortcode to display your gallery: [color_gallery_29ga_29ga_standard_color]
+   (where "29ga_standard_color" matches your gallery name in lowercase with spaces as underscores)
 
 == Installation ==
 
@@ -47,15 +48,15 @@ Go to Color Galleries > Add New in your WordPress admin. Give your gallery a nam
 
 = How do I add colors to a gallery? =
 
-Go to Color Galleries > Colors > Add New. Add a color name, select a gallery, and either enter a hex color value or upload an image as the Featured Image.
+Go to Color Galleries > Colors > Add New. Add a color name, select a gallery, and upload an image from your WordPress media library using "Set featured image" (recommended), or enter a hex color value as an alternative.
 
 = What is the shortcode format? =
 
-Use [color_gallery_29ga_<gallery_name>] where <gallery_name> is the URL slug of your gallery. For example, if your gallery is titled "Standard Colors", use [color_gallery_29ga_standard-colors]
+Use [color_gallery_29ga_<gallery_name>] where <gallery_name> is your gallery title converted to lowercase with spaces replaced by underscores. For example, if your gallery is titled "29ga_Standard_Color", use [color_gallery_29ga_29ga_standard_color]
 
 = Can I use images instead of solid colors? =
 
-Yes! You can upload a Featured Image for each color, and it will be used instead of the hex color value.
+Yes! Upload images from your WordPress media library using the "Set featured image" button. This is the recommended method if you already have color images. Featured images take priority over hex color values.
 
 = How many columns can I have? =
 

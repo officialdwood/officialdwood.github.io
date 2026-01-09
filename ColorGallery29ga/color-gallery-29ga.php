@@ -115,8 +115,8 @@ class ColorGallery29ga {
         </div>
         <div class="cg29ga-meta-field">
             <p><strong><?php _e('Shortcode:', 'color-gallery-29ga'); ?></strong></p>
-            <code>[color_gallery_29ga_<?php echo esc_html(sanitize_title(get_the_title($post->ID))); ?>]</code>
-            <p class="description"><?php _e('Use this shortcode to display this gallery on any page or post.', 'color-gallery-29ga'); ?></p>
+            <code>[color_gallery_29ga_<?php echo esc_html(strtolower(str_replace(' ', '_', get_the_title($post->ID)))); ?>]</code>
+            <p class="description"><?php _e('Use this shortcode to display this gallery on any page or post. The shortcode uses the gallery title converted to lowercase with spaces replaced by underscores.', 'color-gallery-29ga'); ?></p>
         </div>
         <?php
     }
@@ -152,10 +152,14 @@ class ColorGallery29ga {
             </select>
         </div>
         <div class="cg29ga-meta-field">
-            <label for="cg29ga_color_value"><?php _e('Color Value (Hex):', 'color-gallery-29ga'); ?></label>
+            <label for="cg29ga_color_value"><?php _e('Color Value (Hex) - Optional:', 'color-gallery-29ga'); ?></label>
             <input type="text" id="cg29ga_color_value" name="cg29ga_color_value" value="<?php echo esc_attr($color_value); ?>" placeholder="#FF5733" class="cg29ga-color-input" />
             <div class="cg29ga-color-preview" style="background-color: <?php echo esc_attr($color_value); ?>;"></div>
-            <p class="description"><?php _e('Enter hex color code (e.g., #FF5733). You can also upload an image using the Featured Image.', 'color-gallery-29ga'); ?></p>
+            <p class="description"><?php _e('Enter hex color code (e.g., #FF5733) OR use the Featured Image below to upload a color image from your media library. Featured Image takes priority if both are set.', 'color-gallery-29ga'); ?></p>
+        </div>
+        <div class="cg29ga-meta-field">
+            <p><strong><?php _e('Featured Image (Recommended):', 'color-gallery-29ga'); ?></strong></p>
+            <p class="description"><?php _e('Use "Set featured image" button in the sidebar to upload or select a color image from your media library. This is the recommended method if you already have color images.', 'color-gallery-29ga'); ?></p>
         </div>
         <?php
     }
@@ -215,7 +219,7 @@ class ColorGallery29ga {
                 'post_type' => 'cg29ga_gallery',
                 'posts_per_page' => -1,
                 'post_status' => 'publish',
-                'fields' => 'ids,post_name',
+                'fields' => 'ids',
                 'no_found_rows' => true,
                 'update_post_meta_cache' => false,
                 'update_post_term_cache' => false
@@ -225,33 +229,40 @@ class ColorGallery29ga {
             set_transient('cg29ga_gallery_shortcodes', $galleries, HOUR_IN_SECONDS);
         }
         
-        foreach ($galleries as $gallery) {
-            $slug = is_object($gallery) ? $gallery->post_name : get_post_field('post_name', $gallery);
+        foreach ($galleries as $gallery_id) {
+            $title = get_the_title($gallery_id);
+            $slug = strtolower(str_replace(' ', '_', $title));
             add_shortcode('color_gallery_29ga_' . $slug, [$this, 'render_shortcode']);
         }
     }
     
     public function render_shortcode($atts, $content = null, $tag = '') {
-        // Extract gallery name from tag (e.g., color_gallery_29ga_standard -> standard)
-        $gallery_name = str_replace('color_gallery_29ga_', '', $tag);
+        // Extract gallery name from tag (e.g., color_gallery_29ga_standard_color -> standard_color)
+        $gallery_slug = str_replace('color_gallery_29ga_', '', $tag);
         
-        if (empty($gallery_name)) {
+        if (empty($gallery_slug)) {
             return '<p>No gallery specified.</p>';
         }
         
-        // Find gallery by slug
-        $galleries = get_posts([
+        // Find gallery by matching title (case-insensitive, spaces replaced with underscores)
+        $all_galleries = get_posts([
             'post_type' => 'cg29ga_gallery',
-            'name' => $gallery_name,
-            'posts_per_page' => 1,
+            'posts_per_page' => -1,
             'post_status' => 'publish'
         ]);
         
-        if (empty($galleries)) {
-            return '<p>Gallery "' . esc_html($gallery_name) . '" not found.</p>';
+        $gallery = null;
+        foreach ($all_galleries as $g) {
+            $title_slug = strtolower(str_replace(' ', '_', $g->post_title));
+            if ($title_slug === $gallery_slug) {
+                $gallery = $g;
+                break;
+            }
         }
         
-        $gallery = $galleries[0];
+        if (!$gallery) {
+            return '<p>Gallery "' . esc_html($gallery_slug) . '" not found.</p>';
+        }
         $columns = get_post_meta($gallery->ID, '_cg29ga_columns', true) ?: '6';
         
         // Get colors for this gallery
