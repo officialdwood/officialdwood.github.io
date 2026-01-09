@@ -38,7 +38,7 @@
 }
 
 .cg29ga-tile:hover .cg29ga-chip {
-    transform: scale(1.05);
+    transform: scale(1.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     z-index: 10;
 }
