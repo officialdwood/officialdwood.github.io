@@ -1,0 +1,104 @@
+/* Color Gallery 29ga - Bulk Upload Styles */
+
+.cg29ga-bulk-upload-wrap {
+    max-width: 1200px;
+}
+
+.cg29ga-bulk-form {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.cg29ga-selected-images {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.cg29ga-selected-images h2 {
+    margin-top: 0;
+}
+
+.cg29ga-image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.cg29ga-image-item {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cg29ga-image-item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+}
+
+.cg29ga-color-name {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.cg29ga-color-name:focus {
+    border-color: #0073aa;
+    outline: none;
+    box-shadow: 0 0 0 1px #0073aa;
+}
+
+.cg29ga-remove-image {
+    background: #dc3232;
+    color: white;
+    border-color: #a02222;
+}
+
+.cg29ga-remove-image:hover {
+    background: #a02222;
+    border-color: #a02222;
+    color: white;
+}
+
+.cg29ga-messages {
+    margin-top: 20px;
+}
+
+.cg29ga-messages .notice {
+    margin: 10px 0;
+    padding: 10px 15px;
+}
+
+.submit .spinner {
+    float: none;
+    margin: 0 0 0 10px;
+    vertical-align: middle;
+}
+
+.submit .spinner.is-active {
+    display: inline-block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .cg29ga-image-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    
+    .cg29ga-image-item img {
+        height: 120px;
+    }
+}

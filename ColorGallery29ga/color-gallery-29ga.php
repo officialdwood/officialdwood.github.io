@@ -33,6 +33,8 @@ class ColorGallery29ga {
         add_action('save_post_cg29ga_color', [$this, 'save_color_meta']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
+        add_action('admin_menu', [$this, 'add_bulk_upload_page']);
+        add_action('wp_ajax_cg29ga_bulk_upload', [$this, 'handle_bulk_upload']);
         add_shortcode('color_gallery_29ga', [$this, 'render_shortcode']);
         add_action('init', [$this, 'register_dynamic_shortcodes'], 20);
     }
@@ -203,6 +205,125 @@ class ColorGallery29ga {
             wp_enqueue_media();
             wp_enqueue_script('cg29ga-admin', CG29GA_URL . 'assets/admin/admin.js', ['jquery'], CG29GA_VERSION, true);
         }
+        
+        // Bulk upload page
+        if (strpos($hook, 'cg29ga-bulk-upload') !== false) {
+            wp_enqueue_media();
+            wp_enqueue_style('cg29ga-bulk-upload', CG29GA_URL . 'assets/admin/bulk-upload.css', [], CG29GA_VERSION);
+            wp_enqueue_script('cg29ga-bulk-upload', CG29GA_URL . 'assets/admin/bulk-upload.js', ['jquery'], CG29GA_VERSION, true);
+            wp_localize_script('cg29ga-bulk-upload', 'cg29gaBulk', [
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('cg29ga_bulk_upload_nonce')
+            ]);
+        }
+    }
+    
+    public function add_bulk_upload_page() {
+        add_submenu_page(
+            'edit.php?post_type=cg29ga_gallery',
+            __('Bulk Upload Colors', 'color-gallery-29ga'),
+            __('Bulk Upload', 'color-gallery-29ga'),
+            'edit_posts',
+            'cg29ga-bulk-upload',
+            [$this, 'render_bulk_upload_page']
+        );
+    }
+    
+    public function render_bulk_upload_page() {
+        // Get all galleries
+        $galleries = get_posts([
+            'post_type' => 'cg29ga_gallery',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC'
+        ]);
+        ?>
+        <div class="wrap cg29ga-bulk-upload-wrap">
+            <h1><?php _e('Bulk Upload Colors', 'color-gallery-29ga'); ?></h1>
+            <p class="description"><?php _e('Select multiple images from your media library and assign names to add them to a gallery quickly.', 'color-gallery-29ga'); ?></p>
+            
+            <div class="cg29ga-bulk-form">
+                <table class="form-table">
+                    <tr>
+                        <th scope="row">
+                            <label for="cg29ga_bulk_gallery"><?php _e('Select Gallery', 'color-gallery-29ga'); ?></label>
+                        </th>
+                        <td>
+                            <select id="cg29ga_bulk_gallery" name="gallery_id" required>
+                                <option value=""><?php _e('-- Choose a Gallery --', 'color-gallery-29ga'); ?></option>
+                                <?php foreach ($galleries as $gallery): ?>
+                                    <option value="<?php echo esc_attr($gallery->ID); ?>">
+                                        <?php echo esc_html($gallery->post_title); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="description"><?php _e('All uploaded colors will be added to this gallery.', 'color-gallery-29ga'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <label><?php _e('Select Images', 'color-gallery-29ga'); ?></label>
+                        </th>
+                        <td>
+                            <button type="button" class="button button-primary" id="cg29ga_select_images">
+                                <?php _e('Choose Images from Media Library', 'color-gallery-29ga'); ?>
+                            </button>
+                            <p class="description"><?php _e('Select multiple images at once using Ctrl/Cmd + Click', 'color-gallery-29ga'); ?></p>
+                        </td>
+                    </tr>
+                </table>
+                
+                <div id="cg29ga_selected_images" class="cg29ga-selected-images"></div>
+                
+                <p class="submit">
+                    <button type="button" class="button button-primary button-large" id="cg29ga_bulk_save" disabled>
+                        <?php _e('Create All Colors', 'color-gallery-29ga'); ?>
+                    </button>
+                    <span class="spinner"></span>
+                </p>
+                
+                <div id="cg29ga_bulk_messages" class="cg29ga-messages"></div>
+            </div>
+        </div>
+        <?php
+    }
+    
+    public function handle_bulk_upload() {
+        check_ajax_referer('cg29ga_bulk_upload_nonce', 'nonce');
+        
+        if (!current_user_can('edit_posts')) {
+            wp_send_json_error(['message' => __('Permission denied.', 'color-gallery-29ga')]);
+        }
+        
+        $gallery_id = intval($_POST['gallery_id']);
+        $image_id = intval($_POST['image_id']);
+        $color_name = sanitize_text_field($_POST['color_name']);
+        
+        if (!$gallery_id || !$image_id || empty($color_name)) {
+            wp_send_json_error(['message' => __('Missing required data.', 'color-gallery-29ga')]);
+        }
+        
+        // Create color post
+        $post_id = wp_insert_post([
+            'post_title' => $color_name,
+            'post_type' => 'cg29ga_color',
+            'post_status' => 'publish'
+        ]);
+        
+        if (is_wp_error($post_id)) {
+            wp_send_json_error(['message' => $post_id->get_error_message()]);
+        }
+        
+        // Set featured image
+        set_post_thumbnail($post_id, $image_id);
+        
+        // Assign to gallery
+        update_post_meta($post_id, '_cg29ga_gallery_id', $gallery_id);
+        
+        wp_send_json_success([
+            'message' => sprintf(__('Created color: %s', 'color-gallery-29ga'), $color_name),
+            'post_id' => $post_id
+        ]);
     }
     
     public function register_dynamic_shortcodes() {

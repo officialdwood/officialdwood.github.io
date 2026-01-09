@@ -16,6 +16,7 @@ Color Gallery 29ga is a modern WordPress plugin designed for showcasing color pa
 **Features:**
 
 * Create multiple color galleries with custom names
+* **Bulk upload multiple colors at once from media library**
 * Add colors to galleries with names and hex values or custom images
 * Square color chips with sharp, crisp edges
 * Smooth hover enlarge effect
@@ -27,9 +28,10 @@ Color Gallery 29ga is a modern WordPress plugin designed for showcasing color pa
 **Usage:**
 
 1. Create a new Color Gallery from the admin menu
-2. Add colors to your gallery by creating Color items and assigning them to a gallery
-3. Upload color images from your WordPress media library using "Set featured image"
-4. Use the shortcode to display your gallery: [color_gallery_29ga_29ga_standard_color]
+2. Go to "Bulk Upload" to add multiple colors quickly
+3. Select your gallery and choose multiple images from your WordPress media library
+4. Name each color after upload
+5. Use the shortcode to display your gallery: [color_gallery_29ga_29ga_standard_color]
    (where "29ga_standard_color" matches your gallery name in lowercase with spaces as underscores)
 
 == Installation ==

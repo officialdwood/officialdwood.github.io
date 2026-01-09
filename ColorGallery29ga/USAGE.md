@@ -22,6 +22,16 @@ Color Gallery 29ga is a WordPress plugin designed to create beautiful, interacti
 
 ### Step 2: Add Colors to Your Gallery
 
+**Method 1: Bulk Upload (Recommended - Fast!)**
+1. Go to **Color Galleries > Bulk Upload**
+2. Select the gallery you want to add colors to
+3. Click "Choose Images from Media Library"
+4. Select multiple images at once (use Ctrl/Cmd + Click to select multiple)
+5. Click "Add Selected Images"
+6. Enter names for each color (the name will appear below the color chip)
+7. Click "Create All Colors" - done!
+
+**Method 2: Individual Upload**
 1. Go to **Color Galleries > Colors > Add New**
 2. Enter the color name (this will appear below the color chip)
 3. Assign the color to a gallery using the dropdown
