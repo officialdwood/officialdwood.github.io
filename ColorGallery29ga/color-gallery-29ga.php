@@ -31,6 +31,7 @@ class ColorGallery29ga {
         add_action('add_meta_boxes', [$this, 'add_meta_boxes']);
         add_action('save_post_cg29ga_gallery', [$this, 'save_gallery_meta']);
         add_action('save_post_cg29ga_color', [$this, 'save_color_meta']);
+        add_action('delete_post', [$this, 'clear_gallery_cache']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
         add_action('admin_menu', [$this, 'add_bulk_upload_page']);
@@ -125,7 +126,16 @@ class ColorGallery29ga {
     
     public function render_color_meta_box($post) {
         $color_value = get_post_meta($post->ID, '_cg29ga_color_value', true);
-        $gallery_id = get_post_meta($post->ID, '_cg29ga_gallery_id', true);
+        $gallery_ids = get_post_meta($post->ID, '_cg29ga_gallery_ids', true);
+        if (!is_array($gallery_ids)) {
+            $gallery_ids = [];
+        }
+        
+        // Backwards compatibility: check old single gallery meta
+        $old_gallery_id = get_post_meta($post->ID, '_cg29ga_gallery_id', true);
+        if ($old_gallery_id && empty($gallery_ids)) {
+            $gallery_ids = [$old_gallery_id];
+        }
         
         wp_nonce_field('cg29ga_color_save', 'cg29ga_color_nonce');
         
@@ -141,17 +151,28 @@ class ColorGallery29ga {
             .cg29ga-meta-field { margin-bottom: 15px; }
             .cg29ga-meta-field label { display: block; font-weight: bold; margin-bottom: 5px; }
             .cg29ga-color-preview { width: 100px; height: 100px; border: 1px solid #ddd; margin-top: 10px; }
+            .cg29ga-galleries-list { max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f9f9f9; }
+            .cg29ga-galleries-list label { display: block; margin-bottom: 8px; font-weight: normal; }
+            .cg29ga-galleries-list input[type="checkbox"] { margin-right: 8px; }
         </style>
         <div class="cg29ga-meta-field">
-            <label for="cg29ga_gallery_id"><?php _e('Assign to Gallery:', 'color-gallery-29ga'); ?></label>
-            <select id="cg29ga_gallery_id" name="cg29ga_gallery_id" style="width: 100%; max-width: 400px;">
-                <option value=""><?php _e('-- Select Gallery --', 'color-gallery-29ga'); ?></option>
-                <?php foreach ($galleries as $gallery): ?>
-                    <option value="<?php echo esc_attr($gallery->ID); ?>" <?php selected($gallery_id, $gallery->ID); ?>>
-                        <?php echo esc_html($gallery->post_title); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <label><?php _e('Assign to Galleries:', 'color-gallery-29ga'); ?></label>
+            <p class="description" style="margin-bottom: 10px;"><?php _e('Select one or more galleries where this color should appear:', 'color-gallery-29ga'); ?></p>
+            <div class="cg29ga-galleries-list">
+                <?php if (empty($galleries)): ?>
+                    <p><?php _e('No galleries found. Create a gallery first.', 'color-gallery-29ga'); ?></p>
+                <?php else: ?>
+                    <?php foreach ($galleries as $gallery): ?>
+                        <label>
+                            <input type="checkbox" 
+                                   name="cg29ga_gallery_ids[]" 
+                                   value="<?php echo esc_attr($gallery->ID); ?>" 
+                                   <?php checked(in_array($gallery->ID, $gallery_ids)); ?> />
+                            <?php echo esc_html($gallery->post_title); ?>
+                        </label>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
         </div>
         <div class="cg29ga-meta-field">
             <label for="cg29ga_color_value"><?php _e('Color Value (Hex) - Optional:', 'color-gallery-29ga'); ?></label>
@@ -176,6 +197,16 @@ class ColorGallery29ga {
         if (isset($_POST['cg29ga_columns'])) {
             update_post_meta($post_id, '_cg29ga_columns', intval($_POST['cg29ga_columns']));
         }
+        
+        // Clear cache when gallery is saved
+        delete_transient('cg29ga_gallery_shortcodes');
+    }
+    
+    public function clear_gallery_cache($post_id) {
+        $post_type = get_post_type($post_id);
+        if ($post_type === 'cg29ga_gallery' || $post_type === 'cg29ga_color') {
+            delete_transient('cg29ga_gallery_shortcodes');
+        }
     }
     
     public function save_color_meta($post_id) {
@@ -188,9 +219,22 @@ class ColorGallery29ga {
         if (isset($_POST['cg29ga_color_value'])) {
             update_post_meta($post_id, '_cg29ga_color_value', sanitize_text_field($_POST['cg29ga_color_value']));
         }
-        if (isset($_POST['cg29ga_gallery_id'])) {
-            update_post_meta($post_id, '_cg29ga_gallery_id', intval($_POST['cg29ga_gallery_id']));
+        
+        // Save multiple gallery IDs
+        if (isset($_POST['cg29ga_gallery_ids']) && is_array($_POST['cg29ga_gallery_ids'])) {
+            $gallery_ids = array_map('intval', $_POST['cg29ga_gallery_ids']);
+            update_post_meta($post_id, '_cg29ga_gallery_ids', $gallery_ids);
+            
+            // Clear old single gallery meta for backwards compatibility
+            delete_post_meta($post_id, '_cg29ga_gallery_id');
+        } else {
+            // No galleries selected - clear the meta
+            update_post_meta($post_id, '_cg29ga_gallery_ids', []);
+            delete_post_meta($post_id, '_cg29ga_gallery_id');
         }
+        
+        // Invalidate caches for all affected galleries
+        delete_transient('cg29ga_gallery_shortcodes');
     }
     
     public function enqueue_frontend_assets() {
@@ -317,8 +361,10 @@ class ColorGallery29ga {
         // Set featured image
         set_post_thumbnail($post_id, $image_id);
         
-        // Assign to gallery
-        update_post_meta($post_id, '_cg29ga_gallery_id', $gallery_id);
+        // Assign to gallery (using new multi-gallery system)
+        update_post_meta($post_id, '_cg29ga_gallery_ids', [$gallery_id]);
+        // Clear old single gallery meta
+        delete_post_meta($post_id, '_cg29ga_gallery_id');
         
         wp_send_json_success([
             'message' => sprintf(__('Created color: %s', 'color-gallery-29ga'), $color_name),
@@ -386,20 +432,34 @@ class ColorGallery29ga {
         }
         $columns = get_post_meta($gallery->ID, '_cg29ga_columns', true) ?: '6';
         
-        // Get colors for this gallery
+        // Get colors for this gallery (supports multiple gallery assignments)
         $colors = get_posts([
             'post_type' => 'cg29ga_color',
             'posts_per_page' => -1,
-            'meta_query' => [
-                [
-                    'key' => '_cg29ga_gallery_id',
-                    'value' => $gallery->ID,
-                    'compare' => '='
-                ]
-            ],
+            'post_status' => 'publish',
             'orderby' => 'menu_order title',
             'order' => 'ASC'
         ]);
+        
+        // Filter colors that belong to this gallery (handles both old and new meta structure)
+        $filtered_colors = [];
+        foreach ($colors as $color) {
+            $gallery_ids = get_post_meta($color->ID, '_cg29ga_gallery_ids', true);
+            
+            // Check new multi-gallery system
+            if (is_array($gallery_ids) && in_array($gallery->ID, $gallery_ids)) {
+                $filtered_colors[] = $color;
+                continue;
+            }
+            
+            // Backwards compatibility: check old single gallery meta
+            $old_gallery_id = get_post_meta($color->ID, '_cg29ga_gallery_id', true);
+            if ($old_gallery_id == $gallery->ID) {
+                $filtered_colors[] = $color;
+            }
+        }
+        
+        $colors = $filtered_colors;
         
         if (empty($colors)) {
             return '<p>No colors in this gallery yet.</p>';
