@@ -93,6 +93,16 @@ class ColorGallery29ga {
             'high'
         );
         
+        // Gallery colors management meta box
+        add_meta_box(
+            'cg29ga_gallery_colors',
+            __('Gallery Colors', 'color-gallery-29ga'),
+            [$this, 'render_gallery_colors_meta_box'],
+            'cg29ga_gallery',
+            'normal',
+            'default'
+        );
+        
         // Color meta box
         add_meta_box(
             'cg29ga_color_details',
@@ -128,6 +138,128 @@ class ColorGallery29ga {
             <code>[color_gallery_29ga_<?php echo esc_html(strtolower(str_replace(' ', '_', get_the_title($post->ID)))); ?>]</code>
             <p class="description"><?php _e('Use this shortcode to display this gallery on any page or post. The shortcode uses the gallery title converted to lowercase with spaces replaced by underscores.', 'color-gallery-29ga'); ?></p>
         </div>
+        <?php
+    }
+    
+    public function render_gallery_colors_meta_box($post) {
+        // Get colors assigned to this gallery
+        $args = [
+            'post_type' => 'cg29ga_color',
+            'posts_per_page' => -1,
+            'meta_query' => [
+                [
+                    'key' => '_cg29ga_gallery_ids',
+                    'value' => '"' . $post->ID . '"',
+                    'compare' => 'LIKE'
+                ]
+            ],
+            'orderby' => 'title',
+            'order' => 'ASC'
+        ];
+        $gallery_colors = get_posts($args);
+        
+        // Get ALL colors for the add colors dropdown
+        $all_colors = get_posts([
+            'post_type' => 'cg29ga_color',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC'
+        ]);
+        
+        wp_nonce_field('cg29ga_add_colors_to_gallery', 'cg29ga_add_colors_nonce');
+        ?>
+        <style>
+            .cg29ga-colors-list { margin-bottom: 20px; }
+            .cg29ga-color-item { padding: 10px; border-bottom: 1px solid #ddd; display: flex; align-items: center; gap: 15px; }
+            .cg29ga-color-item:last-child { border-bottom: none; }
+            .cg29ga-color-thumb { width: 50px; height: 50px; border: 1px solid #ddd; background-size: cover; background-position: center; flex-shrink: 0; }
+            .cg29ga-color-name { flex-grow: 1; font-weight: 500; }
+            .cg29ga-add-colors-section { border-top: 2px solid #ddd; padding-top: 20px; margin-top: 20px; }
+            .cg29ga-add-colors-btn { margin-top: 10px; }
+            #cg29ga-color-selector-container { display: none; margin-top: 15px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; max-height: 400px; overflow-y: auto; }
+            #cg29ga-color-selector-container.active { display: block; }
+            .cg29ga-selectable-color { padding: 8px; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; gap: 10px; }
+            .cg29ga-selectable-color:hover { background: #fff; }
+            .cg29ga-selectable-color input[type="checkbox"] { margin: 0; }
+            .cg29ga-import-actions { margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd; }
+        </style>
+        <div class="cg29ga-colors-list">
+            <h4><?php _e('Current Colors in this Gallery:', 'color-gallery-29ga'); ?></h4>
+            <?php if (empty($gallery_colors)): ?>
+                <p><?php _e('No colors in this gallery yet. Use "Add Colors" below to add colors.', 'color-gallery-29ga'); ?></p>
+            <?php else: ?>
+                <?php foreach ($gallery_colors as $color): 
+                    $thumb_id = get_post_thumbnail_id($color->ID);
+                    $color_value = get_post_meta($color->ID, '_cg29ga_color_value', true);
+                    $thumb_url = $thumb_id ? wp_get_attachment_image_url($thumb_id, 'thumbnail') : '';
+                    $bg_style = $thumb_url ? "background-image: url('" . esc_url($thumb_url) . "')" : "background-color: " . esc_attr($color_value);
+                    ?>
+                    <div class="cg29ga-color-item">
+                        <div class="cg29ga-color-thumb" style="<?php echo $bg_style; ?>"></div>
+                        <div class="cg29ga-color-name"><?php echo esc_html($color->post_title); ?></div>
+                        <a href="<?php echo get_edit_post_link($color->ID); ?>" class="button button-small"><?php _e('Edit', 'color-gallery-29ga'); ?></a>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+        
+        <div class="cg29ga-add-colors-section">
+            <h4><?php _e('Add Colors to this Gallery:', 'color-gallery-29ga'); ?></h4>
+            <p class="description"><?php _e('Select existing colors from your color database to add them to this gallery.', 'color-gallery-29ga'); ?></p>
+            <button type="button" id="cg29ga-toggle-color-selector" class="button">
+                <span class="dashicons dashicons-plus-alt"></span> <?php _e('Add Colors', 'color-gallery-29ga'); ?>
+            </button>
+            
+            <div id="cg29ga-color-selector-container">
+                <p><strong><?php _e('Select colors to add:', 'color-gallery-29ga'); ?></strong></p>
+                <?php if (empty($all_colors)): ?>
+                    <p><?php _e('No colors found. Create colors first.', 'color-gallery-29ga'); ?></p>
+                <?php else: ?>
+                    <?php 
+                    $gallery_color_ids = array_map(function($c) { return $c->ID; }, $gallery_colors);
+                    foreach ($all_colors as $color): 
+                        $is_in_gallery = in_array($color->ID, $gallery_color_ids);
+                        if ($is_in_gallery) continue; // Skip colors already in gallery
+                        
+                        $thumb_id = get_post_thumbnail_id($color->ID);
+                        $color_value = get_post_meta($color->ID, '_cg29ga_color_value', true);
+                        $thumb_url = $thumb_id ? wp_get_attachment_image_url($thumb_id, 'thumbnail') : '';
+                        $bg_style = $thumb_url ? "background-image: url('" . esc_url($thumb_url) . "')" : "background-color: " . esc_attr($color_value);
+                        ?>
+                        <div class="cg29ga-selectable-color">
+                            <input type="checkbox" name="cg29ga_add_color_ids[]" value="<?php echo esc_attr($color->ID); ?>" id="color-<?php echo esc_attr($color->ID); ?>" />
+                            <div class="cg29ga-color-thumb" style="<?php echo $bg_style; ?>"></div>
+                            <label for="color-<?php echo esc_attr($color->ID); ?>" style="margin: 0; cursor: pointer;"><?php echo esc_html($color->post_title); ?></label>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+                <div class="cg29ga-import-actions">
+                    <button type="button" id="cg29ga-select-all-colors" class="button button-small"><?php _e('Select All', 'color-gallery-29ga'); ?></button>
+                    <button type="button" id="cg29ga-deselect-all-colors" class="button button-small"><?php _e('Deselect All', 'color-gallery-29ga'); ?></button>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+        jQuery(document).ready(function($) {
+            // Toggle color selector
+            $('#cg29ga-toggle-color-selector').on('click', function() {
+                $('#cg29ga-color-selector-container').toggleClass('active');
+                var isActive = $('#cg29ga-color-selector-container').hasClass('active');
+                $(this).find('.dashicons').toggleClass('dashicons-plus-alt', !isActive).toggleClass('dashicons-minus', isActive);
+            });
+            
+            // Select all
+            $('#cg29ga-select-all-colors').on('click', function() {
+                $('#cg29ga-color-selector-container input[type="checkbox"]').prop('checked', true);
+            });
+            
+            // Deselect all
+            $('#cg29ga-deselect-all-colors').on('click', function() {
+                $('#cg29ga-color-selector-container input[type="checkbox"]').prop('checked', false);
+            });
+        });
+        </script>
         <?php
     }
     
@@ -207,6 +339,26 @@ class ColorGallery29ga {
         
         if (isset($_POST['cg29ga_max_rows'])) {
             update_post_meta($post_id, '_cg29ga_max_rows', intval($_POST['cg29ga_max_rows']));
+        }
+        
+        // Handle adding colors to gallery
+        if (isset($_POST['cg29ga_add_color_ids']) && is_array($_POST['cg29ga_add_color_ids'])) {
+            foreach ($_POST['cg29ga_add_color_ids'] as $color_id) {
+                $color_id = intval($color_id);
+                if ($color_id) {
+                    // Get existing gallery IDs for this color
+                    $gallery_ids = get_post_meta($color_id, '_cg29ga_gallery_ids', true);
+                    if (!is_array($gallery_ids)) {
+                        $gallery_ids = [];
+                    }
+                    
+                    // Add this gallery ID if not already present
+                    if (!in_array($post_id, $gallery_ids)) {
+                        $gallery_ids[] = $post_id;
+                        update_post_meta($color_id, '_cg29ga_gallery_ids', $gallery_ids);
+                    }
+                }
+            }
         }
         
         // Clear cache when gallery is saved
