@@ -37,6 +37,7 @@ class ColorGallery29ga {
         add_action('admin_menu', [$this, 'add_bulk_upload_page']);
         add_action('wp_ajax_cg29ga_bulk_upload', [$this, 'handle_bulk_upload']);
         add_action('wp_ajax_cg29ga_upload_file', [$this, 'handle_file_upload']);
+        add_action('wp_ajax_cg29ga_add_colors_to_gallery', [$this, 'handle_add_colors_to_gallery']);
         add_shortcode('color_gallery_29ga', [$this, 'render_shortcode']);
         add_action('init', [$this, 'register_dynamic_shortcodes'], 20);
     }
@@ -169,94 +170,148 @@ class ColorGallery29ga {
         wp_nonce_field('cg29ga_add_colors_to_gallery', 'cg29ga_add_colors_nonce');
         ?>
         <style>
-            .cg29ga-colors-list { margin-bottom: 20px; }
-            .cg29ga-color-item { padding: 10px; border-bottom: 1px solid #ddd; display: flex; align-items: center; gap: 15px; }
-            .cg29ga-color-item:last-child { border-bottom: none; }
-            .cg29ga-color-thumb { width: 50px; height: 50px; border: 1px solid #ddd; background-size: cover; background-position: center; flex-shrink: 0; }
-            .cg29ga-color-name { flex-grow: 1; font-weight: 500; }
+            .cg29ga-current-colors { padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 20px; min-height: 60px; max-height: 200px; overflow-y: auto; }
+            .cg29ga-current-colors h4 { margin: 0 0 10px 0; font-size: 13px; font-weight: 600; color: #23282d; }
+            .cg29ga-color-names-list { display: flex; flex-wrap: wrap; gap: 8px; }
+            .cg29ga-color-name-tag { display: inline-block; padding: 5px 10px; background: #fff; border: 1px solid #ccd0d4; border-radius: 3px; font-size: 13px; }
+            .cg29ga-no-colors { color: #646970; font-style: italic; font-size: 13px; }
+            
             .cg29ga-add-colors-section { border-top: 2px solid #ddd; padding-top: 20px; margin-top: 20px; }
-            .cg29ga-add-colors-btn { margin-top: 10px; }
-            #cg29ga-color-selector-container { display: none; margin-top: 15px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; max-height: 400px; overflow-y: auto; }
-            #cg29ga-color-selector-container.active { display: block; }
-            .cg29ga-selectable-color { padding: 8px; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; gap: 10px; }
-            .cg29ga-selectable-color:hover { background: #fff; }
+            .cg29ga-add-colors-section h4 { margin: 0 0 10px 0; font-size: 13px; font-weight: 600; }
+            #cg29ga-color-selector-container { margin-top: 15px; padding: 15px; background: #fff; border: 1px solid #ddd; border-radius: 4px; max-height: 400px; overflow-y: auto; }
+            .cg29ga-selectable-color { padding: 10px; border-bottom: 1px solid #f0f0f1; display: flex; align-items: center; gap: 12px; }
+            .cg29ga-selectable-color:last-child { border-bottom: none; }
+            .cg29ga-selectable-color:hover { background: #f6f7f7; }
             .cg29ga-selectable-color input[type="checkbox"] { margin: 0; }
-            .cg29ga-import-actions { margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd; }
+            .cg29ga-color-thumb { width: 40px; height: 40px; border: 1px solid #ddd; background-size: cover; background-position: center; flex-shrink: 0; border-radius: 3px; }
+            .cg29ga-import-actions { margin-top: 15px; padding-top: 15px; border-top: 1px solid #f0f0f1; display: flex; gap: 8px; }
+            #cg29ga-add-to-gallery-btn { background: #2271b1; color: #fff; border-color: #2271b1; font-weight: 500; }
+            #cg29ga-add-to-gallery-btn:hover { background: #135e96; border-color: #135e96; }
+            #cg29ga-add-to-gallery-btn:disabled { background: #f6f7f7; color: #a7aaad; border-color: #dcdcde; }
         </style>
-        <div class="cg29ga-colors-list">
-            <h4><?php _e('Current Colors in this Gallery:', 'color-gallery-29ga'); ?></h4>
+        
+        <div class="cg29ga-current-colors">
+            <h4><?php _e('Colors in this Gallery:', 'color-gallery-29ga'); ?></h4>
             <?php if (empty($gallery_colors)): ?>
-                <p><?php _e('No colors in this gallery yet. Use "Add Colors" below to add colors.', 'color-gallery-29ga'); ?></p>
+                <div class="cg29ga-no-colors"><?php _e('No colors yet. Add colors using the section below.', 'color-gallery-29ga'); ?></div>
             <?php else: ?>
-                <?php foreach ($gallery_colors as $color): 
-                    $thumb_id = get_post_thumbnail_id($color->ID);
-                    $color_value = get_post_meta($color->ID, '_cg29ga_color_value', true);
-                    $thumb_url = $thumb_id ? wp_get_attachment_image_url($thumb_id, 'thumbnail') : '';
-                    $bg_style = $thumb_url ? "background-image: url('" . esc_url($thumb_url) . "')" : "background-color: " . esc_attr($color_value);
-                    ?>
-                    <div class="cg29ga-color-item">
-                        <div class="cg29ga-color-thumb" style="<?php echo $bg_style; ?>"></div>
-                        <div class="cg29ga-color-name"><?php echo esc_html($color->post_title); ?></div>
-                        <a href="<?php echo get_edit_post_link($color->ID); ?>" class="button button-small"><?php _e('Edit', 'color-gallery-29ga'); ?></a>
-                    </div>
-                <?php endforeach; ?>
+                <div class="cg29ga-color-names-list">
+                    <?php foreach ($gallery_colors as $color): ?>
+                        <span class="cg29ga-color-name-tag"><?php echo esc_html($color->post_title); ?></span>
+                    <?php endforeach; ?>
+                </div>
             <?php endif; ?>
         </div>
         
         <div class="cg29ga-add-colors-section">
-            <h4><?php _e('Add Colors to this Gallery:', 'color-gallery-29ga'); ?></h4>
-            <p class="description"><?php _e('Select existing colors from your color database to add them to this gallery.', 'color-gallery-29ga'); ?></p>
-            <button type="button" id="cg29ga-toggle-color-selector" class="button">
-                <span class="dashicons dashicons-plus-alt"></span> <?php _e('Add Colors', 'color-gallery-29ga'); ?>
-            </button>
+            <h4><?php _e('Add Colors to Gallery:', 'color-gallery-29ga'); ?></h4>
+            <p class="description" style="margin-bottom: 10px;"><?php _e('Select colors from your database and click "Add to Gallery" to add them to this gallery.', 'color-gallery-29ga'); ?></p>
             
             <div id="cg29ga-color-selector-container">
-                <p><strong><?php _e('Select colors to add:', 'color-gallery-29ga'); ?></strong></p>
                 <?php if (empty($all_colors)): ?>
-                    <p><?php _e('No colors found. Create colors first.', 'color-gallery-29ga'); ?></p>
+                    <p style="margin: 10px 0;"><?php _e('No colors found. Create colors first using Bulk Upload or Add New Color.', 'color-gallery-29ga'); ?></p>
                 <?php else: ?>
                     <?php 
                     $gallery_color_ids = array_map(function($c) { return $c->ID; }, $gallery_colors);
-                    foreach ($all_colors as $color): 
-                        $is_in_gallery = in_array($color->ID, $gallery_color_ids);
-                        if ($is_in_gallery) continue; // Skip colors already in gallery
-                        
-                        $thumb_id = get_post_thumbnail_id($color->ID);
-                        $color_value = get_post_meta($color->ID, '_cg29ga_color_value', true);
-                        $thumb_url = $thumb_id ? wp_get_attachment_image_url($thumb_id, 'thumbnail') : '';
-                        $bg_style = $thumb_url ? "background-image: url('" . esc_url($thumb_url) . "')" : "background-color: " . esc_attr($color_value);
-                        ?>
-                        <div class="cg29ga-selectable-color">
-                            <input type="checkbox" name="cg29ga_add_color_ids[]" value="<?php echo esc_attr($color->ID); ?>" id="color-<?php echo esc_attr($color->ID); ?>" />
-                            <div class="cg29ga-color-thumb" style="<?php echo $bg_style; ?>"></div>
-                            <label for="color-<?php echo esc_attr($color->ID); ?>" style="margin: 0; cursor: pointer;"><?php echo esc_html($color->post_title); ?></label>
-                        </div>
-                    <?php endforeach; ?>
+                    $available_colors = array_filter($all_colors, function($color) use ($gallery_color_ids) {
+                        return !in_array($color->ID, $gallery_color_ids);
+                    });
+                    
+                    if (empty($available_colors)): ?>
+                        <p style="margin: 10px 0; color: #646970;"><?php _e('All colors are already in this gallery!', 'color-gallery-29ga'); ?></p>
+                    <?php else: ?>
+                        <?php foreach ($available_colors as $color): 
+                            $thumb_id = get_post_thumbnail_id($color->ID);
+                            $color_value = get_post_meta($color->ID, '_cg29ga_color_value', true);
+                            $thumb_url = $thumb_id ? wp_get_attachment_image_url($thumb_id, 'thumbnail') : '';
+                            $bg_style = $thumb_url ? "background-image: url('" . esc_url($thumb_url) . "')" : "background-color: " . esc_attr($color_value);
+                            ?>
+                            <div class="cg29ga-selectable-color">
+                                <input type="checkbox" name="cg29ga_add_color_ids[]" value="<?php echo esc_attr($color->ID); ?>" id="color-<?php echo esc_attr($color->ID); ?>" class="cg29ga-color-checkbox" />
+                                <div class="cg29ga-color-thumb" style="<?php echo $bg_style; ?>"></div>
+                                <label for="color-<?php echo esc_attr($color->ID); ?>" style="margin: 0; cursor: pointer; flex-grow: 1;"><?php echo esc_html($color->post_title); ?></label>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 <?php endif; ?>
-                <div class="cg29ga-import-actions">
-                    <button type="button" id="cg29ga-select-all-colors" class="button button-small"><?php _e('Select All', 'color-gallery-29ga'); ?></button>
-                    <button type="button" id="cg29ga-deselect-all-colors" class="button button-small"><?php _e('Deselect All', 'color-gallery-29ga'); ?></button>
-                </div>
+                
+                <?php if (!empty($available_colors)): ?>
+                    <div class="cg29ga-import-actions">
+                        <button type="button" id="cg29ga-select-all-colors" class="button button-small"><?php _e('Select All', 'color-gallery-29ga'); ?></button>
+                        <button type="button" id="cg29ga-deselect-all-colors" class="button button-small"><?php _e('Deselect All', 'color-gallery-29ga'); ?></button>
+                        <button type="button" id="cg29ga-add-to-gallery-btn" class="button button-primary" disabled><?php _e('Add to Gallery', 'color-gallery-29ga'); ?></button>
+                        <span class="spinner" style="float: none; margin: 0 0 0 10px;"></span>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
         
         <script>
         jQuery(document).ready(function($) {
-            // Toggle color selector
-            $('#cg29ga-toggle-color-selector').on('click', function() {
-                $('#cg29ga-color-selector-container').toggleClass('active');
-                var isActive = $('#cg29ga-color-selector-container').hasClass('active');
-                $(this).find('.dashicons').toggleClass('dashicons-plus-alt', !isActive).toggleClass('dashicons-minus', isActive);
-            });
+            // Enable/disable Add to Gallery button based on selections
+            function updateAddButton() {
+                var checkedCount = $('.cg29ga-color-checkbox:checked').length;
+                $('#cg29ga-add-to-gallery-btn').prop('disabled', checkedCount === 0);
+            }
+            
+            $('.cg29ga-color-checkbox').on('change', updateAddButton);
             
             // Select all
             $('#cg29ga-select-all-colors').on('click', function() {
-                $('#cg29ga-color-selector-container input[type="checkbox"]').prop('checked', true);
+                $('.cg29ga-color-checkbox').prop('checked', true);
+                updateAddButton();
             });
             
             // Deselect all
             $('#cg29ga-deselect-all-colors').on('click', function() {
-                $('#cg29ga-color-selector-container input[type="checkbox"]').prop('checked', false);
+                $('.cg29ga-color-checkbox').prop('checked', false);
+                updateAddButton();
+            });
+            
+            // Add to Gallery button click
+            $('#cg29ga-add-to-gallery-btn').on('click', function() {
+                var $btn = $(this);
+                var $spinner = $btn.siblings('.spinner');
+                var colorIds = [];
+                
+                $('.cg29ga-color-checkbox:checked').each(function() {
+                    colorIds.push($(this).val());
+                });
+                
+                if (colorIds.length === 0) {
+                    return;
+                }
+                
+                // Disable button and show spinner
+                $btn.prop('disabled', true);
+                $spinner.addClass('is-active');
+                
+                // Add colors to the gallery via AJAX
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'cg29ga_add_colors_to_gallery',
+                        nonce: $('#cg29ga_add_colors_nonce').val(),
+                        gallery_id: <?php echo $post->ID; ?>,
+                        color_ids: colorIds
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Reload the page to show updated colors
+                            location.reload();
+                        } else {
+                            alert(response.data.message || 'Failed to add colors to gallery.');
+                            $btn.prop('disabled', false);
+                            $spinner.removeClass('is-active');
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred. Please try again.');
+                        $btn.prop('disabled', false);
+                        $spinner.removeClass('is-active');
+                    }
+                });
             });
         });
         </script>
@@ -597,6 +652,43 @@ class ColorGallery29ga {
         } else {
             wp_send_json_error(['message' => $movefile['error']]);
         }
+    }
+    
+    public function handle_add_colors_to_gallery() {
+        check_ajax_referer('cg29ga_add_colors_to_gallery', 'nonce');
+        
+        if (!current_user_can('edit_posts')) {
+            wp_send_json_error(['message' => __('Permission denied.', 'color-gallery-29ga')]);
+        }
+        
+        $gallery_id = intval($_POST['gallery_id']);
+        $color_ids = isset($_POST['color_ids']) ? array_map('intval', $_POST['color_ids']) : [];
+        
+        if (!$gallery_id || empty($color_ids)) {
+            wp_send_json_error(['message' => __('Missing required data.', 'color-gallery-29ga')]);
+        }
+        
+        $added_count = 0;
+        
+        foreach ($color_ids as $color_id) {
+            // Get current gallery IDs for this color
+            $current_gallery_ids = get_post_meta($color_id, '_cg29ga_gallery_ids', true);
+            if (!is_array($current_gallery_ids)) {
+                $current_gallery_ids = [];
+            }
+            
+            // Add the gallery ID if not already present
+            if (!in_array($gallery_id, $current_gallery_ids)) {
+                $current_gallery_ids[] = $gallery_id;
+                update_post_meta($color_id, '_cg29ga_gallery_ids', $current_gallery_ids);
+                $added_count++;
+            }
+        }
+        
+        wp_send_json_success([
+            'message' => sprintf(__('Successfully added %d color(s) to the gallery.', 'color-gallery-29ga'), $added_count),
+            'added_count' => $added_count
+        ]);
     }
     
     public function register_dynamic_shortcodes() {
