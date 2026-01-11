@@ -10,6 +10,7 @@
     
     $(document).ready(function() {
         initBulkUpload();
+        initDragAndDrop();
     });
     
     function initBulkUpload() {
@@ -202,6 +203,110 @@
         var messageClass = 'notice notice-' + type;
         var messageHtml = '<div class="' + messageClass + '"><p>' + message + '</p></div>';
         $('#cg29ga_bulk_messages').append(messageHtml);
+    }
+    
+    // Drag and Drop functionality
+    function initDragAndDrop() {
+        var dropZone = $('#cg29ga_drop_zone');
+        
+        if (dropZone.length === 0) return;
+        
+        // Prevent default drag behaviors
+        $(document).on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+        
+        // Highlight drop zone when dragging over it
+        dropZone.on('dragover dragenter', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).addClass('drag-over');
+        });
+        
+        dropZone.on('dragleave dragend drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass('drag-over');
+        });
+        
+        // Handle dropped files
+        dropZone.on('drop', function(e) {
+            var files = e.originalEvent.dataTransfer.files;
+            
+            if (files.length === 0) return;
+            
+            // Show uploading message
+            dropZone.addClass('uploading');
+            dropZone.find('.drop-text').text('Uploading ' + files.length + ' file(s)...');
+            
+            // Upload files to WordPress media library
+            uploadFiles(files);
+        });
+    }
+    
+    function uploadFiles(files) {
+        var formData = new FormData();
+        var uploadedCount = 0;
+        var totalFiles = files.length;
+        var newImages = [];
+        
+        // Upload each file
+        Array.from(files).forEach(function(file, index) {
+            // Only process image files
+            if (!file.type.match('image.*')) {
+                uploadedCount++;
+                if (uploadedCount === totalFiles) {
+                    finishUpload(newImages);
+                }
+                return;
+            }
+            
+            var fileFormData = new FormData();
+            fileFormData.append('action', 'cg29ga_upload_file');
+            fileFormData.append('nonce', cg29gaBulk.nonce);
+            fileFormData.append('file', file);
+            
+            $.ajax({
+                url: cg29gaBulk.ajax_url,
+                type: 'POST',
+                data: fileFormData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success && response.data) {
+                        newImages.push({
+                            id: response.data.id,
+                            url: response.data.url,
+                            filename: response.data.filename,
+                            title: response.data.title
+                        });
+                    }
+                },
+                error: function() {
+                    showMessage('error', 'Failed to upload: ' + file.name);
+                },
+                complete: function() {
+                    uploadedCount++;
+                    if (uploadedCount === totalFiles) {
+                        finishUpload(newImages);
+                    }
+                }
+            });
+        });
+    }
+    
+    function finishUpload(newImages) {
+        var dropZone = $('#cg29ga_drop_zone');
+        dropZone.removeClass('uploading');
+        dropZone.find('.drop-text').html('Drag & Drop Images Here<br><span style="font-size: 14px; font-weight: normal;">or click "Choose Images" button above</span>');
+        
+        if (newImages.length > 0) {
+            // Add new images to existing selection
+            selectedImages = selectedImages.concat(newImages);
+            renderSelectedImages();
+            showMessage('success', 'Successfully uploaded ' + newImages.length + ' image(s)!');
+        }
     }
     
 })(jQuery);

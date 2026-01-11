@@ -102,3 +102,39 @@
         height: 120px;
     }
 }
+
+/* Drag and Drop Zone Styles */
+.cg29ga-drop-zone {
+    border: 3px dashed #ccc;
+    border-radius: 8px;
+    padding: 60px 20px;
+    text-align: center;
+    background: #fafafa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.cg29ga-drop-zone .drop-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: #666;
+}
+
+.cg29ga-drop-zone.drag-over {
+    border-color: #2271b1;
+    background: #f0f6fc;
+}
+
+.cg29ga-drop-zone.drag-over .drop-text {
+    color: #2271b1;
+}
+
+.cg29ga-drop-zone.uploading {
+    border-color: #00a32a;
+    background: #f0f9f0;
+}
+
+.cg29ga-drop-zone.uploading .drop-text {
+    color: #00a32a;
+}

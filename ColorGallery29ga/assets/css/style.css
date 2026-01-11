@@ -244,3 +244,43 @@
         font-size: 10px;
     }
 }
+
+/* Hidden tiles for pagination */
+.cg29ga-tile.cg29ga-hidden {
+    display: none;
+}
+
+/* See More button container */
+.cg29ga-see-more-container {
+    display: flex;
+    justify-content: flex-start;
+    padding: 20px 0;
+    margin-top: 10px;
+}
+
+.cg29ga-see-more-btn {
+    background: transparent;
+    border: none;
+    color: #333;
+    font-size: 14px;
+    padding: 8px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s, opacity 0.2s;
+}
+
+.cg29ga-see-more-btn:hover {
+    color: #000;
+    opacity: 0.8;
+}
+
+.cg29ga-see-more-btn .cg29ga-arrow {
+    font-size: 18px;
+    transition: transform 0.2s;
+}
+
+.cg29ga-see-more-btn.expanded .cg29ga-arrow {
+    transform: rotate(180deg);
+}

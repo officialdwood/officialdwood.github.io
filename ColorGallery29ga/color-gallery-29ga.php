@@ -36,6 +36,7 @@ class ColorGallery29ga {
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
         add_action('admin_menu', [$this, 'add_bulk_upload_page']);
         add_action('wp_ajax_cg29ga_bulk_upload', [$this, 'handle_bulk_upload']);
+        add_action('wp_ajax_cg29ga_upload_file', [$this, 'handle_file_upload']);
         add_shortcode('color_gallery_29ga', [$this, 'render_shortcode']);
         add_action('init', [$this, 'register_dynamic_shortcodes'], 20);
     }
@@ -105,6 +106,7 @@ class ColorGallery29ga {
     
     public function render_gallery_meta_box($post) {
         $columns = get_post_meta($post->ID, '_cg29ga_columns', true) ?: '6';
+        $max_rows = get_post_meta($post->ID, '_cg29ga_max_rows', true) ?: '0';
         wp_nonce_field('cg29ga_gallery_save', 'cg29ga_gallery_nonce');
         ?>
         <style>
@@ -115,6 +117,11 @@ class ColorGallery29ga {
             <label for="cg29ga_columns"><?php _e('Columns per row:', 'color-gallery-29ga'); ?></label>
             <input type="number" id="cg29ga_columns" name="cg29ga_columns" value="<?php echo esc_attr($columns); ?>" min="1" max="12" />
             <p class="description"><?php _e('Number of color tiles per row (default: 6)', 'color-gallery-29ga'); ?></p>
+        </div>
+        <div class="cg29ga-meta-field">
+            <label for="cg29ga_max_rows"><?php _e('Maximum rows to display:', 'color-gallery-29ga'); ?></label>
+            <input type="number" id="cg29ga_max_rows" name="cg29ga_max_rows" value="<?php echo esc_attr($max_rows); ?>" min="0" max="100" />
+            <p class="description"><?php _e('If set, only this many rows will display initially. A "See More ↓" button will appear to show all colors. Set to 0 to show all colors (default).', 'color-gallery-29ga'); ?></p>
         </div>
         <div class="cg29ga-meta-field">
             <p><strong><?php _e('Shortcode:', 'color-gallery-29ga'); ?></strong></p>
@@ -196,6 +203,10 @@ class ColorGallery29ga {
         
         if (isset($_POST['cg29ga_columns'])) {
             update_post_meta($post_id, '_cg29ga_columns', intval($_POST['cg29ga_columns']));
+        }
+        
+        if (isset($_POST['cg29ga_max_rows'])) {
+            update_post_meta($post_id, '_cg29ga_max_rows', intval($_POST['cg29ga_max_rows']));
         }
         
         // Clear cache when gallery is saved
@@ -315,6 +326,20 @@ class ColorGallery29ga {
                             <p class="description"><?php _e('Select multiple images at once using Ctrl/Cmd + Click', 'color-gallery-29ga'); ?></p>
                         </td>
                     </tr>
+                    <tr>
+                        <th scope="row">
+                            <label><?php _e('Or Drag & Drop', 'color-gallery-29ga'); ?></label>
+                        </th>
+                        <td>
+                            <div id="cg29ga_drop_zone" class="cg29ga-drop-zone">
+                                <div class="drop-text">
+                                    Drag & Drop Images Here<br>
+                                    <span style="font-size: 14px; font-weight: normal;">or click "Choose Images" button above</span>
+                                </div>
+                            </div>
+                            <p class="description"><?php _e('Drag multiple image files directly from your computer and drop them here', 'color-gallery-29ga'); ?></p>
+                        </td>
+                    </tr>
                 </table>
                 
                 <div id="cg29ga_selected_images" class="cg29ga-selected-images"></div>
@@ -370,6 +395,56 @@ class ColorGallery29ga {
             'message' => sprintf(__('Created color: %s', 'color-gallery-29ga'), $color_name),
             'post_id' => $post_id
         ]);
+    }
+    
+    public function handle_file_upload() {
+        check_ajax_referer('cg29ga_bulk_upload_nonce', 'nonce');
+        
+        if (!current_user_can('upload_files')) {
+            wp_send_json_error(['message' => __('Permission denied.', 'color-gallery-29ga')]);
+        }
+        
+        if (empty($_FILES['file'])) {
+            wp_send_json_error(['message' => __('No file uploaded.', 'color-gallery-29ga')]);
+        }
+        
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        require_once(ABSPATH . 'wp-admin/includes/media.php');
+        
+        // Handle the file upload
+        $file = $_FILES['file'];
+        $upload_overrides = ['test_form' => false];
+        $movefile = wp_handle_upload($file, $upload_overrides);
+        
+        if ($movefile && !isset($movefile['error'])) {
+            // Create attachment
+            $attachment = [
+                'post_mime_type' => $movefile['type'],
+                'post_title' => preg_replace('/\.[^.]+$/', '', basename($movefile['file'])),
+                'post_content' => '',
+                'post_status' => 'inherit'
+            ];
+            
+            $attach_id = wp_insert_attachment($attachment, $movefile['file']);
+            
+            if (!is_wp_error($attach_id)) {
+                // Generate metadata
+                $attach_data = wp_generate_attachment_metadata($attach_id, $movefile['file']);
+                wp_update_attachment_metadata($attach_id, $attach_data);
+                
+                wp_send_json_success([
+                    'id' => $attach_id,
+                    'url' => wp_get_attachment_url($attach_id),
+                    'filename' => basename($movefile['file']),
+                    'title' => get_the_title($attach_id)
+                ]);
+            } else {
+                wp_send_json_error(['message' => $attach_id->get_error_message()]);
+            }
+        } else {
+            wp_send_json_error(['message' => $movefile['error']]);
+        }
     }
     
     public function register_dynamic_shortcodes() {
@@ -431,6 +506,7 @@ class ColorGallery29ga {
             return '<p>Gallery "' . esc_html($gallery_slug) . '" not found.</p>';
         }
         $columns = get_post_meta($gallery->ID, '_cg29ga_columns', true) ?: '6';
+        $max_rows = get_post_meta($gallery->ID, '_cg29ga_max_rows', true) ?: '0';
         
         // Get colors for this gallery (supports multiple gallery assignments)
         $colors = get_posts([
@@ -465,23 +541,51 @@ class ColorGallery29ga {
             return '<p>No colors in this gallery yet.</p>';
         }
         
+        // Calculate if we need pagination
+        $total_colors = count($colors);
+        $colors_per_row = intval($columns);
+        $max_rows_int = intval($max_rows);
+        $show_see_more = false;
+        $initially_visible = $total_colors;
+        
+        if ($max_rows_int > 0) {
+            $initially_visible = $max_rows_int * $colors_per_row;
+            if ($total_colors > $initially_visible) {
+                $show_see_more = true;
+            }
+        }
+        
         ob_start();
         ?>
-        <div class="cg29ga-gallery" data-columns="<?php echo esc_attr($columns); ?>">
+        <div class="cg29ga-gallery" data-columns="<?php echo esc_attr($columns); ?>" data-max-visible="<?php echo esc_attr($initially_visible); ?>">
             <div class="cg29ga-grid" style="grid-template-columns: repeat(<?php echo esc_attr($columns); ?>, 1fr);">
-                <?php foreach ($colors as $color): 
+                <?php 
+                $color_index = 0;
+                foreach ($colors as $color): 
                     $color_value = get_post_meta($color->ID, '_cg29ga_color_value', true);
                     $color_name = $color->post_title;
                     $featured_image = get_the_post_thumbnail_url($color->ID, 'large');
+                    $is_hidden = $show_see_more && $color_index >= $initially_visible;
                 ?>
-                    <div class="cg29ga-tile" data-color-id="<?php echo esc_attr($color->ID); ?>">
+                    <div class="cg29ga-tile<?php echo $is_hidden ? ' cg29ga-hidden' : ''; ?>" data-color-id="<?php echo esc_attr($color->ID); ?>">
                         <div class="cg29ga-chip" 
                              style="<?php echo $featured_image ? 'background-image: url(' . esc_url($featured_image) . ');' : 'background-color: ' . esc_attr($color_value) . ';'; ?>">
                         </div>
                         <div class="cg29ga-name"><?php echo esc_html($color_name); ?></div>
                     </div>
-                <?php endforeach; ?>
+                <?php 
+                    $color_index++;
+                endforeach; 
+                ?>
             </div>
+            
+            <?php if ($show_see_more): ?>
+                <div class="cg29ga-see-more-container">
+                    <button class="cg29ga-see-more-btn">
+                        See More <span class="cg29ga-arrow">↓</span>
+                    </button>
+                </div>
+            <?php endif; ?>
         </div>
         
         <!-- Modal for expanded view -->

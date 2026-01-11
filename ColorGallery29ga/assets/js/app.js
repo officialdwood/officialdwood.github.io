@@ -13,12 +13,14 @@
     });
     
     function initColorGallery() {
-        // Cache all tiles in the gallery
-        $allTiles = $('.cg29ga-tile').toArray();
+        // Cache all visible tiles in the gallery (excluding hidden ones from pagination)
+        $allTiles = $('.cg29ga-tile:visible').toArray();
         
         // Handle tile clicks to open modal
         $('.cg29ga-tile').on('click', function() {
             var $tile = $(this);
+            // Recalculate index based on visible tiles
+            $allTiles = $('.cg29ga-tile:visible').toArray();
             currentColorIndex = $allTiles.indexOf(this);
             openModalWithColor($tile);
         });
@@ -160,5 +162,35 @@
         $('#cg29ga-modal').removeClass('active');
         $('body').css('overflow', '');
     }
+    
+    // Initialize "See More" functionality
+    function initSeeMore() {
+        $('.cg29ga-see-more-btn').each(function() {
+            $(this).on('click', function() {
+                var $gallery = $(this).closest('.cg29ga-gallery');
+                var $hiddenTiles = $gallery.find('.cg29ga-tile.cg29ga-hidden');
+                
+                if ($(this).hasClass('expanded')) {
+                    // Collapse - hide tiles again
+                    $hiddenTiles.hide();
+                    $(this).removeClass('expanded');
+                    $(this).html('See More <span class="cg29ga-arrow">↓</span>');
+                } else {
+                    // Expand - show all tiles
+                    $hiddenTiles.show();
+                    $(this).addClass('expanded');
+                    $(this).html('See Less <span class="cg29ga-arrow">↑</span>');
+                    
+                    // Update the tiles array to include newly visible tiles
+                    $allTiles = $('.cg29ga-tile:visible').toArray();
+                }
+            });
+        });
+    }
+    
+    $(document).ready(function() {
+        initColorGallery();
+        initSeeMore();
+    });
     
 })(jQuery);
