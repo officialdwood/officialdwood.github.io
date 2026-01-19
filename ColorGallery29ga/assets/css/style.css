@@ -85,8 +85,10 @@
 }
 
 .cg29ga-modal-chip {
-    width: 250%;
-    padding-bottom: 250%;
+    width: 80vmin;
+    height: 80vmin;
+    max-width: 90vw;
+    max-height: 90vh;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

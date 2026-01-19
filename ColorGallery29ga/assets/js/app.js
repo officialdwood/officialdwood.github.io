@@ -71,10 +71,6 @@
         var bgColor = $chip.css('background-color');
         var bgImage = $chip.css('background-image');
         
-        // Get the tile's size for 250% scaling
-        var tileWidth = $chip.width();
-        var scaledSize = tileWidth * 2.5;
-        
         // Open modal
         var $modal = $('#cg29ga-modal');
         var $modalChip = $modal.find('.cg29ga-modal-chip');
@@ -92,13 +88,6 @@
                 'background-image': ''
             });
         }
-        
-        // Set size to 250% of original tile
-        $modalChip.css({
-            'width': scaledSize + 'px',
-            'height': scaledSize + 'px',
-            'padding-bottom': '0'
-        });
         
         $modalName.text(colorName);
         $modal.addClass('active');
@@ -127,10 +116,6 @@
         var bgColor = $chip.css('background-color');
         var bgImage = $chip.css('background-image');
         
-        // Get the tile's size for 250% scaling
-        var tileWidth = $chip.width();
-        var scaledSize = tileWidth * 2.5;
-        
         var $modal = $('#cg29ga-modal');
         var $modalChip = $modal.find('.cg29ga-modal-chip');
         var $modalName = $modal.find('.cg29ga-modal-name');
@@ -147,13 +132,6 @@
                 'background-image': ''
             });
         }
-        
-        // Set size to 250% of original tile
-        $modalChip.css({
-            'width': scaledSize + 'px',
-            'height': scaledSize + 'px',
-            'padding-bottom': '0'
-        });
         
         $modalName.text(colorName);
     }
