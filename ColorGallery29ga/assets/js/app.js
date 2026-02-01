@@ -6,45 +6,45 @@
     'use strict';
     
     var currentColorIndex = 0;
-    var $allTiles = [];
+    var $currentGallery = null;
     
     $(document).ready(function() {
         initColorGallery();
     });
     
     function initColorGallery() {
-        // Cache all visible tiles in the gallery (excluding hidden ones from pagination)
-        $allTiles = $('.cg29ga-tile:visible').toArray();
-        
         // Handle tile clicks to open modal
-        $('.cg29ga-tile').on('click', function() {
+        $(document).on('click', '.cg29ga-tile', function() {
             var $tile = $(this);
-            // Recalculate index based on visible tiles
-            $allTiles = $('.cg29ga-tile:visible').toArray();
-            currentColorIndex = $allTiles.indexOf(this);
+            $currentGallery = $tile.closest('.cg29ga-gallery');
+            
+            // Get all visible tiles in THIS gallery only
+            var $visibleTiles = $currentGallery.find('.cg29ga-tile:visible');
+            currentColorIndex = $visibleTiles.index($tile);
+            
             openModalWithColor($tile);
         });
         
         // Close modal on X click
-        $('.cg29ga-close').on('click', function(e) {
+        $(document).on('click', '.cg29ga-close', function(e) {
             e.stopPropagation();
             closeModal();
         });
         
         // Close modal on outside click
-        $('#cg29ga-modal').on('click', function(e) {
+        $(document).on('click', '#cg29ga-modal', function(e) {
             if ($(e.target).is('#cg29ga-modal')) {
                 closeModal();
             }
         });
         
         // Navigation arrows
-        $('.cg29ga-nav-arrow.prev').on('click', function(e) {
+        $(document).on('click', '.cg29ga-nav-arrow.prev', function(e) {
             e.stopPropagation();
             navigateColor(-1);
         });
         
-        $('.cg29ga-nav-arrow.next').on('click', function(e) {
+        $(document).on('click', '.cg29ga-nav-arrow.next', function(e) {
             e.stopPropagation();
             navigateColor(1);
         });
@@ -97,18 +97,21 @@
     }
     
     function navigateColor(direction) {
-        if ($allTiles.length === 0) return;
+        if (!$currentGallery) return;
+        
+        var $visibleTiles = $currentGallery.find('.cg29ga-tile:visible');
+        if ($visibleTiles.length === 0) return;
         
         currentColorIndex += direction;
         
         // Wrap around
         if (currentColorIndex < 0) {
-            currentColorIndex = $allTiles.length - 1;
-        } else if (currentColorIndex >= $allTiles.length) {
+            currentColorIndex = $visibleTiles.length - 1;
+        } else if (currentColorIndex >= $visibleTiles.length) {
             currentColorIndex = 0;
         }
         
-        var $tile = $($allTiles[currentColorIndex]);
+        var $tile = $visibleTiles.eq(currentColorIndex);
         var $chip = $tile.find('.cg29ga-chip');
         var colorName = $tile.find('.cg29ga-name').text();
         
@@ -139,30 +142,27 @@
     function closeModal() {
         $('#cg29ga-modal').removeClass('active');
         $('body').css('overflow', '');
+        $currentGallery = null;
     }
     
     // Initialize "See More" functionality
     function initSeeMore() {
-        $('.cg29ga-see-more-btn').each(function() {
-            $(this).on('click', function() {
-                var $gallery = $(this).closest('.cg29ga-gallery');
-                var $hiddenTiles = $gallery.find('.cg29ga-tile.cg29ga-hidden');
-                
-                if ($(this).hasClass('expanded')) {
-                    // Collapse - hide tiles again
-                    $hiddenTiles.hide();
-                    $(this).removeClass('expanded');
-                    $(this).html('See More <span class="cg29ga-arrow">↓</span>');
-                } else {
-                    // Expand - show all tiles
-                    $hiddenTiles.show();
-                    $(this).addClass('expanded');
-                    $(this).html('See Less <span class="cg29ga-arrow">↑</span>');
-                    
-                    // Update the tiles array to include newly visible tiles
-                    $allTiles = $('.cg29ga-tile:visible').toArray();
-                }
-            });
+        $(document).on('click', '.cg29ga-see-more-btn', function() {
+            var $gallery = $(this).closest('.cg29ga-gallery');
+            var $hiddenTiles = $gallery.find('.cg29ga-tile.cg29ga-hidden');
+            
+            if ($(this).hasClass('expanded')) {
+                // Collapse - hide tiles again
+                $hiddenTiles.hide().removeClass('cg29ga-hidden');
+                $hiddenTiles.addClass('cg29ga-hidden');
+                $(this).removeClass('expanded');
+                $(this).html('See More <span class="cg29ga-arrow">↓</span>');
+            } else {
+                // Expand - show all tiles
+                $hiddenTiles.show();
+                $(this).addClass('expanded');
+                $(this).html('See Less <span class="cg29ga-arrow">↑</span>');
+            }
         });
     }
     

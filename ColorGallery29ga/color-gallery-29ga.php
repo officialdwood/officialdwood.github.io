@@ -25,6 +25,8 @@ class ColorGallery29ga {
         return self::$instance;
     }
     
+    private static $modal_rendered = false;
+    
     private function __construct() {
         add_action('init', [$this, 'register_post_types']);
         add_action('init', [$this, 'load_textdomain']);
@@ -38,6 +40,7 @@ class ColorGallery29ga {
         add_action('wp_ajax_cg29ga_bulk_upload', [$this, 'handle_bulk_upload']);
         add_action('wp_ajax_cg29ga_upload_file', [$this, 'handle_file_upload']);
         add_action('wp_ajax_cg29ga_add_colors_to_gallery', [$this, 'handle_add_colors_to_gallery']);
+        add_action('wp_footer', [$this, 'render_global_modal']);
         add_shortcode('color_gallery_29ga', [$this, 'render_shortcode']);
         add_action('init', [$this, 'register_dynamic_shortcodes'], 20);
     }
@@ -460,6 +463,35 @@ class ColorGallery29ga {
         wp_enqueue_script('cg29ga-app', CG29GA_URL . 'assets/js/app.js', ['jquery'], CG29GA_VERSION, true);
     }
     
+    /**
+     * Render the global modal once in the footer
+     * This ensures only one modal exists on the page regardless of how many galleries are present
+     */
+    public function render_global_modal() {
+        if (self::$modal_rendered) {
+            return;
+        }
+        
+        // Only render if a gallery shortcode was used on this page
+        if (!did_action('cg29ga_shortcode_used')) {
+            return;
+        }
+        
+        self::$modal_rendered = true;
+        ?>
+        <!-- Color Gallery 29ga Global Modal -->
+        <div id="cg29ga-modal" class="cg29ga-modal">
+            <span class="cg29ga-close">&times;</span>
+            <button class="cg29ga-nav-arrow prev" aria-label="Previous color">‹</button>
+            <button class="cg29ga-nav-arrow next" aria-label="Next color">›</button>
+            <div class="cg29ga-modal-content">
+                <div class="cg29ga-modal-chip"></div>
+                <div class="cg29ga-modal-name"></div>
+            </div>
+        </div>
+        <?php
+    }
+    
     public function enqueue_admin_assets($hook) {
         global $post_type;
         if (('post.php' === $hook || 'post-new.php' === $hook) && 
@@ -800,6 +832,9 @@ class ColorGallery29ga {
         }
         
         ob_start();
+        
+        // Mark that a shortcode has been used (so modal gets rendered in footer)
+        do_action('cg29ga_shortcode_used');
         ?>
         <div class="cg29ga-gallery" data-columns="<?php echo esc_attr($columns); ?>" data-max-visible="<?php echo esc_attr($initially_visible); ?>">
             <div class="cg29ga-grid" style="grid-template-columns: repeat(<?php echo esc_attr($columns); ?>, 1fr);">
@@ -830,17 +865,6 @@ class ColorGallery29ga {
                     </button>
                 </div>
             <?php endif; ?>
-        </div>
-        
-        <!-- Modal for expanded view -->
-        <div id="cg29ga-modal" class="cg29ga-modal">
-            <span class="cg29ga-close">&times;</span>
-            <button class="cg29ga-nav-arrow prev" aria-label="Previous color">‹</button>
-            <button class="cg29ga-nav-arrow next" aria-label="Next color">›</button>
-            <div class="cg29ga-modal-content">
-                <div class="cg29ga-modal-chip"></div>
-                <div class="cg29ga-modal-name"></div>
-            </div>
         </div>
         <?php
         return ob_get_clean();
