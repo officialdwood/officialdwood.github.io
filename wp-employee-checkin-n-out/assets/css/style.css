@@ -80,7 +80,7 @@
     font-weight: 500;
 }
 
-#tcm-message span[style*="color: #00a32a"] {
+.tcm-msg-success {
     background-color: #e8f5e8;
     border: 1px solid #00a32a;
     color: #00a32a !important;
@@ -91,7 +91,7 @@
     box-sizing: border-box;
 }
 
-#tcm-message span[style*="color: #d63638"] {
+.tcm-msg-error {
     background-color: #fef2f2;
     border: 1px solid #d63638;
     color: #d63638 !important;
@@ -102,10 +102,10 @@
     box-sizing: border-box;
 }
 
-#tcm-message span[style*="color: #646970"] {
-    background-color: #f8f9fa;
-    border: 1px solid #e1e1e1;
-    color: #646970 !important;
+.tcm-msg-info {
+    background-color: #e7f3f8;
+    border: 1px solid #2271b1;
+    color: #2271b1 !important;
     padding: 10px 15px;
     border-radius: 6px;
     display: inline-block;
@@ -113,10 +113,10 @@
     box-sizing: border-box;
 }
 
-#tcm-message span[style*="color: #2271b1"] {
-    background-color: #e7f3f8;
-    border: 1px solid #2271b1;
-    color: #2271b1 !important;
+.tcm-msg-neutral {
+    background-color: #f8f9fa;
+    border: 1px solid #e1e1e1;
+    color: #646970 !important;
     padding: 10px 15px;
     border-radius: 6px;
     display: inline-block;
