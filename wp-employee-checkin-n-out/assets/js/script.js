@@ -319,4 +319,79 @@ jQuery(document).ready(function ($) {
 
   // Initialize timer system
   initializeTimer();
+
+  // Time Change Request Modal Functionality
+  const $modal = $("#tcm-request-modal");
+  const $requestLink = $("#tcm-request-link");
+  const $closeBtn = $(".tcm-modal-close");
+  const $cancelBtn = $("#tcm-request-cancel");
+  const $form = $("#tcm-request-form");
+  const $message = $("#tcm-request-message");
+
+  // Open modal
+  $requestLink.click(function(e) {
+    e.preventDefault();
+    $modal.fadeIn(200);
+    // Set today's date as default
+    const today = new Date().toISOString().split('T')[0];
+    $("#tcm-request-date").val(today);
+  });
+
+  // Close modal functions
+  function closeModal() {
+    $modal.fadeOut(200);
+    $form[0].reset();
+    $message.hide().removeClass('success error');
+  }
+
+  $closeBtn.click(closeModal);
+  $cancelBtn.click(closeModal);
+
+  // Close when clicking outside modal
+  $modal.click(function(e) {
+    if (e.target === $modal[0]) {
+      closeModal();
+    }
+  });
+
+  // Handle form submission
+  $form.submit(function(e) {
+    e.preventDefault();
+    
+    const formData = {
+      action: 'tcm_submit_time_request',
+      request_type: $("#tcm-request-type").val(),
+      request_date: $("#tcm-request-date").val(),
+      request_time: $("#tcm-request-time").val(),
+      description: $("#tcm-request-description").val()
+    };
+
+    // Disable submit button
+    const $submitBtn = $form.find('button[type="submit"]');
+    $submitBtn.prop('disabled', true).text('Submitting...');
+
+    $.post(tcm_ajax_object.ajaxurl, formData, function(response) {
+      $submitBtn.prop('disabled', false).text('Submit Request');
+      
+      if (response.success) {
+        $message.removeClass('error').addClass('success')
+          .text('✓ Your request has been submitted successfully.')
+          .show();
+        
+        // Clear form after short delay
+        setTimeout(function() {
+          closeModal();
+        }, 2000);
+      } else {
+        $message.removeClass('success').addClass('error')
+          .text('✗ ' + (response.data || 'Failed to submit request. Please try again.'))
+          .show();
+      }
+    }).fail(function() {
+      $submitBtn.prop('disabled', false).text('Submit Request');
+      $message.removeClass('success').addClass('error')
+        .text('✗ Network error. Please try again.')
+        .show();
+    });
+  });
 });

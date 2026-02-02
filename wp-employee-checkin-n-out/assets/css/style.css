@@ -124,16 +124,7 @@
     box-sizing: border-box;
 }
 
-/* Pulse animation for active timer */
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
-}
-
-#tcm-timer.active {
-    animation: pulse 2s ease-in-out infinite;
-}
+/* Pulse animation removed - keeping timer stable */
 
 /* Responsive design */
 @media (max-width: 480px) {

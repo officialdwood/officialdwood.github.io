@@ -178,6 +178,82 @@ function tcm_ajax_get_weekly_total(){
     ]);
 }
 
+// === AJAX: Submit Time Change Request ===
+add_action('wp_ajax_tcm_submit_time_request', 'tcm_ajax_submit_time_request');
+function tcm_ajax_submit_time_request(){
+    if (!is_user_logged_in()) {
+        wp_send_json_error('Not logged in');
+    }
+    
+    $user_id = get_current_user_id();
+    $user = wp_get_current_user();
+    
+    // Sanitize inputs
+    $request_type = sanitize_text_field($_POST['request_type']);
+    $request_date = sanitize_text_field($_POST['request_date']);
+    $request_time = sanitize_text_field($_POST['request_time']);
+    $description = sanitize_textarea_field($_POST['description']);
+    
+    // Validate inputs
+    if (empty($request_type) || empty($request_date) || empty($request_time) || empty($description)) {
+        wp_send_json_error('All fields are required');
+    }
+    
+    global $wpdb;
+    $table = $wpdb->prefix . 'tcm_time_requests';
+    
+    // Create table if it doesn't exist
+    $charset_collate = $wpdb->get_charset_collate();
+    $sql = "CREATE TABLE IF NOT EXISTS $table (
+        id bigint(20) NOT NULL AUTO_INCREMENT,
+        user_id bigint(20) NOT NULL,
+        request_type varchar(50) NOT NULL,
+        request_date date NOT NULL,
+        request_time time NOT NULL,
+        description text NOT NULL,
+        status varchar(20) DEFAULT 'pending',
+        created_at datetime DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        KEY user_id (user_id)
+    ) $charset_collate;";
+    
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+    
+    // Insert the request
+    $result = $wpdb->insert(
+        $table,
+        array(
+            'user_id' => $user_id,
+            'request_type' => $request_type,
+            'request_date' => $request_date,
+            'request_time' => $request_time,
+            'description' => $description,
+            'status' => 'pending',
+            'created_at' => current_time('mysql')
+        ),
+        array('%d', '%s', '%s', '%s', '%s', '%s', '%s')
+    );
+    
+    if ($result) {
+        // Send notification email to admin (optional)
+        $admin_email = get_option('admin_email');
+        $subject = 'New Time Change Request - ' . $user->display_name;
+        $message = "A new time change request has been submitted:\n\n";
+        $message .= "User: " . $user->display_name . " (" . $user->user_email . ")\n";
+        $message .= "Type: " . $request_type . "\n";
+        $message .= "Date: " . $request_date . "\n";
+        $message .= "Time: " . $request_time . "\n";
+        $message .= "Description: " . $description . "\n";
+        
+        wp_mail($admin_email, $subject, $message);
+        
+        wp_send_json_success('Request submitted successfully');
+    } else {
+        wp_send_json_error('Failed to submit request');
+    }
+}
+
 // Add-record feature (guarded include)
 if ( file_exists( TCM_PLUGIN_DIR . '/includes/tcm-add-record.php' ) ) {
     require_once TCM_PLUGIN_DIR . '/includes/tcm-add-record.php';
