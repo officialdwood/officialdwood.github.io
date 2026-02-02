@@ -331,83 +331,107 @@ jQuery(document).ready(function ($) {
   console.log('TimeClock: Initializing request modal functionality');
   console.log('Modal element:', $modal.length, 'Link element:', $requestLink.length);
 
-  // Open modal
-  $requestLink.on('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log('Request Time Change link clicked');
-    $modal.css('display', 'block').fadeIn(200);
-    // Set today's date as default
-    const today = new Date().toISOString().split('T')[0];
-    $("#tcm-request-date").val(today);
-  });
+  // Only initialize if modal and link exist
+  if ($modal.length && $requestLink.length) {
+    console.log('Modal and link found, attaching event handlers');
 
-  // Close modal functions
-  function closeModal() {
-    console.log('Closing modal');
-    $modal.fadeOut(200);
-    if ($form[0]) {
-      $form[0].reset();
-    }
-    $message.hide().removeClass('success error');
-  }
-
-  $closeBtn.on('click', function(e) {
-    e.preventDefault();
-    closeModal();
-  });
-  
-  $cancelBtn.on('click', function(e) {
-    e.preventDefault();
-    closeModal();
-  });
-
-  // Close when clicking outside modal
-  $modal.click(function(e) {
-    if (e.target === $modal[0]) {
-      closeModal();
-    }
-  });
-
-  // Handle form submission
-  $form.submit(function(e) {
-    e.preventDefault();
-    
-    const formData = {
-      action: 'tcm_submit_time_request',
-      nonce: tcm_ajax_object.time_request_nonce,
-      request_type: $("#tcm-request-type").val(),
-      request_date: $("#tcm-request-date").val(),
-      request_time: $("#tcm-request-time").val(),
-      description: $("#tcm-request-description").val()
-    };
-
-    // Disable submit button
-    const $submitBtn = $form.find('button[type="submit"]');
-    $submitBtn.prop('disabled', true).text('Submitting...');
-
-    $.post(tcm_ajax_object.ajaxurl, formData, function(response) {
-      $submitBtn.prop('disabled', false).text('Submit Request');
+    // Open modal
+    $requestLink.on('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Request Time Change link clicked');
       
-      if (response.success) {
-        $message.removeClass('error').addClass('success')
-          .text('✓ Your request has been submitted successfully.')
-          .show();
-        
-        // Clear form after short delay
-        setTimeout(function() {
-          closeModal();
-        }, 2000);
-      } else {
-        $message.removeClass('success').addClass('error')
-          .text('✗ ' + (response.data || 'Failed to submit request. Please try again.'))
-          .show();
-      }
-    }).fail(function() {
-      $submitBtn.prop('disabled', false).text('Submit Request');
-      $message.removeClass('success').addClass('error')
-        .text('✗ Network error. Please try again.')
-        .show();
+      // Show modal with explicit display setting
+      $modal.css('display', 'block');
+      $modal.show();
+      
+      // Set today's date as default
+      const today = new Date().toISOString().split('T')[0];
+      $("#tcm-request-date").val(today);
+      
+      console.log('Modal should now be visible');
     });
-  });
+
+    // Close modal functions
+    function closeModal() {
+      console.log('Closing modal');
+      $modal.fadeOut(200, function() {
+        $modal.css('display', 'none');
+      });
+      if ($form[0]) {
+        $form[0].reset();
+      }
+      $message.hide().removeClass('success error');
+    }
+
+    $closeBtn.on('click', function(e) {
+      e.preventDefault();
+      console.log('Close button clicked');
+      closeModal();
+    });
+    
+    $cancelBtn.on('click', function(e) {
+      e.preventDefault();
+      console.log('Cancel button clicked');
+      closeModal();
+    });
+
+    // Close when clicking outside modal
+    $modal.on('click', function(e) {
+      if (e.target === $modal[0]) {
+        console.log('Clicked outside modal content');
+        closeModal();
+      }
+    });
+
+    // Handle form submission
+    $form.on('submit', function(e) {
+      e.preventDefault();
+      console.log('Form submitted');
+      
+      const formData = {
+        action: 'tcm_submit_time_request',
+        nonce: tcm_ajax_object.time_request_nonce,
+        request_type: $("#tcm-request-type").val(),
+        request_date: $("#tcm-request-date").val(),
+        request_time: $("#tcm-request-time").val(),
+        description: $("#tcm-request-description").val()
+      };
+
+      console.log('Form data:', formData);
+
+      // Disable submit button
+      const $submitBtn = $form.find('button[type="submit"]');
+      $submitBtn.prop('disabled', true).text('Submitting...');
+
+      $.post(tcm_ajax_object.ajaxurl, formData, function(response) {
+        console.log('Server response:', response);
+        $submitBtn.prop('disabled', false).text('Submit Request');
+        
+        if (response.success) {
+          $message.removeClass('error').addClass('success')
+            .text('✓ Your request has been submitted successfully.')
+            .show();
+          
+          // Clear form after short delay
+          setTimeout(function() {
+            closeModal();
+          }, 2000);
+        } else {
+          $message.removeClass('success').addClass('error')
+            .text('✗ ' + (response.data || 'Failed to submit request. Please try again.'))
+            .show();
+        }
+      }).fail(function(jqXHR, textStatus, errorThrown) {
+        console.error('AJAX error:', textStatus, errorThrown);
+        $submitBtn.prop('disabled', false).text('Submit Request');
+        $message.removeClass('success').addClass('error')
+          .text('✗ Network error. Please try again.')
+          .show();
+      });
+    });
+  } else {
+    console.warn('Modal or link element not found - modal functionality disabled');
+    console.log('Modal exists:', $modal.length > 0, 'Link exists:', $requestLink.length > 0);
+  }
 });
