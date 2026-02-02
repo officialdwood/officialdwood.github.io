@@ -1,0 +1,127 @@
+/* TCM Admin Styles */
+
+/* Update button styles */
+.tcm-update-btn {
+    transition: all 0.3s ease;
+}
+
+.tcm-update-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed !important;
+    background-color: #f0f0f1 !important;
+    border-color: #dcdcde !important;
+    color: #646970 !important;
+}
+
+/* Input field styles */
+.tcm-hours-part,
+.tcm-minutes-part {
+    transition: border-color 0.3s ease;
+}
+
+.tcm-hours-part:focus,
+.tcm-minutes-part:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+/* Error state for inputs */
+.tcm-hours-part.error,
+.tcm-minutes-part.error {
+    border-color: #d63638 !important;
+    box-shadow: 0 0 0 1px #d63638 !important;
+}
+
+/* Success state for updated rows */
+.tcm-row-updated {
+    background-color: #f0f6fc !important;
+    transition: background-color 0.5s ease;
+}
+
+/* Loading spinner for update button */
+.tcm-update-btn.loading {
+    position: relative;
+}
+
+.tcm-update-btn.loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    margin: auto;
+    border: 2px solid transparent;
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: tcm-spin 1s ease infinite;
+}
+
+@keyframes tcm-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive improvements */
+@media (max-width: 782px) {
+    .tcm-hours-edit {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+    
+    .tcm-hours-edit > div {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .tcm-update-btn {
+        width: 100%;
+        justify-self: stretch;
+    }
+}
+
+/* Tooltip styles for validation messages */
+.tcm-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tcm-tooltip .tcm-tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: #d63638;
+    color: white;
+    text-align: center;
+    border-radius: 4px;
+    padding: 5px 8px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tcm-tooltip .tcm-tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #d63638 transparent transparent transparent;
+}
+
+.tcm-tooltip:hover .tcm-tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+
+/* Delete under employee name */
+.tcm-row-actions-left{ margin-top:4px; }
+.tcm-row-actions-left .tcm-delete-btn{ color:#d63638 !important; }
+.tcm-row-actions-left .tcm-delete-btn:hover{ color:#a60000 !important; text-decoration:underline; }

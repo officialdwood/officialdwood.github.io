@@ -1,0 +1,184 @@
+<?php
+/*
+Plugin Name: TimeClock Manager
+ * Plugin URI: https://www.brightidea.media
+ * Author URI: https://www.brightidea.media
+Description: A timeclock plugin for users to clock in/out and admins to manage weekly reports.
+Version: 1.1
+Author: SolCoders
+Author URI: https://solcoders.com
+Text Domain: tcm
+
+MIGRATION NOTE (2025-10): Week boundaries now use Sunday 00:00 America/Denver. Existing data keeps
+week_start_date for reference; week_start_date_sun stores the canonical value. To roll back, remove
+the new column and restore legacy Monday logic. Backfill runs on admin_init and is idempotent.
+*/
+
+if (!defined('ABSPATH'))
+    exit;
+
+define('TCM_PLUGIN_FILE', __FILE__);
+define('TCM_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('TCM_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('TCM_PLUGIN_ASSETS', TCM_PLUGIN_URL . 'assets');
+define('TCM_PLUGIN_INCLUDES', TCM_PLUGIN_DIR . 'includes');
+define('TCM_PLUGIN_TEMPLATES', TCM_PLUGIN_DIR . 'templates');
+define('TCM_PLUGIN_INC', TCM_PLUGIN_DIR . 'inc');
+
+
+// Load core plugin
+require_once TCM_PLUGIN_INC . '/utils-dates.php';
+require_once TCM_PLUGIN_DIR . '/helper.php';
+require_once TCM_PLUGIN_DIR . '/database.php';
+require_once TCM_PLUGIN_INCLUDES . '/class-tcm-loader.php';
+
+
+require_once TCM_PLUGIN_INCLUDES . '/admin/class-tcm-admin-reports.php';
+TCM_Admin_Reports::maybe_export_csv();
+
+// === TimeClock: Redirect users to /timeclock after logout ===
+add_filter('logout_redirect', function($redirect_to, $requested_redirect_to, $user) {
+    // Default target for the kiosk
+    $target = home_url('/timeclock/');
+
+    // If we have a user object and they are an admin, preserve normal behavior
+    if ($user instanceof WP_User && user_can($user, 'manage_options')) {
+        // Respect an explicit redirect if provided, otherwise leave core behavior
+        return $requested_redirect_to ? $requested_redirect_to : $redirect_to;
+    }
+
+    // For employees/standard users, always send back to the kiosk
+    return $target;
+}, 20, 3);
+
+
+// === Bright Idea Marketing Branding Enforcement ===
+add_action('admin_init', function () {
+    add_filter('all_plugins', function ($plugins) {
+        if (!function_exists('plugin_basename')) { return $plugins; }
+        $file = plugin_basename(__FILE__);
+        if (isset($plugins[$file])) {
+            $plugins[$file]['AuthorName'] = 'Bright Idea Marketing';
+            $plugins[$file]['Author']     = '<a href="https://www.brightidea.media" target="_blank" rel="noopener">Bright Idea Marketing</a>';
+            $plugins[$file]['AuthorURI']  = 'https://www.brightidea.media';
+            $plugins[$file]['PluginURI']  = 'https://www.brightidea.media';
+            $desc = isset($plugins[$file]['Description']) ? $plugins[$file]['Description'] : '';
+            if (strpos($desc, 'Dylan Wood') === false) {
+                $plugins[$file]['Description'] = trim($desc . ' — Created by Bright Idea Marketing • Creator: Dylan Wood');
+            }
+        }
+        return $plugins;
+    }, 9999);
+
+    // Extra row meta: Creator credit (cannot be altered via header)
+    add_filter('plugin_row_meta', function ($links, $file) {
+        if ($file === plugin_basename(__FILE__)) {
+            $links[] = '<strong>Creator:</strong> Dylan Wood';
+            $links[] = '<a href="https://www.brightidea.media" target="_blank" rel="noopener">brightidea.media</a>';
+        }
+        return $links;
+    }, 9999, 2);
+});
+// === End Branding Enforcement ===
+
+
+
+/**
+ * Force logout redirect to /timeclock to prep for next user PIN login.
+ */
+add_filter('logout_redirect', function($redirect_to, $requested_redirect_to, $user){
+    $target = home_url('/timeclock');
+    return $target;
+}, 9999, 3);
+
+
+// === AJAX: Weekly Total for current user (Mon-Sun) ===
+add_action('wp_ajax_tcm_get_weekly_total', 'tcm_ajax_get_weekly_total');
+function tcm_ajax_get_weekly_total(){
+    if (!is_user_logged_in()) {
+        wp_send_json_error('Not logged in');
+    }
+    $user_id = get_current_user_id();
+    global $wpdb;
+    $table = $wpdb->prefix . 'tcm_timesheets';
+
+    $now = TimeClock\Dates\now();
+    [$start_dt, $end_dt] = TimeClock\Dates\week_bounds($now);
+    $week_start = TimeClock\Dates\to_storage_date($start_dt);
+    $week_end   = TimeClock\Dates\to_storage_date($end_dt);
+
+    $rows = $wpdb->get_results($wpdb->prepare(
+        "SELECT id, clock_in, clock_out, total_hours, total_minutes
+         FROM {$table}
+         WHERE user_id = %d
+           AND week_start_date_sun = %s",
+        $user_id, $week_start
+    ));
+
+    $total = 0.0;
+    $daily = [];
+    $cursor = $start_dt;
+    for ($i = 0; $i < 7; $i++) {
+        $key = TimeClock\Dates\to_storage_date($cursor);
+        $daily[$key] = [
+            'dt'      => $cursor,
+            'decimal' => 0.0,
+        ];
+        $cursor = $cursor->modify('+1 day');
+    }
+
+    if ($rows) {
+        foreach ($rows as $r) {
+            $clock_in_dt  = !empty($r->clock_in) ? TimeClock\Dates\parse_storage($r->clock_in) : null;
+            $clock_out_dt = !empty($r->clock_out) ? TimeClock\Dates\parse_storage($r->clock_out) : null;
+
+            if ($clock_in_dt && $clock_out_dt) {
+                $seconds = max(0, $clock_out_dt->getTimestamp() - $clock_in_dt->getTimestamp());
+                $h = $seconds / 3600;
+            } elseif (isset($r->total_minutes) && $r->total_minutes !== null) {
+                $h = max(0, (int) $r->total_minutes) / 60;
+            } else {
+                $h = max(0, floatval($r->total_hours));
+            }
+
+            $total += $h;
+
+            $date_key = $clock_in_dt ? TimeClock\Dates\to_storage_date($clock_in_dt) : $week_start;
+            if (!isset($daily[$date_key])) {
+                $daily[$date_key] = [
+                    'dt'      => $clock_in_dt ?: $start_dt,
+                    'decimal' => 0.0,
+                ];
+            }
+            $daily[$date_key]['decimal'] += $h;
+        }
+    }
+    $total = round($total, 4);
+    $total_formatted = number_format($total, 2) . ' hours';
+
+    $daily_payload = [];
+    foreach ($daily as $date_key => $info) {
+        $label_dt = $info['dt'] instanceof DateTimeInterface ? $info['dt'] : TimeClock\Dates\parse_storage($date_key . ' 00:00:00');
+        $label = $label_dt ? TimeClock\Dates\fmt($label_dt, TimeClock\Dates\DATE_FMT) : $date_key;
+        $dec = isset($info['decimal']) ? round((float) $info['decimal'], 2) : 0.0;
+        $daily_payload[] = [
+            'date'      => $date_key,
+            'label'     => $label,
+            'decimal'   => $dec,
+            'formatted' => number_format($dec, 2) . ' h',
+        ];
+    }
+
+    wp_send_json_success([
+        'total_decimal'   => round($total, 2),
+        'total_formatted' => $total_formatted,
+        'week_start'      => TimeClock\Dates\fmt($start_dt, TimeClock\Dates\DATE_FMT),
+        'week_end'        => TimeClock\Dates\fmt($end_dt, TimeClock\Dates\DATE_FMT),
+        'daily_totals'    => $daily_payload,
+    ]);
+}
+
+// Add-record feature (guarded include)
+if ( file_exists( TCM_PLUGIN_DIR . '/includes/tcm-add-record.php' ) ) {
+    require_once TCM_PLUGIN_DIR . '/includes/tcm-add-record.php';
+}
