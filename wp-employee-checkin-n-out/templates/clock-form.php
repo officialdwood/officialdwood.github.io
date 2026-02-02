@@ -3,28 +3,65 @@ $user = wp_get_current_user();
 ?>
 
 <div class="tcm-clock-form">
-    <p>Hello, <strong><?php echo esc_html($user->display_name); ?></strong></p>
-    <button id="tcm-clock-in" class="tcm-button">Clock In</button>
-    <button id="tcm-clock-out" class="tcm-button">Clock Out</button>
-    <p id="tcm-message"></p>
-    <div class="tcm-stats-card">
-        <div id="tcm-timer" class="tcm-timer"></div>
-        <div id="tcm-daily-breakdown" class="tcm-daily"></div>
+    <p class="tcm-greeting">Hello, <strong><?php echo esc_html($user->display_name); ?></strong></p>
+    
+    <!-- Weekly Hours Summary Box (Shows immediately on login) -->
+    <div class="tcm-weekly-summary">
+        <h3 class="tcm-summary-title">Weekly Hours Summary</h3>
+        <div id="tcm-weekly-total" class="tcm-weekly-total">
+            <span class="tcm-total-label">Total:</span>
+            <span class="tcm-total-hours">Loading...</span>
+        </div>
+        <div id="tcm-daily-breakdown" class="tcm-daily-breakdown"></div>
     </div>
-    <div class="tcm-logout-wrap" style="text-align:center;">
+
+    <!-- Clock In/Out Buttons -->
+    <div class="tcm-action-buttons">
+        <button id="tcm-clock-in" class="tcm-button tcm-clock-in-btn">Clock In</button>
+        <button id="tcm-clock-out" class="tcm-button tcm-clock-out-btn">Clock Out</button>
+    </div>
+    
+    <p id="tcm-message" class="tcm-message"></p>
+    
+    <!-- Active Timer Display -->
+    <div class="tcm-timer-card" id="tcm-timer-card" style="display:none;">
+        <div id="tcm-timer" class="tcm-timer"></div>
+    </div>
+
+    <!-- Request Time Adjustment Button -->
+    <div class="tcm-adjustment-wrap">
+        <button id="tcm-request-adjustment-btn" class="tcm-button tcm-adjustment-btn">Request Time Adjustment</button>
+    </div>
+
+    <!-- Time Adjustment Request Modal -->
+    <div id="tcm-adjustment-modal" class="tcm-modal" style="display:none;">
+        <div class="tcm-modal-content">
+            <span class="tcm-modal-close">&times;</span>
+            <h3>Request Time Adjustment</h3>
+            <p class="tcm-modal-desc">If you missed a punch or need to adjust your time, please provide the details below.</p>
+            <form id="tcm-adjustment-form">
+                <div class="tcm-form-group">
+                    <label for="tcm-missed-date">Date of Missed Punch:</label>
+                    <input type="date" id="tcm-missed-date" name="missed_date" required />
+                </div>
+                <div class="tcm-form-group">
+                    <label for="tcm-missed-time">Time of Missed Punch:</label>
+                    <input type="time" id="tcm-missed-time" name="missed_time" required />
+                </div>
+                <div class="tcm-form-group">
+                    <label for="tcm-adjustment-notes">Notes/Explanation:</label>
+                    <textarea id="tcm-adjustment-notes" name="notes" rows="4" placeholder="Please explain the reason for this adjustment request..." required></textarea>
+                </div>
+                <div class="tcm-form-actions">
+                    <button type="submit" class="tcm-button tcm-submit-btn">Submit Request</button>
+                    <button type="button" class="tcm-button tcm-cancel-btn" id="tcm-cancel-adjustment">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Logout Button -->
+    <div class="tcm-logout-wrap">
         <a class="tcm-button tcm-logout-btn" href="<?php echo esc_url( wp_logout_url( home_url('/timeclock') ) ); ?>">Logout</a>
     </div>
-    <style>
-        .tcm-logout-wrap{ margin-top:12px; }
-        .tcm-stats-card{margin-top:14px;background:#f7f7f8;border:1px solid #dedede;border-radius:10px;padding:14px;text-align:center;}
-        .tcm-timer .timer-main{font-size:20px;font-weight:700;letter-spacing:0.5px;}
-        .tcm-timer .timer-sub{color:#6b7280;font-size:13px;margin-top:3px;}
-        .tcm-daily{margin-top:12px;}
-        .tcm-daily-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;}
-        .tcm-daily-item{background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;padding:8px 6px;box-shadow:0 1px 2px rgba(0,0,0,0.04);}
-        .tcm-daily-day{font-weight:700;color:#111827;font-size:13px;}
-        .tcm-daily-hours{color:#047857;font-weight:700;margin-top:2px;}
-        .tcm-daily-empty{color:#6b7280;font-size:13px;}
-    </style>
-
 </div>

@@ -21,6 +21,7 @@ if (!class_exists('TCM_Clock_Handler')) {
             add_action('wp_ajax_tcm_update_hours', [$this, 'update_hours']);
             add_action('wp_ajax_tcm_delete_record', [$this, 'delete_record']);
             add_action('wp_ajax_tcm_get_server_time', [$this, 'get_server_time']);
+            add_action('wp_ajax_tcm_submit_adjustment_request', [$this, 'submit_adjustment_request']);
             register_activation_hook(TCM_PLUGIN_FILE, [$this, 'create_table']);
         }
 
@@ -323,6 +324,55 @@ function update_hours()
                 'server_time' => TimeClock\Dates\fmt(TimeClock\Dates\now()),
                 'timezone' => TimeClock\Dates\TZ,
             ]);
+        }
+
+        public function submit_adjustment_request()
+        {
+            $user_id = get_current_user_id();
+            if (!$user_id) {
+                wp_send_json_error('Not logged in');
+                return;
+            }
+
+            $missed_date = isset($_POST['missed_date']) ? sanitize_text_field($_POST['missed_date']) : '';
+            $missed_time = isset($_POST['missed_time']) ? sanitize_text_field($_POST['missed_time']) : '';
+            $notes = isset($_POST['notes']) ? sanitize_textarea_field($_POST['notes']) : '';
+
+            if (empty($missed_date) || empty($missed_time) || empty($notes)) {
+                wp_send_json_error('All fields are required');
+                return;
+            }
+
+            // Combine date and time into a datetime string
+            $missed_datetime = $missed_date . ' ' . $missed_time . ':00';
+            
+            // Validate datetime format
+            $parsed_dt = TimeClock\Dates\parse_storage($missed_datetime);
+            if (!$parsed_dt) {
+                wp_send_json_error('Invalid date or time format');
+                return;
+            }
+
+            global $wpdb;
+            $table = $wpdb->prefix . 'tcm_adjustment_requests';
+            $now = TimeClock\Dates\to_storage(TimeClock\Dates\now());
+
+            $result = $wpdb->insert($table, [
+                'user_id' => $user_id,
+                'request_date' => $now,
+                'missed_time' => $missed_datetime,
+                'notes' => $notes,
+                'status' => 'pending',
+            ], ['%d', '%s', '%s', '%s', '%s']);
+
+            if ($result) {
+                wp_send_json_success([
+                    'message' => 'Time adjustment request submitted successfully',
+                    'request_id' => $wpdb->insert_id
+                ]);
+            } else {
+                wp_send_json_error('Failed to submit request. Please try again.');
+            }
         }
     }
     new TCM_Clock_Handler();

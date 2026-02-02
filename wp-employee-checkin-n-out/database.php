@@ -139,4 +139,28 @@ function tcm_backfill_total_minutes($table)
     } while (count($rows) === $batch);
 }
 
+function tcm_create_adjustment_requests_table()
+{
+    global $wpdb;
+    $table = $wpdb->prefix . 'tcm_adjustment_requests';
+    $charset = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE IF NOT EXISTS $table (
+            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            user_id BIGINT UNSIGNED NOT NULL,
+            request_date DATETIME NOT NULL,
+            missed_time DATETIME NOT NULL,
+            notes TEXT,
+            status VARCHAR(20) DEFAULT 'pending',
+            admin_notes TEXT,
+            reviewed_by BIGINT UNSIGNED,
+            reviewed_at DATETIME,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) $charset;";
+
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    dbDelta($sql);
+}
+
 tcm_create_table();
+tcm_create_adjustment_requests_table();

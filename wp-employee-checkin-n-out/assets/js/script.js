@@ -6,7 +6,6 @@ jQuery(document).ready(function ($) {
   let weeklyTotalFormatted = null;
   let dailyTotals = [];
 
-
   function parseUiDateTime(value) {
     if (!value) return null;
     const match = value.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
@@ -19,15 +18,13 @@ jQuery(document).ready(function ($) {
     const meridiem = match[6].toUpperCase();
     if (hour === 12) hour = 0;
     if (meridiem === 'PM') hour += 12;
-    return new Date(year, month, day, hour, minute); // local tz assumption
+    return new Date(year, month, day, hour, minute);
   }
 
-  // Calculate server time offset when page loads
   function calculateServerTimeOffset(serverTimeString) {
     try {
       const serverTime = parseUiDateTime(serverTimeString) || new Date(serverTimeString);
       const clientTime = new Date();
-
       serverTimeOffset = serverTime.getTime() - clientTime.getTime();
       console.log('Server time offset calculated:', serverTimeOffset, 'ms');
     } catch (e) {
@@ -40,13 +37,11 @@ jQuery(document).ready(function ($) {
     return new Date(Date.now() + serverTimeOffset);
   }
 
-  
-  function renderIdleSummary() {
-    const weekly = weeklyTotalDecimal !== null ? weeklyTotalDecimal.toFixed(2) + " hours" : "--";
-    $("#tcm-timer").html(
-      '<div class="timer-main">Not clocked in</div>' +
-      '<div class="timer-sub">Weekly Total: ' + weekly + '</div>'
-    ).addClass('active');
+  function renderWeeklySummary() {
+    const totalHtml = weeklyTotalDecimal !== null 
+      ? weeklyTotalDecimal.toFixed(2) + " hours" 
+      : "0.00 hours";
+    $("#tcm-weekly-total .tcm-total-hours").html(totalHtml);
   }
 
   function renderDailyTotals() {
@@ -54,17 +49,19 @@ jQuery(document).ready(function ($) {
     if (!$container.length) return;
 
     if (!Array.isArray(dailyTotals) || !dailyTotals.length) {
-      $container.html('<div class="tcm-daily-empty">Daily totals unavailable.</div>');
+      $container.html('<div class="tcm-daily-empty">No hours recorded this week.</div>');
       return;
     }
 
     const items = dailyTotals
       .map(function (d) {
         const dec = Number.isFinite(d.decimal) ? d.decimal : 0;
+        const dayParts = (d.label || '').split(' ');
+        const dayName = dayParts[0] || '';
         return (
           '<div class="tcm-daily-item">' +
-            '<div class="tcm-daily-day">' + (d.label || d.date || '') + '</div>' +
-            '<div class="tcm-daily-hours">' + dec.toFixed(2) + ' h</div>' +
+            '<div class="tcm-daily-day">' + dayName + '</div>' +
+            '<div class="tcm-daily-hours">' + dec.toFixed(2) + 'h</div>' +
           '</div>'
         );
       })
@@ -80,27 +77,24 @@ jQuery(document).ready(function ($) {
       function (resp) {
         if (resp && resp.success && resp.data) {
           weeklyTotalDecimal = parseFloat(resp.data.total_decimal || 0);
-          weeklyTotalFormatted = resp.data.total_formatted || (weeklyTotalDecimal.toFixed ? (weeklyTotalDecimal.toFixed(2) + " hours") : "0.00 hours");
+          weeklyTotalFormatted = resp.data.total_formatted || (weeklyTotalDecimal.toFixed(2) + " hours");
           dailyTotals = Array.isArray(resp.data.daily_totals) ? resp.data.daily_totals : [];
         } else {
-          weeklyTotalDecimal = null;
-          weeklyTotalFormatted = null;
+          weeklyTotalDecimal = 0;
+          weeklyTotalFormatted = "0.00 hours";
           dailyTotals = [];
         }
+        renderWeeklySummary();
         renderDailyTotals();
-        if (!clockInTime) {
-          renderIdleSummary();
-        }
       }
     ).fail(function(){
+      weeklyTotalDecimal = 0;
+      weeklyTotalFormatted = "0.00 hours";
       dailyTotals = [];
+      renderWeeklySummary();
       renderDailyTotals();
-      if (!clockInTime) {
-        renderIdleSummary();
-      }
     });
   }
-
 
   function startTimer(clockInTimeString = null) {
     clearInterval(timerInterval);
@@ -115,12 +109,11 @@ jQuery(document).ready(function ($) {
         clockInTime = getCurrentServerTime();
       }
     } else {
-      // Start timer from current server time
       clockInTime = getCurrentServerTime();
       console.log('Timer started from current server time:', clockInTime);
     }
     
-    // Update timer immediately, then every second
+    $("#tcm-timer-card").show();
     updateTimer();
     timerInterval = setInterval(updateTimer, 1000);
   }
@@ -130,16 +123,12 @@ jQuery(document).ready(function ($) {
     
     const now = getCurrentServerTime();
     const diffMs = now.getTime() - clockInTime.getTime();
-    
-    // Ensure we don't show negative time
     const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
     
-    // Calculate hours, minutes, seconds
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
     
-    // Format with leading zeros
     const hoursStr = String(hours).padStart(2, "0");
     const minutesStr = String(minutes).padStart(2, "0");
     const secondsStr = String(seconds).padStart(2, "0");
@@ -149,16 +138,15 @@ jQuery(document).ready(function ($) {
     
     $("#tcm-timer").html(`
       <div class="timer-main">⏱️ ${timeDisplay}</div>
-      <div class="timer-sub">Total: ${totalHours} hours</div>\n      <div class="timer-sub">Weekly Total: ${weeklyTotalDecimal !== null ? weeklyTotalDecimal.toFixed(2) : '--'} hours</div>
-    `).addClass('active');
-    
-    console.log('Timer update:', timeDisplay, `(${totalHours}h)`);
+      <div class="timer-sub">Session: ${totalHours} hours</div>
+    `);
+    $("#tcm-timer-card").addClass('active');
   }
 
   function stopTimer() {
     clearInterval(timerInterval);
     clockInTime = null;
-    renderIdleSummary();
+    $("#tcm-timer-card").hide().removeClass('active');
     console.log('Timer stopped');
   }
 
@@ -174,22 +162,20 @@ jQuery(document).ready(function ($) {
       },
       function (response) {
         console.log('Clock in response:', response);
-        fetchWeeklyTotal();
         
         if (response.success) {
           $("#tcm-message").html(`<span style="color: #00a32a;">✅ ${response.data.message}</span>`);
           button.text('Clock In').prop('disabled', true);
           $("#tcm-clock-out").prop('disabled', false);
           
-          // Calculate server time offset if we have clock_in time
           if (response.data.clock_in) {
             calculateServerTimeOffset(response.data.clock_in);
-            // Start the timer from the exact server clock-in time
             startTimer(response.data.clock_in);
           } else {
-            // Fallback: start timer from current time
             startTimer();
           }
+          
+          fetchWeeklyTotal();
         } else {
           $("#tcm-message").html(`<span style="color: #d63638;">❌ Error: ${response.data}</span>`);
           button.text('Clock In').prop('disabled', false);
@@ -213,13 +199,13 @@ jQuery(document).ready(function ($) {
       },
       function (response) {
         console.log('Clock out response:', response);
-        fetchWeeklyTotal();
         
         if (response.success) {
           $("#tcm-message").html(`<span style="color: #00a32a;">✅ ${response.data.message}</span>`);
           $("#tcm-clock-in").prop('disabled', false);
           button.text('Clock Out').prop('disabled', true);
           stopTimer();
+          fetchWeeklyTotal();
         } else {
           $("#tcm-message").html(`<span style="color: #d63638;">❌ Error: ${response.data}</span>`);
           button.text('Clock Out').prop('disabled', false);
@@ -231,7 +217,70 @@ jQuery(document).ready(function ($) {
     });
   });
 
-  // Get current server time first to calculate offset
+  // Time Adjustment Request Modal
+  $("#tcm-request-adjustment-btn").click(function() {
+    $("#tcm-adjustment-modal").fadeIn(200);
+    // Set default date to today
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0];
+    $("#tcm-missed-date").val(dateStr);
+  });
+
+  $(".tcm-modal-close, #tcm-cancel-adjustment").click(function() {
+    $("#tcm-adjustment-modal").fadeOut(200);
+    $("#tcm-adjustment-form")[0].reset();
+  });
+
+  // Close modal when clicking outside
+  $(window).click(function(event) {
+    if (event.target.id === 'tcm-adjustment-modal') {
+      $("#tcm-adjustment-modal").fadeOut(200);
+      $("#tcm-adjustment-form")[0].reset();
+    }
+  });
+
+  $("#tcm-adjustment-form").submit(function(e) {
+    e.preventDefault();
+    
+    const missedDate = $("#tcm-missed-date").val();
+    const missedTime = $("#tcm-missed-time").val();
+    const notes = $("#tcm-adjustment-notes").val();
+    
+    if (!missedDate || !missedTime || !notes.trim()) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    
+    const submitBtn = $(this).find('button[type="submit"]');
+    submitBtn.prop('disabled', true).text('Submitting...');
+    
+    $.post(
+      tcm_ajax_object.ajaxurl,
+      {
+        action: "tcm_submit_adjustment_request",
+        missed_date: missedDate,
+        missed_time: missedTime,
+        notes: notes
+      },
+      function(response) {
+        if (response.success) {
+          $("#tcm-adjustment-modal").fadeOut(200);
+          $("#tcm-adjustment-form")[0].reset();
+          $("#tcm-message").html(`<span style="color: #00a32a;">✅ Time adjustment request submitted successfully!</span>`);
+          setTimeout(function() {
+            $("#tcm-message").html('');
+          }, 5000);
+        } else {
+          alert("Error: " + (response.data || "Could not submit request."));
+        }
+        submitBtn.prop('disabled', false).text('Submit Request');
+      }
+    ).fail(function() {
+      alert("Network error. Please try again.");
+      submitBtn.prop('disabled', false).text('Submit Request');
+    });
+  });
+
   function initializeTimer() {
     $.post(
       tcm_ajax_object.ajaxurl,
@@ -242,10 +291,8 @@ jQuery(document).ready(function ($) {
         if (response.success && response.data.server_time) {
           calculateServerTimeOffset(response.data.server_time);
         }
-        
-        // Now check for existing active session
         checkActiveSession();
-      fetchWeeklyTotal();
+        fetchWeeklyTotal();
       }
     ).fail(function() {
       console.warn('Could not get server time, proceeding without offset');
@@ -267,7 +314,6 @@ jQuery(document).ready(function ($) {
           $("#tcm-clock-in").prop('disabled', true);
           $("#tcm-clock-out").prop('disabled', false);
           
-          // Resume timer from the exact clock-in time
           console.log('Resuming timer from clock-in time:', response.data.clock_in);
           startTimer(response.data.clock_in);
           
@@ -276,14 +322,12 @@ jQuery(document).ready(function ($) {
           $("#tcm-clock-in").prop('disabled', false);
           $("#tcm-clock-out").prop('disabled', true);
           $("#tcm-message").html(`<span style="color: #646970;">Ready to clock in.</span>`);
-          renderIdleSummary();
         }
       }
     ).fail(function() {
       console.error('Failed to check session status');
       $("#tcm-clock-in").prop('disabled', false);
       $("#tcm-clock-out").prop('disabled', true);
-      renderIdleSummary();
     });
   }
 
