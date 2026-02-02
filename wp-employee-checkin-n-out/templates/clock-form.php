@@ -14,44 +14,8 @@ $user = wp_get_current_user();
         </div>
     </div>
     <div class="tcm-logout-wrap" style="text-align:center;">
-        <a class="tcm-request-link" id="tcm-request-link">Request Time Change</a>
+        <a class="tcm-request-link" id="tcm-request-link" href="#">Request Time Change</a>
         <a class="tcm-button tcm-logout-btn" href="<?php echo esc_url( wp_logout_url( home_url('/timeclock') ) ); ?>">Logout</a>
-    </div>
-
-    <!-- Time Change Request Modal -->
-    <div id="tcm-request-modal" class="tcm-modal">
-        <div class="tcm-modal-content">
-            <span class="tcm-modal-close">&times;</span>
-            <h3>Request Time Change</h3>
-            <form id="tcm-request-form">
-                <div class="tcm-form-group">
-                    <label for="tcm-request-type">Request Type</label>
-                    <select id="tcm-request-type" name="request_type" required>
-                        <option value="">Select type...</option>
-                        <option value="missed_punch">Missed Punch</option>
-                        <option value="time_change">Time Change</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                <div class="tcm-form-group">
-                    <label for="tcm-request-date">Date</label>
-                    <input type="date" id="tcm-request-date" name="request_date" required>
-                </div>
-                <div class="tcm-form-group">
-                    <label for="tcm-request-time">Time</label>
-                    <input type="time" id="tcm-request-time" name="request_time" required>
-                </div>
-                <div class="tcm-form-group">
-                    <label for="tcm-request-description">Description</label>
-                    <textarea id="tcm-request-description" name="description" rows="3" placeholder="Brief description of the request..." required></textarea>
-                </div>
-                <div class="tcm-form-actions">
-                    <button type="button" class="tcm-btn-secondary" id="tcm-request-cancel">Cancel</button>
-                    <button type="submit" class="tcm-btn-primary">Submit Request</button>
-                </div>
-                <div id="tcm-request-message"></div>
-            </form>
-        </div>
     </div>
 
     <style>
@@ -66,8 +30,8 @@ $user = wp_get_current_user();
         .tcm-daily-day{font-weight:600;color:#4b5563;font-size:11px;}
         .tcm-daily-hours{color:#6b7280;font-weight:600;margin-top:2px;font-size:11px;}
         .tcm-daily-empty{color:#6b7280;font-size:13px;}
-        .tcm-request-link{display:block;margin-top:8px;font-size:12px;color:#6b7280;text-decoration:underline;cursor:pointer;}
-        .tcm-request-link:hover{color:#374151;}
+        .tcm-request-link{display:inline-block;margin:8px auto 8px auto;font-size:12px;color:#6b7280;text-decoration:underline;cursor:pointer;user-select:none;}
+        .tcm-request-link:hover{color:#374151;text-decoration:underline;}
         
         /* Modal Styles */
         .tcm-modal{display:none;position:fixed;z-index:9999;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);}
@@ -90,4 +54,40 @@ $user = wp_get_current_user();
         #tcm-request-message.error{background:#fef2f2;border:1px solid #d63638;color:#d63638;}
     </style>
 
+</div>
+
+<!-- Time Change Request Modal (outside main container) -->
+<div id="tcm-request-modal" class="tcm-modal">
+    <div class="tcm-modal-content">
+        <span class="tcm-modal-close">&times;</span>
+        <h3>Request Time Change</h3>
+        <form id="tcm-request-form">
+            <div class="tcm-form-group">
+                <label for="tcm-request-type">Request Type</label>
+                <select id="tcm-request-type" name="request_type" required>
+                    <option value="">Select type...</option>
+                    <option value="missed_punch">Missed Punch</option>
+                    <option value="time_change">Time Change</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="tcm-form-group">
+                <label for="tcm-request-date">Date</label>
+                <input type="date" id="tcm-request-date" name="request_date" required>
+            </div>
+            <div class="tcm-form-group">
+                <label for="tcm-request-time">Time</label>
+                <input type="time" id="tcm-request-time" name="request_time" required>
+            </div>
+            <div class="tcm-form-group">
+                <label for="tcm-request-description">Description</label>
+                <textarea id="tcm-request-description" name="description" rows="3" placeholder="Brief description of the request..." required></textarea>
+            </div>
+            <div class="tcm-form-actions">
+                <button type="button" class="tcm-btn-secondary" id="tcm-request-cancel">Cancel</button>
+                <button type="submit" class="tcm-btn-primary">Submit Request</button>
+            </div>
+            <div id="tcm-request-message"></div>
+        </form>
+    </div>
 </div>

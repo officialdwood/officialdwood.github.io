@@ -328,10 +328,15 @@ jQuery(document).ready(function ($) {
   const $form = $("#tcm-request-form");
   const $message = $("#tcm-request-message");
 
+  console.log('TimeClock: Initializing request modal functionality');
+  console.log('Modal element:', $modal.length, 'Link element:', $requestLink.length);
+
   // Open modal
-  $requestLink.click(function(e) {
+  $requestLink.on('click', function(e) {
     e.preventDefault();
-    $modal.fadeIn(200);
+    e.stopPropagation();
+    console.log('Request Time Change link clicked');
+    $modal.css('display', 'block').fadeIn(200);
     // Set today's date as default
     const today = new Date().toISOString().split('T')[0];
     $("#tcm-request-date").val(today);
@@ -339,13 +344,23 @@ jQuery(document).ready(function ($) {
 
   // Close modal functions
   function closeModal() {
+    console.log('Closing modal');
     $modal.fadeOut(200);
-    $form[0].reset();
+    if ($form[0]) {
+      $form[0].reset();
+    }
     $message.hide().removeClass('success error');
   }
 
-  $closeBtn.click(closeModal);
-  $cancelBtn.click(closeModal);
+  $closeBtn.on('click', function(e) {
+    e.preventDefault();
+    closeModal();
+  });
+  
+  $cancelBtn.on('click', function(e) {
+    e.preventDefault();
+    closeModal();
+  });
 
   // Close when clicking outside modal
   $modal.click(function(e) {
