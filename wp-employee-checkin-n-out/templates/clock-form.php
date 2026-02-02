@@ -9,7 +9,9 @@ $user = wp_get_current_user();
     <p id="tcm-message"></p>
     <div class="tcm-stats-card">
         <div id="tcm-timer" class="tcm-timer"></div>
-        <div id="tcm-daily-breakdown" class="tcm-daily"></div>
+        <div id="tcm-daily-breakdown" class="tcm-daily">
+            <div class="tcm-daily-header">Daily Breakdown</div>
+        </div>
     </div>
     <div class="tcm-logout-wrap" style="text-align:center;">
         <a class="tcm-button tcm-logout-btn" href="<?php echo esc_url( wp_logout_url( home_url('/timeclock') ) ); ?>">Logout</a>
@@ -20,6 +22,7 @@ $user = wp_get_current_user();
         .tcm-timer .timer-main{font-size:20px;font-weight:700;letter-spacing:0.5px;}
         .tcm-timer .timer-sub{color:#6b7280;font-size:13px;margin-top:3px;}
         .tcm-daily{margin-top:12px;}
+        .tcm-daily-header{font-size:14px;font-weight:700;color:#374151;margin-bottom:10px;text-align:center;}
         .tcm-daily-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;}
         .tcm-daily-item{background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;padding:8px 6px;box-shadow:0 1px 2px rgba(0,0,0,0.04);}
         .tcm-daily-day{font-weight:700;color:#111827;font-size:13px;}

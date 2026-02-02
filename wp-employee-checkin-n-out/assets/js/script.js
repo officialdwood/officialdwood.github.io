@@ -42,10 +42,10 @@ jQuery(document).ready(function ($) {
 
   
   function renderIdleSummary() {
-    const weekly = weeklyTotalDecimal !== null ? weeklyTotalDecimal.toFixed(2) + " hours" : "--";
+    const weekly = weeklyTotalDecimal !== null ? weeklyTotalDecimal.toFixed(2) + " hours" : "0.00 hours";
     $("#tcm-timer").html(
-      '<div class="timer-main">Not clocked in</div>' +
-      '<div class="timer-sub">Weekly Total: ' + weekly + '</div>'
+      '<div class="timer-main">📊 Your Hours This Week</div>' +
+      '<div class="timer-sub">Total: ' + weekly + '</div>'
     ).addClass('active');
   }
 
@@ -53,8 +53,11 @@ jQuery(document).ready(function ($) {
     const $container = $("#tcm-daily-breakdown");
     if (!$container.length) return;
 
+    // Preserve the header if it exists
+    const header = '<div class="tcm-daily-header">Daily Breakdown</div>';
+
     if (!Array.isArray(dailyTotals) || !dailyTotals.length) {
-      $container.html('<div class="tcm-daily-empty">Daily totals unavailable.</div>');
+      $container.html(header + '<div class="tcm-daily-empty">Daily totals unavailable.</div>');
       return;
     }
 
@@ -70,7 +73,7 @@ jQuery(document).ready(function ($) {
       })
       .join('');
 
-    $container.html('<div class="tcm-daily-grid">' + items + '</div>');
+    $container.html(header + '<div class="tcm-daily-grid">' + items + '</div>');
   }
 
   function fetchWeeklyTotal() {
@@ -243,14 +246,56 @@ jQuery(document).ready(function ($) {
           calculateServerTimeOffset(response.data.server_time);
         }
         
-        // Now check for existing active session
-        checkActiveSession();
-      fetchWeeklyTotal();
+        // Fetch weekly totals first, then check active session
+        // This ensures weekly data is available before rendering idle state
+        $.post(
+          tcm_ajax_object.ajaxurl,
+          { action: "tcm_get_weekly_total" },
+          function (resp) {
+            if (resp && resp.success && resp.data) {
+              weeklyTotalDecimal = parseFloat(resp.data.total_decimal || 0);
+              weeklyTotalFormatted = resp.data.total_formatted || (weeklyTotalDecimal.toFixed ? (weeklyTotalDecimal.toFixed(2) + " hours") : "0.00 hours");
+              dailyTotals = Array.isArray(resp.data.daily_totals) ? resp.data.daily_totals : [];
+            } else {
+              weeklyTotalDecimal = null;
+              weeklyTotalFormatted = null;
+              dailyTotals = [];
+            }
+            renderDailyTotals();
+            // Now check for existing active session
+            checkActiveSession();
+          }
+        ).fail(function(){
+          dailyTotals = [];
+          renderDailyTotals();
+          // Even if weekly fetch fails, still check session
+          checkActiveSession();
+        });
       }
     ).fail(function() {
       console.warn('Could not get server time, proceeding without offset');
-      checkActiveSession();
-      fetchWeeklyTotal();
+      // Still try to fetch weekly totals and check session even if server time fails
+      $.post(
+        tcm_ajax_object.ajaxurl,
+        { action: "tcm_get_weekly_total" },
+        function (resp) {
+          if (resp && resp.success && resp.data) {
+            weeklyTotalDecimal = parseFloat(resp.data.total_decimal || 0);
+            weeklyTotalFormatted = resp.data.total_formatted || (weeklyTotalDecimal.toFixed ? (weeklyTotalDecimal.toFixed(2) + " hours") : "0.00 hours");
+            dailyTotals = Array.isArray(resp.data.daily_totals) ? resp.data.daily_totals : [];
+          } else {
+            weeklyTotalDecimal = null;
+            weeklyTotalFormatted = null;
+            dailyTotals = [];
+          }
+          renderDailyTotals();
+          checkActiveSession();
+        }
+      ).fail(function(){
+        dailyTotals = [];
+        renderDailyTotals();
+        checkActiveSession();
+      });
     });
   }
 
@@ -275,7 +320,7 @@ jQuery(document).ready(function ($) {
         } else {
           $("#tcm-clock-in").prop('disabled', false);
           $("#tcm-clock-out").prop('disabled', true);
-          $("#tcm-message").html(`<span style="color: #646970;">Ready to clock in.</span>`);
+          $("#tcm-message").html(`<span style="color: #2271b1;">👋 Welcome! View your hours below, then clock in when ready.</span>`);
           renderIdleSummary();
         }
       }
