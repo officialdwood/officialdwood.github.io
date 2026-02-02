@@ -39,7 +39,8 @@ if (!class_exists('TCM_Loader')) {
             wp_enqueue_style('tcm-style', TCM_PLUGIN_ASSETS . '/css/style.css');
             wp_enqueue_script('tcm-script', TCM_PLUGIN_ASSETS . '/js/script.js', ['jquery'], null, true);
             wp_localize_script('tcm-script', 'tcm_ajax_object', [
-                'ajaxurl' => admin_url('admin-ajax.php')
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'time_request_nonce' => wp_create_nonce('tcm_time_request_nonce')
             ]);
 
             wp_enqueue_script('tcm-admin-script', TCM_PLUGIN_ASSETS . '/js/admin/script.js', ['jquery'], null, true);

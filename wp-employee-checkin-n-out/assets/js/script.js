@@ -360,6 +360,7 @@ jQuery(document).ready(function ($) {
     
     const formData = {
       action: 'tcm_submit_time_request',
+      nonce: tcm_ajax_object.time_request_nonce,
       request_type: $("#tcm-request-type").val(),
       request_date: $("#tcm-request-date").val(),
       request_time: $("#tcm-request-time").val(),

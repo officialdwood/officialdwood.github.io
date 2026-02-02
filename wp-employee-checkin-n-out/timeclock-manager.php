@@ -36,6 +36,33 @@ require_once TCM_PLUGIN_INCLUDES . '/class-tcm-loader.php';
 require_once TCM_PLUGIN_INCLUDES . '/admin/class-tcm-admin-reports.php';
 TCM_Admin_Reports::maybe_export_csv();
 
+// === Create time requests table on admin init ===
+add_action('admin_init', 'tcm_create_time_requests_table');
+function tcm_create_time_requests_table() {
+    global $wpdb;
+    $table = $wpdb->prefix . 'tcm_time_requests';
+    
+    // Check if table exists
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table'") != $table) {
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE $table (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL,
+            request_type varchar(50) NOT NULL,
+            request_date date NOT NULL,
+            request_time time NOT NULL,
+            description text NOT NULL,
+            status varchar(20) DEFAULT 'pending',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY user_id (user_id)
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+}
+
 // === TimeClock: Redirect users to /timeclock after logout ===
 add_filter('logout_redirect', function($redirect_to, $requested_redirect_to, $user) {
     // Default target for the kiosk
@@ -181,6 +208,9 @@ function tcm_ajax_get_weekly_total(){
 // === AJAX: Submit Time Change Request ===
 add_action('wp_ajax_tcm_submit_time_request', 'tcm_ajax_submit_time_request');
 function tcm_ajax_submit_time_request(){
+    // Verify nonce for CSRF protection
+    check_ajax_referer('tcm_time_request_nonce', 'nonce');
+    
     if (!is_user_logged_in()) {
         wp_send_json_error('Not logged in');
     }
@@ -201,24 +231,6 @@ function tcm_ajax_submit_time_request(){
     
     global $wpdb;
     $table = $wpdb->prefix . 'tcm_time_requests';
-    
-    // Create table if it doesn't exist
-    $charset_collate = $wpdb->get_charset_collate();
-    $sql = "CREATE TABLE IF NOT EXISTS $table (
-        id bigint(20) NOT NULL AUTO_INCREMENT,
-        user_id bigint(20) NOT NULL,
-        request_type varchar(50) NOT NULL,
-        request_date date NOT NULL,
-        request_time time NOT NULL,
-        description text NOT NULL,
-        status varchar(20) DEFAULT 'pending',
-        created_at datetime DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (id),
-        KEY user_id (user_id)
-    ) $charset_collate;";
-    
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
     
     // Insert the request
     $result = $wpdb->insert(
