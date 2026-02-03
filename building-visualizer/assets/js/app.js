@@ -26,7 +26,8 @@
                 wainscottColor: null,
                 wainscottEnabled: true,
                 wainscottHeight: 3,
-                rotation: 45, // degrees - better angle to see gable and sides
+                rotationY: 45, // degrees - horizontal rotation (around vertical axis)
+                rotationX: 20, // degrees - vertical tilt (pitch)
                 zoom: 1 // scale factor
             };
             
@@ -102,10 +103,17 @@
                 self.render();
             });
             
-            // Rotation control
-            $('#bv-rotation').on('input', function() {
-                self.params.rotation = parseFloat($(this).val());
-                $('#bv-rotation-value').text(self.params.rotation + '°');
+            // Rotation controls - Y axis (horizontal)
+            $('#bv-rotation-y').on('input', function() {
+                self.params.rotationY = parseFloat($(this).val());
+                $('#bv-rotation-y-value').text(self.params.rotationY + '°');
+                self.render();
+            });
+            
+            // Rotation controls - X axis (vertical tilt)
+            $('#bv-rotation-x').on('input', function() {
+                self.params.rotationX = parseFloat($(this).val());
+                $('#bv-rotation-x-value').text(self.params.rotationX + '°');
                 self.render();
             });
             
@@ -201,21 +209,29 @@
             const wallHeight = this.params.wallHeight * scale;
             const wainscottHeight = this.params.wainscottHeight * scale;
             
-            // Convert rotation to radians
-            const rotationRad = (this.params.rotation * Math.PI) / 180;
+            // Convert rotations to radians
+            const rotationYRad = (this.params.rotationY * Math.PI) / 180; // horizontal spin
+            const rotationXRad = (this.params.rotationX * Math.PI) / 180; // vertical tilt
             
             // Isometric projection angles
             const isoAngle = Math.PI / 6; // 30 degrees for isometric view
             
             // Helper function to rotate and project a point
             const projectPoint = (x, y, z) => {
-                // Rotate around vertical axis
-                const rotX = x * Math.cos(rotationRad) - y * Math.sin(rotationRad);
-                const rotY = x * Math.sin(rotationRad) + y * Math.cos(rotationRad);
+                // First rotate around Y axis (horizontal spin)
+                let rotX = x * Math.cos(rotationYRad) - y * Math.sin(rotationYRad);
+                let rotY = x * Math.sin(rotationYRad) + y * Math.cos(rotationYRad);
+                let rotZ = z;
                 
-                // Isometric projection
+                // Then rotate around X axis (vertical tilt/pitch)
+                const tempY = rotY;
+                const tempZ = rotZ;
+                rotY = tempY * Math.cos(rotationXRad) - tempZ * Math.sin(rotationXRad);
+                rotZ = tempY * Math.sin(rotationXRad) + tempZ * Math.cos(rotationXRad);
+                
+                // Isometric projection - NOTE: using +z to flip orientation (roof up, ground down)
                 const isoX = rotX * Math.cos(isoAngle) - rotY * Math.cos(isoAngle);
-                const isoY = rotX * Math.sin(isoAngle) + rotY * Math.sin(isoAngle) - z;
+                const isoY = rotX * Math.sin(isoAngle) + rotY * Math.sin(isoAngle) + rotZ;
                 
                 return {
                     x: offsetX + isoX,
@@ -249,8 +265,8 @@
             const frontPeak = projectPoint(0, -length/2, -wallHeight - roofPeak);
             const backPeak = projectPoint(0, length/2, -wallHeight - roofPeak);
             
-            // Determine which faces are visible based on rotation
-            const rot = this.params.rotation % 360;
+            // Determine which faces are visible based on rotationY
+            const rot = this.params.rotationY % 360;
             const showFront = rot >= 315 || rot < 135;
             const showBack = rot >= 135 && rot < 315;
             const showLeft = rot >= 45 && rot < 225;
