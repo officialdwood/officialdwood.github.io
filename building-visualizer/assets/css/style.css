@@ -79,6 +79,7 @@
 }
 
 .bv-control-group input[type="number"],
+.bv-control-group input[type="range"],
 .bv-control-group select {
     width: 100%;
     padding: 8px 12px;
@@ -88,11 +89,39 @@
     transition: border-color 0.2s;
 }
 
+.bv-control-group input[type="range"] {
+    padding: 0;
+    height: 30px;
+}
+
+.bv-control-group input[type="checkbox"] {
+    margin-right: 8px;
+    width: auto;
+}
+
 .bv-control-group input[type="number"]:focus,
+.bv-control-group input[type="range"]:focus,
 .bv-control-group select:focus {
     outline: none;
     border-color: #007cba;
     box-shadow: 0 0 0 1px #007cba;
+}
+
+.bv-control-group span {
+    display: inline-block;
+    margin-left: 10px;
+    font-weight: bold;
+    color: #007cba;
+}
+
+.bv-button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.bv-button-group .bv-button {
+    width: auto;
+    flex: 1;
 }
 
 .bv-button {

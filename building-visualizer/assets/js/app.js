@@ -23,7 +23,11 @@
                 roofPitch: parseFloat($('#bv-roof-pitch').val()) || 4,
                 roofingColor: null,
                 sidingColor: null,
-                wainscottColor: null
+                wainscottColor: null,
+                wainscottEnabled: true,
+                wainscottHeight: 3,
+                rotation: 30, // degrees
+                zoom: 1 // scale factor
             };
             
             this.init();
@@ -86,6 +90,46 @@
                 self.render();
             });
             
+            // Wainscott controls
+            $('#bv-wainscott-enabled').on('change', function() {
+                self.params.wainscottEnabled = $(this).is(':checked');
+                $('#bv-wainscott-controls, #bv-wainscott-color-group').toggle(self.params.wainscottEnabled);
+                self.render();
+            });
+            
+            $('#bv-wainscott-height').on('input', function() {
+                self.params.wainscottHeight = parseFloat($(this).val()) || 3;
+                self.render();
+            });
+            
+            // Rotation control
+            $('#bv-rotation').on('input', function() {
+                self.params.rotation = parseFloat($(this).val());
+                $('#bv-rotation-value').text(self.params.rotation + '°');
+                self.render();
+            });
+            
+            // Zoom controls
+            $('#bv-zoom').on('input', function() {
+                self.params.zoom = parseFloat($(this).val());
+                $('#bv-zoom-value').text(Math.round(self.params.zoom * 100) + '%');
+                self.render();
+            });
+            
+            $('#bv-zoom-in').on('click', function() {
+                self.params.zoom = Math.min(3, self.params.zoom + 0.2);
+                $('#bv-zoom').val(self.params.zoom);
+                $('#bv-zoom-value').text(Math.round(self.params.zoom * 100) + '%');
+                self.render();
+            });
+            
+            $('#bv-zoom-out').on('click', function() {
+                self.params.zoom = Math.max(0.5, self.params.zoom - 0.2);
+                $('#bv-zoom').val(self.params.zoom);
+                $('#bv-zoom-value').text(Math.round(self.params.zoom * 100) + '%');
+                self.render();
+            });
+            
             // Color selects
             $('#bv-roofing-color').on('change', function() {
                 const index = parseInt($(this).val());
@@ -118,27 +162,28 @@
             // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Draw sky gradient
-            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            skyGradient.addColorStop(0, '#87CEEB');
-            skyGradient.addColorStop(1, '#E0F6FF');
-            ctx.fillStyle = skyGradient;
+            // Draw light gray/off-white background
+            ctx.fillStyle = '#F5F5F5';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // Draw ground
-            ctx.fillStyle = '#8B7355';
+            ctx.fillStyle = '#D3D3D3';
             ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
             
             // Calculate building dimensions on canvas
-            const scale = 6; // pixels per foot
+            const baseScale = 6; // pixels per foot at 100% zoom
+            const scale = baseScale * this.params.zoom;
             const offsetX = canvas.width / 2;
             const offsetY = canvas.height - 100;
             
             // Calculate roof peak height
             const roofPeakHeight = (this.params.width / 2) * (this.params.roofPitch / 12);
             
-            // Draw building (isometric-style 3D view)
+            // Draw building (isometric-style 3D view with rotation)
             this.drawBuilding3D(ctx, offsetX, offsetY, scale, roofPeakHeight);
+            
+            // Draw scale indicator
+            this.drawScaleIndicator(ctx, scale);
             
             // Update info display
             this.updateInfo();
@@ -148,101 +193,172 @@
             const width = this.params.width * scale;
             const length = this.params.length * scale;
             const wallHeight = this.params.wallHeight * scale;
-            const wainscottHeight = 3 * scale; // 3 feet
+            const wainscottHeight = this.params.wainscottHeight * scale;
+            
+            // Convert rotation to radians
+            const rotationRad = (this.params.rotation * Math.PI) / 180;
             
             // Isometric projection angles
-            const isoAngle = Math.PI / 6; // 30 degrees
-            const isoX = Math.cos(isoAngle);
-            const isoY = Math.sin(isoAngle);
+            const isoAngle = Math.PI / 6; // 30 degrees for isometric view
             
-            // Calculate vertices
-            const front = {
-                bottomLeft: { x: offsetX - width / 2, y: offsetY },
-                bottomRight: { x: offsetX + width / 2, y: offsetY },
-                topLeft: { x: offsetX - width / 2, y: offsetY - wallHeight },
-                topRight: { x: offsetX + width / 2, y: offsetY - wallHeight }
+            // Helper function to rotate and project a point
+            const projectPoint = (x, y, z) => {
+                // Rotate around vertical axis
+                const rotX = x * Math.cos(rotationRad) - y * Math.sin(rotationRad);
+                const rotY = x * Math.sin(rotationRad) + y * Math.cos(rotationRad);
+                
+                // Isometric projection
+                const isoX = rotX * Math.cos(isoAngle) - rotY * Math.cos(isoAngle);
+                const isoY = rotX * Math.sin(isoAngle) + rotY * Math.sin(isoAngle) - z;
+                
+                return {
+                    x: offsetX + isoX,
+                    y: offsetY + isoY
+                };
             };
             
-            const back = {
-                bottomLeft: { x: front.bottomLeft.x - length * isoX, y: front.bottomLeft.y - length * isoY },
-                bottomRight: { x: front.bottomRight.x - length * isoX, y: front.bottomRight.y - length * isoY },
-                topLeft: { x: front.topLeft.x - length * isoX, y: front.topLeft.y - length * isoY },
-                topRight: { x: front.topRight.x - length * isoX, y: front.topRight.y - length * isoY }
+            // Define the 8 corners of the building box (before roof)
+            const corners = {
+                // Bottom corners (z = 0)
+                fbl: projectPoint(-width/2, -length/2, 0),  // front bottom left
+                fbr: projectPoint(width/2, -length/2, 0),   // front bottom right
+                bbl: projectPoint(-width/2, length/2, 0),   // back bottom left
+                bbr: projectPoint(width/2, length/2, 0),    // back bottom right
+                
+                // Top corners (z = wallHeight)
+                ftl: projectPoint(-width/2, -length/2, -wallHeight), // front top left
+                ftr: projectPoint(width/2, -length/2, -wallHeight),  // front top right
+                btl: projectPoint(-width/2, length/2, -wallHeight),  // back top left
+                btr: projectPoint(width/2, length/2, -wallHeight),   // back top right
+                
+                // Wainscott top line (z = wainscottHeight)
+                fwl: projectPoint(-width/2, -length/2, -wainscottHeight),
+                fwr: projectPoint(width/2, -length/2, -wainscottHeight),
+                bwl: projectPoint(-width/2, length/2, -wainscottHeight),
+                bwr: projectPoint(width/2, length/2, -wainscottHeight)
             };
             
             // Roof peak points
             const roofPeak = roofPeakHeight * scale;
-            const frontPeak = { x: offsetX, y: offsetY - wallHeight - roofPeak };
-            const backPeak = { x: offsetX - length * isoX, y: offsetY - length * isoY - wallHeight - roofPeak };
+            const frontPeak = projectPoint(0, -length/2, -wallHeight - roofPeak);
+            const backPeak = projectPoint(0, length/2, -wallHeight - roofPeak);
             
-            // Draw left side (with wainscott)
-            ctx.fillStyle = this.getRgbColor(this.params.sidingColor);
-            ctx.beginPath();
-            ctx.moveTo(front.bottomLeft.x, front.bottomLeft.y);
-            ctx.lineTo(back.bottomLeft.x, back.bottomLeft.y);
-            ctx.lineTo(back.topLeft.x, back.topLeft.y);
-            ctx.lineTo(front.topLeft.x, front.topLeft.y);
-            ctx.closePath();
-            ctx.fill();
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 1;
-            ctx.stroke();
+            // Determine which faces are visible based on rotation
+            const rot = this.params.rotation % 360;
+            const showFront = rot >= 315 || rot < 135;
+            const showBack = rot >= 135 && rot < 315;
+            const showLeft = rot >= 45 && rot < 225;
+            const showRight = rot >= 225 || rot < 45;
             
-            // Draw left wainscott
-            ctx.fillStyle = this.getRgbColor(this.params.wainscottColor);
-            ctx.beginPath();
-            ctx.moveTo(front.bottomLeft.x, front.bottomLeft.y);
-            ctx.lineTo(back.bottomLeft.x, back.bottomLeft.y);
-            ctx.lineTo(back.bottomLeft.x, back.bottomLeft.y - wainscottHeight);
-            ctx.lineTo(front.bottomLeft.x, front.bottomLeft.y - wainscottHeight);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
+            // Draw faces in order (back to front for proper layering)
+            const faces = [];
             
-            // Draw front side (with wainscott)
-            ctx.fillStyle = this.getRgbColor(this.params.sidingColor);
-            ctx.beginPath();
-            ctx.moveTo(front.bottomLeft.x, front.bottomLeft.y);
-            ctx.lineTo(front.bottomRight.x, front.bottomRight.y);
-            ctx.lineTo(front.topRight.x, front.topRight.y);
-            ctx.lineTo(front.topLeft.x, front.topLeft.y);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
+            // Back wall
+            if (showBack) {
+                faces.push({
+                    type: 'wall',
+                    points: [corners.bbl, corners.bbr, corners.btr, corners.btl],
+                    color: this.getRgbColor(this.params.sidingColor),
+                    depth: 2
+                });
+                if (this.params.wainscottEnabled) {
+                    faces.push({
+                        type: 'wainscott',
+                        points: [corners.bbl, corners.bbr, corners.bwr, corners.bwl],
+                        color: this.getRgbColor(this.params.wainscottColor),
+                        depth: 2.1
+                    });
+                }
+            }
             
-            // Draw front wainscott
-            ctx.fillStyle = this.getRgbColor(this.params.wainscottColor);
-            ctx.beginPath();
-            ctx.moveTo(front.bottomLeft.x, front.bottomLeft.y);
-            ctx.lineTo(front.bottomRight.x, front.bottomRight.y);
-            ctx.lineTo(front.bottomRight.x, front.bottomRight.y - wainscottHeight);
-            ctx.lineTo(front.bottomLeft.x, front.bottomLeft.y - wainscottHeight);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
+            // Right wall
+            if (showRight) {
+                faces.push({
+                    type: 'wall',
+                    points: [corners.fbr, corners.bbr, corners.btr, corners.ftr],
+                    color: this.darkenColor(this.params.sidingColor, 0.85),
+                    depth: 1.5
+                });
+                if (this.params.wainscottEnabled) {
+                    faces.push({
+                        type: 'wainscott',
+                        points: [corners.fbr, corners.bbr, corners.bwr, corners.fwr],
+                        color: this.darkenColor(this.params.wainscottColor, 0.85),
+                        depth: 1.6
+                    });
+                }
+            }
             
-            // Draw left roof
-            ctx.fillStyle = this.getRgbColor(this.params.roofingColor);
-            ctx.beginPath();
-            ctx.moveTo(front.topLeft.x, front.topLeft.y);
-            ctx.lineTo(frontPeak.x, frontPeak.y);
-            ctx.lineTo(backPeak.x, backPeak.y);
-            ctx.lineTo(back.topLeft.x, back.topLeft.y);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
+            // Left wall
+            if (showLeft) {
+                faces.push({
+                    type: 'wall',
+                    points: [corners.bbl, corners.fbl, corners.ftl, corners.btl],
+                    color: this.darkenColor(this.params.sidingColor, 0.85),
+                    depth: 1.5
+                });
+                if (this.params.wainscottEnabled) {
+                    faces.push({
+                        type: 'wainscott',
+                        points: [corners.bbl, corners.fbl, corners.fwl, corners.bwl],
+                        color: this.darkenColor(this.params.wainscottColor, 0.85),
+                        depth: 1.6
+                    });
+                }
+            }
             
-            // Draw right roof (darker shade)
-            const darkerRoofColor = this.darkenColor(this.params.roofingColor, 0.7);
-            ctx.fillStyle = darkerRoofColor;
-            ctx.beginPath();
-            ctx.moveTo(front.topRight.x, front.topRight.y);
-            ctx.lineTo(frontPeak.x, frontPeak.y);
-            ctx.lineTo(backPeak.x, backPeak.y);
-            ctx.lineTo(back.topRight.x, back.topRight.y);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
+            // Front wall
+            if (showFront) {
+                faces.push({
+                    type: 'wall',
+                    points: [corners.fbl, corners.fbr, corners.ftr, corners.ftl],
+                    color: this.getRgbColor(this.params.sidingColor),
+                    depth: 1
+                });
+                if (this.params.wainscottEnabled) {
+                    faces.push({
+                        type: 'wainscott',
+                        points: [corners.fbl, corners.fbr, corners.fwr, corners.fwl],
+                        color: this.getRgbColor(this.params.wainscottColor),
+                        depth: 1.1
+                    });
+                }
+            }
+            
+            // Roof faces
+            // Left roof
+            faces.push({
+                type: 'roof',
+                points: [corners.ftl, frontPeak, backPeak, corners.btl],
+                color: this.getRgbColor(this.params.roofingColor),
+                depth: 0.5
+            });
+            
+            // Right roof
+            faces.push({
+                type: 'roof',
+                points: [corners.ftr, frontPeak, backPeak, corners.btr],
+                color: this.darkenColor(this.params.roofingColor, 0.7),
+                depth: 0.5
+            });
+            
+            // Sort faces by depth (back to front)
+            faces.sort((a, b) => b.depth - a.depth);
+            
+            // Draw all faces
+            faces.forEach(face => {
+                ctx.fillStyle = face.color;
+                ctx.beginPath();
+                ctx.moveTo(face.points[0].x, face.points[0].y);
+                for (let i = 1; i < face.points.length; i++) {
+                    ctx.lineTo(face.points[i].x, face.points[i].y);
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
             
             // Draw roof ridge line
             ctx.strokeStyle = '#000';
@@ -251,6 +367,55 @@
             ctx.moveTo(frontPeak.x, frontPeak.y);
             ctx.lineTo(backPeak.x, backPeak.y);
             ctx.stroke();
+        }
+        
+        drawScaleIndicator(ctx, scale) {
+            // Draw scale indicator in bottom left corner
+            const padding = 20;
+            const lineLength = 60; // pixels
+            const actualFeet = lineLength / scale; // how many feet this represents
+            
+            // Round to nice number
+            let displayFeet = 1;
+            if (actualFeet > 0.5 && actualFeet < 2) displayFeet = 1;
+            else if (actualFeet >= 2 && actualFeet < 5) displayFeet = 2;
+            else if (actualFeet >= 5 && actualFeet < 10) displayFeet = 5;
+            else if (actualFeet >= 10 && actualFeet < 20) displayFeet = 10;
+            else if (actualFeet >= 20) displayFeet = 20;
+            
+            const displayLength = displayFeet * scale;
+            
+            // Draw scale bar
+            const startX = padding;
+            const startY = this.canvas.height - padding;
+            
+            ctx.fillStyle = '#000';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            
+            // Horizontal line
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(startX + displayLength, startY);
+            ctx.stroke();
+            
+            // End ticks
+            ctx.beginPath();
+            ctx.moveTo(startX, startY - 5);
+            ctx.lineTo(startX, startY + 5);
+            ctx.moveTo(startX + displayLength, startY - 5);
+            ctx.lineTo(startX + displayLength, startY + 5);
+            ctx.stroke();
+            
+            // Label
+            ctx.font = 'bold 12px Arial';
+            ctx.fillStyle = '#000';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${displayFeet}'`, startX + displayLength / 2, startY - 10);
+            
+            // Scale ratio
+            ctx.font = '10px Arial';
+            ctx.fillText(`Scale: ${Math.round(this.params.zoom * 100)}%`, startX + displayLength / 2, startY + 18);
         }
         
         getRgbColor(colorObj) {
