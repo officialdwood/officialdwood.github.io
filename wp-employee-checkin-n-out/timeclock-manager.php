@@ -248,8 +248,12 @@ function tcm_ajax_submit_time_request(){
     );
     
     if ($result) {
-        // Send notification email to admin (optional)
-        $admin_email = get_option('admin_email');
+        // Send notification email to configured address
+        $settings = get_option('tcm_settings');
+        $notification_email = isset($settings['time_request_email']) && !empty($settings['time_request_email']) 
+            ? $settings['time_request_email'] 
+            : 'info@protechsteel.com';
+        
         $subject = 'New Time Change Request - ' . $user->display_name;
         $message = "A new time change request has been submitted:\n\n";
         $message .= "User: " . $user->display_name . " (" . $user->user_email . ")\n";
@@ -258,7 +262,7 @@ function tcm_ajax_submit_time_request(){
         $message .= "Time: " . $request_time . "\n";
         $message .= "Description: " . $description . "\n";
         
-        wp_mail($admin_email, $subject, $message);
+        wp_mail($notification_email, $subject, $message);
         
         wp_send_json_success('Request submitted successfully');
     } else {

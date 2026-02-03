@@ -21,8 +21,8 @@ $user = wp_get_current_user();
     <style>
         .tcm-logout-wrap{ margin-top:12px; }
         .tcm-stats-card{margin-top:14px;background:#f7f7f8;border:1px solid #dedede;border-radius:10px;padding:14px;text-align:center;}
-        .tcm-timer .timer-main{font-size:20px;font-weight:700;letter-spacing:0.5px;}
-        .tcm-timer .timer-sub{color:#6b7280;font-size:13px;margin-top:3px;}
+        .tcm-timer .timer-main{font-size:20px;font-weight:700;letter-spacing:0.5px;font-family:'Montserrat',sans-serif;}
+        .tcm-timer .timer-sub{color:#6b7280;font-size:13px;margin-top:3px;font-family:'Montserrat',sans-serif;font-weight:600;}
         .tcm-daily{margin-top:12px;}
         .tcm-daily-header{font-size:14px;font-weight:700;color:#374151;margin-bottom:10px;text-align:center;}
         .tcm-daily-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;}
