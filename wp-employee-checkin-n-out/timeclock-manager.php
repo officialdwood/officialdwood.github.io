@@ -214,8 +214,15 @@ function tcm_ajax_get_weekly_total(){
 // === AJAX: Submit Time Change Request ===
 add_action('wp_ajax_tcm_submit_time_request', 'tcm_ajax_submit_time_request');
 function tcm_ajax_submit_time_request(){
-    // Verify nonce for CSRF protection
-    check_ajax_referer('tcm_time_request_nonce', 'nonce');
+    // Verify nonce for CSRF protection (false = don't die on failure)
+    $nonce_check = check_ajax_referer('tcm_time_request_nonce', 'nonce', false);
+    
+    if (!$nonce_check) {
+        error_log('TCM Time Request: Nonce verification failed');
+        error_log('Expected nonce action: tcm_time_request_nonce');
+        error_log('Received nonce: ' . (isset($_POST['nonce']) ? $_POST['nonce'] : 'none'));
+        wp_send_json_error('Security verification failed. Please reload the page and try again.');
+    }
     
     if (!is_user_logged_in()) {
         wp_send_json_error('Not logged in');
