@@ -330,9 +330,17 @@ jQuery(document).ready(function ($) {
 
   console.log('TimeClock: Initializing request modal functionality');
   console.log('Modal element:', $modal.length, 'Link element:', $requestLink.length);
+  console.log('tcm_ajax_object available:', typeof tcm_ajax_object !== 'undefined');
+  
+  if (typeof tcm_ajax_object !== 'undefined') {
+    console.log('tcm_ajax_object.ajaxurl:', tcm_ajax_object.ajaxurl);
+    console.log('tcm_ajax_object.time_request_nonce:', tcm_ajax_object.time_request_nonce ? 'present' : 'missing');
+  } else {
+    console.error('ERROR: tcm_ajax_object is not defined! Cannot submit time change requests.');
+  }
 
-  // Only initialize if modal and link exist
-  if ($modal.length && $requestLink.length) {
+  // Only initialize if modal and link exist AND tcm_ajax_object is defined
+  if ($modal.length && $requestLink.length && typeof tcm_ajax_object !== 'undefined') {
     console.log('Modal and link found, attaching event handlers');
 
     // Open modal
@@ -389,6 +397,31 @@ jQuery(document).ready(function ($) {
       e.preventDefault();
       console.log('Form submitted');
       
+      // Check if tcm_ajax_object is available
+      if (typeof tcm_ajax_object === 'undefined') {
+        console.error('ERROR: tcm_ajax_object is not defined at submission time!');
+        $message.removeClass('success').addClass('error')
+          .text('✗ Configuration error. Please reload the page and try again.')
+          .show();
+        return;
+      }
+      
+      if (!tcm_ajax_object.ajaxurl) {
+        console.error('ERROR: tcm_ajax_object.ajaxurl is missing!');
+        $message.removeClass('success').addClass('error')
+          .text('✗ Configuration error. AJAX URL is missing.')
+          .show();
+        return;
+      }
+      
+      if (!tcm_ajax_object.time_request_nonce) {
+        console.error('ERROR: tcm_ajax_object.time_request_nonce is missing!');
+        $message.removeClass('success').addClass('error')
+          .text('✗ Security error. Please reload the page and try again.')
+          .show();
+        return;
+      }
+      
       const formData = {
         action: 'tcm_submit_time_request',
         nonce: tcm_ajax_object.time_request_nonce,
@@ -399,6 +432,7 @@ jQuery(document).ready(function ($) {
       };
 
       console.log('Form data:', formData);
+      console.log('Sending AJAX to:', tcm_ajax_object.ajaxurl);
 
       // Disable submit button
       const $submitBtn = $form.find('button[type="submit"]');
@@ -424,14 +458,30 @@ jQuery(document).ready(function ($) {
         }
       }).fail(function(jqXHR, textStatus, errorThrown) {
         console.error('AJAX error:', textStatus, errorThrown);
+        console.error('Response status:', jqXHR.status);
+        console.error('Response text:', jqXHR.responseText);
         $submitBtn.prop('disabled', false).text('Submit Request');
+        
+        let errorMsg = '✗ Network error. Please try again.';
+        if (jqXHR.status === 0) {
+          errorMsg = '✗ Cannot connect to server. Please check your connection.';
+        } else if (jqXHR.status === 404) {
+          errorMsg = '✗ AJAX endpoint not found (404). Please contact support.';
+        } else if (jqXHR.status === 500) {
+          errorMsg = '✗ Server error (500). Please contact support.';
+        } else if (jqXHR.status === 403) {
+          errorMsg = '✗ Access denied (403). Please reload the page and try again.';
+        }
+        
         $message.removeClass('success').addClass('error')
-          .text('✗ Network error. Please try again.')
+          .text(errorMsg)
           .show();
       });
     });
   } else {
-    console.warn('Modal or link element not found - modal functionality disabled');
-    console.log('Modal exists:', $modal.length > 0, 'Link exists:', $requestLink.length > 0);
+    console.warn('Modal functionality not initialized:');
+    console.warn('- Modal exists:', $modal.length > 0);
+    console.warn('- Link exists:', $requestLink.length > 0);
+    console.warn('- tcm_ajax_object exists:', typeof tcm_ajax_object !== 'undefined');
   }
 });
