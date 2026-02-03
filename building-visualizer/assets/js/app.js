@@ -229,9 +229,9 @@
                 rotY = tempY * Math.cos(rotationXRad) - tempZ * Math.sin(rotationXRad);
                 rotZ = tempY * Math.sin(rotationXRad) + tempZ * Math.cos(rotationXRad);
                 
-                // Isometric projection - NOTE: using +z to flip orientation (roof up, ground down)
+                // Isometric projection - NOTE: using -rotZ for correct orientation (roof up, ground down)
                 const isoX = rotX * Math.cos(isoAngle) - rotY * Math.cos(isoAngle);
-                const isoY = rotX * Math.sin(isoAngle) + rotY * Math.sin(isoAngle) + rotZ;
+                const isoY = rotX * Math.sin(isoAngle) + rotY * Math.sin(isoAngle) - rotZ;
                 
                 return {
                     x: offsetX + isoX,
@@ -298,14 +298,14 @@
                 faces.push({
                     type: 'wall',
                     points: [corners.fbr, corners.bbr, corners.btr, corners.ftr],
-                    color: this.darkenColor(this.params.sidingColor, 0.85),
+                    color: this.darkenColor(this.params.sidingColor, 0.7),
                     depth: 1.5
                 });
                 if (this.params.wainscottEnabled) {
                     faces.push({
                         type: 'wainscott',
                         points: [corners.fbr, corners.bbr, corners.bwr, corners.fwr],
-                        color: this.darkenColor(this.params.wainscottColor, 0.85),
+                        color: this.darkenColor(this.params.wainscottColor, 0.75),
                         depth: 1.6
                     });
                 }
@@ -316,14 +316,14 @@
                 faces.push({
                     type: 'wall',
                     points: [corners.bbl, corners.fbl, corners.ftl, corners.btl],
-                    color: this.darkenColor(this.params.sidingColor, 0.85),
+                    color: this.darkenColor(this.params.sidingColor, 0.7),
                     depth: 1.5
                 });
                 if (this.params.wainscottEnabled) {
                     faces.push({
                         type: 'wainscott',
                         points: [corners.bbl, corners.fbl, corners.fwl, corners.bwl],
-                        color: this.darkenColor(this.params.wainscottColor, 0.85),
+                        color: this.darkenColor(this.params.wainscottColor, 0.75),
                         depth: 1.6
                     });
                 }
@@ -395,7 +395,7 @@
                 ctx.closePath();
                 ctx.fill();
                 ctx.strokeStyle = '#000';
-                ctx.lineWidth = 1;
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
             });
             
