@@ -36,8 +36,8 @@ require_once TCM_PLUGIN_INCLUDES . '/class-tcm-loader.php';
 require_once TCM_PLUGIN_INCLUDES . '/admin/class-tcm-admin-reports.php';
 TCM_Admin_Reports::maybe_export_csv();
 
-// === Create time requests table on admin init ===
-add_action('admin_init', 'tcm_create_time_requests_table');
+// === Create time requests table on init (both frontend and backend) ===
+add_action('init', 'tcm_create_time_requests_table');
 function tcm_create_time_requests_table() {
     global $wpdb;
     $table = $wpdb->prefix . 'tcm_time_requests';
@@ -61,6 +61,12 @@ function tcm_create_time_requests_table() {
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
     }
+}
+
+// === Plugin Activation Hook - Ensure table is created on activation ===
+register_activation_hook(__FILE__, 'tcm_plugin_activate');
+function tcm_plugin_activate() {
+    tcm_create_time_requests_table();
 }
 
 // === TimeClock: Redirect users to /timeclock after logout ===
@@ -232,6 +238,11 @@ function tcm_ajax_submit_time_request(){
     global $wpdb;
     $table = $wpdb->prefix . 'tcm_time_requests';
     
+    // Verify table exists, create if missing
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table'") != $table) {
+        tcm_create_time_requests_table();
+    }
+    
     // Insert the request
     $result = $wpdb->insert(
         $table,
@@ -246,6 +257,13 @@ function tcm_ajax_submit_time_request(){
         ),
         array('%d', '%s', '%s', '%s', '%s', '%s', '%s')
     );
+    
+    if ($result === false) {
+        // Database error
+        $error = $wpdb->last_error;
+        error_log('TCM Time Request Insert Error: ' . $error);
+        wp_send_json_error('Database error: Could not save request. Please contact support.');
+    }
     
     if ($result) {
         // Send notification email to configured address
