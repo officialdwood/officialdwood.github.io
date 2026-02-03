@@ -79,8 +79,8 @@ class BV_Shortcode {
                         <h3>View Controls</h3>
                         <div class="bv-control-group">
                             <label for="bv-rotation">Rotation (degrees)</label>
-                            <input type="range" id="bv-rotation" min="0" max="360" value="30" step="5" />
-                            <span id="bv-rotation-value">30°</span>
+                            <input type="range" id="bv-rotation" min="0" max="360" value="45" step="5" />
+                            <span id="bv-rotation-value">45°</span>
                         </div>
                         <div class="bv-control-group">
                             <label for="bv-zoom">Zoom Level</label>

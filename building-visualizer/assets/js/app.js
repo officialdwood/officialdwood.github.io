@@ -26,7 +26,7 @@
                 wainscottColor: null,
                 wainscottEnabled: true,
                 wainscottHeight: 3,
-                rotation: 30, // degrees
+                rotation: 45, // degrees - better angle to see gable and sides
                 zoom: 1 // scale factor
             };
             
@@ -173,11 +173,17 @@
             // Calculate building dimensions on canvas
             const baseScale = 6; // pixels per foot at 100% zoom
             const scale = baseScale * this.params.zoom;
-            const offsetX = canvas.width / 2;
-            const offsetY = canvas.height - 100;
             
             // Calculate roof peak height
             const roofPeakHeight = (this.params.width / 2) * (this.params.roofPitch / 12);
+            const totalHeight = this.params.wallHeight + roofPeakHeight;
+            
+            // Center the building horizontally and vertically (accounting for total height)
+            const offsetX = canvas.width / 2;
+            // Position so the building (including roof) is centered vertically in the available space above ground
+            const availableHeight = canvas.height - 80; // space above ground
+            const buildingHeightPixels = totalHeight * scale;
+            const offsetY = (availableHeight + buildingHeightPixels) / 2;
             
             // Draw building (isometric-style 3D view with rotation)
             this.drawBuilding3D(ctx, offsetX, offsetY, scale, roofPeakHeight);
@@ -323,6 +329,23 @@
                         depth: 1.1
                     });
                 }
+                // Front gable end (triangle)
+                faces.push({
+                    type: 'gable',
+                    points: [corners.ftl, corners.ftr, frontPeak],
+                    color: this.getRgbColor(this.params.sidingColor),
+                    depth: 0.9
+                });
+            }
+            
+            // Back gable end (triangle)
+            if (showBack) {
+                faces.push({
+                    type: 'gable',
+                    points: [corners.btl, corners.btr, backPeak],
+                    color: this.getRgbColor(this.params.sidingColor),
+                    depth: 2.2
+                });
             }
             
             // Roof faces
