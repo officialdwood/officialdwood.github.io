@@ -1,0 +1,44 @@
+/* Building Visualizer Admin Styles */
+
+.bv-admin-wrap {
+    max-width: 1200px;
+    padding: 20px;
+}
+
+.bv-admin-wrap h2 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #23282d;
+}
+
+.bv-admin-wrap .widefat {
+    margin-bottom: 20px;
+    border: 1px solid #c3c4c7;
+}
+
+.bv-admin-wrap .widefat th {
+    background: #f6f7f7;
+    font-weight: 600;
+}
+
+.bv-color-preview {
+    width: 50px;
+    height: 30px;
+    border: 1px solid #c3c4c7;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.bv-admin-wrap .button {
+    margin-top: 10px;
+}
+
+.bv-admin-wrap .submit {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #c3c4c7;
+}
+
+.bv-admin-wrap .notice {
+    margin: 20px 0;
+}
