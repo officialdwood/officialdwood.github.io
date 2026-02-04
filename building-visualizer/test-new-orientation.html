@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Visualizer Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #fff;
+        }
+        #canvas-container {
+            border: 2px solid #ccc;
+            display: inline-block;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Building Visualizer - New Orientation Test</h1>
+    <div id="canvas-container">
+        <canvas id="bv-canvas" width="800" height="600"></canvas>
+    </div>
+    
+    <script>
+        // Simplified version to test the rendering
+        const canvas = document.getElementById('bv-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Building parameters
+        const params = {
+            width: 20,
+            length: 40,
+            wallHeight: 12,
+            roofPitch: 4,
+            rotationY: 30,  // NEW: 30° horizontal
+            rotationX: 15,  // NEW: 15° vertical tilt
+            zoom: 1
+        };
+        
+        // Colors
+        const roofingColor = '#4a4a4a';  // Dark gray
+        const sidingColor = '#f5f5f5';   // Light gray/white
+        const wainscottColor = '#8b7355'; // Brown
+        
+        function render() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // NEW: Very light gray background (almost white)
+            ctx.fillStyle = '#FAFAFA';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // NEW: Subtle ground plane
+            ctx.fillStyle = '#E8E8E8';
+            ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
+            
+            // Calculate building dimensions
+            const baseScale = 6;
+            const scale = baseScale * params.zoom;
+            
+            const roofPeakHeight = (params.width / 2) * (params.roofPitch / 12);
+            const totalHeight = params.wallHeight + roofPeakHeight;
+            
+            const offsetX = canvas.width / 2;
+            const availableHeight = canvas.height - 80;
+            const buildingHeightPixels = totalHeight * scale;
+            const offsetY = (availableHeight + buildingHeightPixels) / 2;
+            
+            drawBuilding3D(offsetX, offsetY, scale, roofPeakHeight);
+        }
+        
+        function drawBuilding3D(offsetX, offsetY, scale, roofPeakHeight) {
+            const width = params.width * scale;
+            const length = params.length * scale;
+            const wallHeight = params.wallHeight * scale;
+            const wainscottHeight = 3 * scale;
+            
+            const rotationYRad = (params.rotationY * Math.PI) / 180;
+            const rotationXRad = (params.rotationX * Math.PI) / 180;
+            const isoAngle = Math.PI / 6;
+            
+            const projectPoint = (x, y, z) => {
+                let rotX = x * Math.cos(rotationYRad) - y * Math.sin(rotationYRad);
+                let rotY = x * Math.sin(rotationYRad) + y * Math.cos(rotationYRad);
+                let rotZ = z;
+                
+                const tempY = rotY;
+                const tempZ = rotZ;
+                rotY = tempY * Math.cos(rotationXRad) - tempZ * Math.sin(rotationXRad);
+                rotZ = tempY * Math.sin(rotationXRad) + tempZ * Math.cos(rotationXRad);
+                
+                const isoX = rotX * Math.cos(isoAngle) - rotY * Math.cos(isoAngle);
+                const isoY = rotX * Math.sin(isoAngle) + rotY * Math.sin(isoAngle) + rotZ;
+                
+                return { x: offsetX + isoX, y: offsetY + isoY };
+            };
+            
+            // Define corners
+            const corners = {
+                fbl: projectPoint(-width/2, -length/2, 0),
+                fbr: projectPoint(width/2, -length/2, 0),
+                bbl: projectPoint(-width/2, length/2, 0),
+                bbr: projectPoint(width/2, length/2, 0),
+                ftl: projectPoint(-width/2, -length/2, -wallHeight),
+                ftr: projectPoint(width/2, -length/2, -wallHeight),
+                btl: projectPoint(-width/2, length/2, -wallHeight),
+                btr: projectPoint(width/2, length/2, -wallHeight)
+            };
+            
+            const roofPeak = roofPeakHeight * scale;
+            const frontPeak = projectPoint(0, -length/2, -wallHeight - roofPeak);
+            const backPeak = projectPoint(0, length/2, -wallHeight - roofPeak);
+            
+            // Draw faces
+            const faces = [];
+            
+            // Walls with wainscott
+            const wainTop = {
+                fbl: projectPoint(-width/2, -length/2, -wainscottHeight),
+                fbr: projectPoint(width/2, -length/2, -wainscottHeight),
+                bbl: projectPoint(-width/2, length/2, -wainscottHeight),
+                bbr: projectPoint(width/2, length/2, -wainscottHeight)
+            };
+            
+            // Wainscott sections
+            faces.push({
+                points: [corners.fbr, corners.fbl, wainTop.fbl, wainTop.fbr],
+                color: darkenColor(wainscottColor, 1.0),
+                depth: 1.0
+            });
+            faces.push({
+                points: [corners.bbr, corners.fbr, wainTop.fbr, wainTop.bbr],
+                color: darkenColor(wainscottColor, 0.75),
+                depth: 1.5
+            });
+            faces.push({
+                points: [corners.bbl, corners.bbr, wainTop.bbr, wainTop.bbl],
+                color: darkenColor(wainscottColor, 0.85),
+                depth: 2.0
+            });
+            
+            // Upper walls (siding)
+            faces.push({
+                points: [wainTop.fbr, wainTop.fbl, corners.ftl, corners.ftr],
+                color: sidingColor,
+                depth: 1.0
+            });
+            faces.push({
+                points: [wainTop.bbr, wainTop.fbr, corners.ftr, corners.btr],
+                color: darkenColor(sidingColor, 0.7),
+                depth: 1.5
+            });
+            faces.push({
+                points: [wainTop.bbl, wainTop.bbr, corners.btr, corners.btl],
+                color: darkenColor(sidingColor, 0.85),
+                depth: 2.0
+            });
+            
+            // Gable ends
+            faces.push({
+                points: [corners.ftl, corners.ftr, frontPeak],
+                color: sidingColor,
+                depth: 0.9
+            });
+            faces.push({
+                points: [corners.btl, corners.btr, backPeak],
+                color: darkenColor(sidingColor, 0.85),
+                depth: 2.2
+            });
+            
+            // Roof
+            faces.push({
+                points: [frontPeak, corners.ftr, corners.btr, backPeak],
+                color: darkenColor(roofingColor, 0.7),
+                depth: 0.5
+            });
+            faces.push({
+                points: [frontPeak, backPeak, corners.btl, corners.ftl],
+                color: darkenColor(roofingColor, 0.85),
+                depth: 0.5
+            });
+            
+            // Sort and draw
+            faces.sort((a, b) => b.depth - a.depth);
+            
+            faces.forEach(face => {
+                ctx.fillStyle = face.color;
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1.5;
+                
+                ctx.beginPath();
+                ctx.moveTo(face.points[0].x, face.points[0].y);
+                for (let i = 1; i < face.points.length; i++) {
+                    ctx.lineTo(face.points[i].x, face.points[i].y);
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            });
+            
+            // Roof ridge
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(frontPeak.x, frontPeak.y);
+            ctx.lineTo(backPeak.x, backPeak.y);
+            ctx.stroke();
+        }
+        
+        function darkenColor(color, factor) {
+            const hex = color.replace('#', '');
+            let r = parseInt(hex.substring(0, 2), 16);
+            let g = parseInt(hex.substring(2, 4), 16);
+            let b = parseInt(hex.substring(4, 6), 16);
+            
+            r = Math.floor(r * factor);
+            g = Math.floor(g * factor);
+            b = Math.floor(b * factor);
+            
+            return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+        
+        // Render on load
+        render();
+    </script>
+</body>
+</html>

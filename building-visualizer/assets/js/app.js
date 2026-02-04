@@ -26,8 +26,8 @@
                 wainscottColor: null,
                 wainscottEnabled: true,
                 wainscottHeight: 3,
-                rotationY: 45, // degrees - horizontal rotation (45 = nice 3D angle)
-                rotationX: 0, // degrees - vertical tilt (0 = building sits square/flat)
+                rotationY: 30, // degrees - horizontal rotation (30 = professional viewing angle)
+                rotationX: 15, // degrees - vertical tilt (15 = looking slightly down, shows roof well)
                 zoom: 1 // scale factor
             };
             
@@ -170,12 +170,12 @@
             // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Draw light gray/off-white background
-            ctx.fillStyle = '#F5F5F5';
+            // Draw very light gray background (almost white)
+            ctx.fillStyle = '#FAFAFA';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Draw ground
-            ctx.fillStyle = '#D3D3D3';
+            // Draw subtle ground plane
+            ctx.fillStyle = '#E8E8E8';
             ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
             
             // Calculate building dimensions on canvas
