@@ -1,11 +1,15 @@
 <?php
 /**
  * Plugin Name: Building Visualizer
- * Description: Interactive 3D building configurator with customizable dimensions, roof pitch, and colors. Use shortcode [building_visualizer].
+ * Plugin URI: https://github.com/officialdwood/officialdwood.github.io
+ * Description: Interactive building configurator with customizable dimensions, roof pitch, and colors. Use shortcode [building_visualizer].
  * Version: 1.0.0
  * Author: Protech Buildings
+ * Author URI: https://protechbuildings.com
  * License: GPL-2.0+
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain: building-visualizer
+ * Domain Path: /languages
  */
 
 if (!defined('ABSPATH')) exit;
