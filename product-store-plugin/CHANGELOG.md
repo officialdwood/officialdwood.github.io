@@ -1,6 +1,19 @@
 # Changelog
 
-All notable changes to the Steel Store WordPress Plugin will be documented in this file.
+All notable changes to the Product Store Plugin will be documented in this file.
+
+## [1.0.1] - 2026-02-04
+
+### Fixed
+- Fixed admin menu not appearing in WordPress dashboard after plugin activation
+- Admin classes now initialize earlier to properly register menu items
+- Added menu position to make "Steel Store" menu more visible in dashboard
+- Added "All Products" label to improve menu clarity
+
+### Changed
+- Plugin now properly displays "Steel Store" menu item with submenu options
+- Menu appears below Comments in the WordPress admin sidebar
+- Settings submenu now has clearer "Store Settings" page title
 
 ## [1.0.0] - 2024
 

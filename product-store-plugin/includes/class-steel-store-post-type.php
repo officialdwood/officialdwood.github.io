@@ -23,6 +23,7 @@ class Steel_Store_Post_Type {
             'name' => 'Products',
             'singular_name' => 'Product',
             'menu_name' => 'Steel Store',
+            'all_items' => 'All Products',
             'add_new' => 'Add New',
             'add_new_item' => 'Add New Product',
             'edit_item' => 'Edit Product',
@@ -39,6 +40,7 @@ class Steel_Store_Post_Type {
             'show_ui' => true,
             'show_in_menu' => true,
             'menu_icon' => 'dashicons-store',
+            'menu_position' => 26, // Below Comments, above Appearance
             'capability_type' => 'post',
             'hierarchical' => false,
             'supports' => ['title', 'editor', 'thumbnail'],

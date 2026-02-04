@@ -3,7 +3,7 @@
  * Plugin Name: Product Store Plugin
  * Plugin URI: https://www.brightidea.media
  * Description: Modern online store for steel products with cart functionality and email submission. Use shortcode [steel_store].
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Bright Idea Marketing
  * Author URI: https://www.brightidea.media
  * License: GPL-2.0+
@@ -12,7 +12,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('STEEL_STORE_VERSION', '1.0.0');
+define('STEEL_STORE_VERSION', '1.0.1');
 define('STEEL_STORE_FILE', __FILE__);
 define('STEEL_STORE_DIR', plugin_dir_path(__FILE__));
 define('STEEL_STORE_URL', plugin_dir_url(__FILE__));
@@ -37,27 +37,24 @@ class SteelStore {
     }
 
     private function __construct() {
-        add_action('init', [$this, 'init']);
-        add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
-        add_action('admin_enqueue_scripts', [$this, 'admin_enqueue_scripts']);
-        
-        // AJAX handlers
-        add_action('wp_ajax_steel_store_submit_cart', [$this, 'ajax_submit_cart']);
-        add_action('wp_ajax_nopriv_steel_store_submit_cart', [$this, 'ajax_submit_cart']);
-    }
-
-    public function init() {
         // Initialize post type
         Steel_Store_Post_Type::instance();
         
         // Initialize shortcode
         Steel_Store_Shortcode::instance();
         
-        // Initialize admin
+        // Initialize admin (needs to be early for menu registration)
         if (is_admin()) {
             Steel_Store_Admin::instance();
             Steel_Store_Settings::instance();
         }
+        
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
+        add_action('admin_enqueue_scripts', [$this, 'admin_enqueue_scripts']);
+        
+        // AJAX handlers
+        add_action('wp_ajax_steel_store_submit_cart', [$this, 'ajax_submit_cart']);
+        add_action('wp_ajax_nopriv_steel_store_submit_cart', [$this, 'ajax_submit_cart']);
     }
 
     public function enqueue_scripts() {

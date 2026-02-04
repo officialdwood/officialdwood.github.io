@@ -12,13 +12,14 @@ class Steel_Store_Admin {
     }
 
     private function __construct() {
-        add_action('admin_menu', [$this, 'add_admin_menu']);
+        add_action('admin_menu', [$this, 'add_admin_menu'], 20);
     }
 
     public function add_admin_menu() {
+        // Add Settings submenu under the Steel Store post type menu
         add_submenu_page(
             'edit.php?post_type=steel_product',
-            'Settings',
+            'Store Settings',
             'Settings',
             'manage_options',
             'steel-store-settings',
