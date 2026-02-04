@@ -1,0 +1,43 @@
+/* Steel Store - Admin Styles */
+
+.steel-product-image-wrapper {
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.steel-product-image-preview {
+    text-align: center;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.steel-product-image-preview img {
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.steel-upload-image-button,
+.steel-remove-image-button {
+    width: 100%;
+    text-align: center;
+}
+
+.steel-store-info-box h2,
+.steel-store-info-box h3 {
+    margin-top: 0;
+}
+
+/* Admin product list enhancements */
+.post-type-steel_product .wp-list-table .column-taxonomy-steel_product_tag {
+    width: 25%;
+}
+
+.post-type-steel_product .wp-list-table img {
+    max-width: 60px;
+    height: auto;
+    border-radius: 4px;
+}
