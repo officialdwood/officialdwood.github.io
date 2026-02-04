@@ -174,6 +174,14 @@ steel_store();
 
 // Activation hook
 register_activation_hook(__FILE__, function() {
+    // Register post type and taxonomy first so terms can be created
+    Steel_Store_Post_Type::instance()->register_post_type();
+    Steel_Store_Post_Type::instance()->register_taxonomy();
+    
+    // Create default tags
+    Steel_Store_Post_Type::create_default_tags();
+    
+    // Flush rewrite rules
     flush_rewrite_rules();
 });
 

@@ -73,8 +73,13 @@ class Steel_Store_Post_Type {
         ];
 
         register_taxonomy('steel_product_tag', ['steel_product'], $args);
+    }
 
-        // Register default tags
+    /**
+     * Create default product tags
+     * Called on plugin activation
+     */
+    public static function create_default_tags() {
         $default_tags = ['Panels', 'Trim', 'Accessories', 'Fasteners', 'Building Materials', 'Tools'];
         foreach ($default_tags as $tag) {
             if (!term_exists($tag, 'steel_product_tag')) {

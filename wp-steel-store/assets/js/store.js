@@ -302,6 +302,9 @@
     }
 
     // Utility: Escape HTML
+    // Defense-in-depth XSS prevention. While data comes from server (trusted),
+    // this provides an additional security layer in case of database compromise
+    // or other server-side vulnerabilities. Ensures safe rendering in all contexts.
     function escapeHtml(text) {
         const map = {
             '&': '&amp;',
