@@ -72,16 +72,16 @@
 
         let html = '';
         filteredProducts.forEach(product => {
+            // Clean product title - remove numbers and symbols at the start
+            let cleanTitle = product.title.replace(/^[\d\s\-#.]+/, '').trim();
+            
             html += `
                 <div class="steel-product-card" data-product-id="${product.id}">
                     <div class="steel-product-image-wrapper">
-                        <img src="${product.image}" alt="${escapeHtml(product.title)}" class="steel-product-image">
+                        <img src="${product.image}" alt="${escapeHtml(cleanTitle)}" class="steel-product-image">
                     </div>
                     <div class="steel-product-info">
-                        <h3 class="steel-product-title">${escapeHtml(product.title)}</h3>
-                        <div class="steel-product-tags">
-                            ${product.tags.map(tag => `<span class="steel-product-tag">${escapeHtml(tag)}</span>`).join('')}
-                        </div>
+                        <h3 class="steel-product-title">${escapeHtml(cleanTitle)}</h3>
                         <div class="steel-product-actions">
                             <button class="btn-add-to-cart" data-product-id="${product.id}">
                                 Add to Cart
@@ -206,13 +206,20 @@
         if (existingItem) {
             existingItem.quantity++;
         } else {
-            cart.push({
+            const cartItem = {
                 id: product.id,
                 title: product.title,
                 image: product.image,
                 tags: product.tags,
                 quantity: 1
-            });
+            };
+            
+            // Add default length for panel items
+            if (product.tags.includes('Panels')) {
+                cartItem.length = "8'0\""; // Default 8 feet
+            }
+            
+            cart.push(cartItem);
         }
 
         saveCart();
@@ -244,6 +251,44 @@
         }
     }
 
+    // Update length (for panels)
+    function updateLength(productId, length) {
+        const item = cart.find(item => item.id === productId);
+        if (item) {
+            item.length = length;
+            saveCart();
+        }
+    }
+
+    // Generate length options (3'0" to 45'0" in quarter inch increments)
+    function generateLengthOptions() {
+        const options = [];
+        for (let feet = 3; feet <= 45; feet++) {
+            for (let quarterInches = 0; quarterInches < 48; quarterInches++) {
+                const inches = quarterInches / 4;
+                const wholeFeet = feet + Math.floor(inches / 12);
+                const remainingInches = inches % 12;
+                
+                if (wholeFeet > 45) break;
+                
+                let inchStr = '';
+                if (remainingInches === 0) {
+                    inchStr = '0';
+                } else if (remainingInches === Math.floor(remainingInches)) {
+                    inchStr = remainingInches.toString();
+                } else {
+                    inchStr = remainingInches.toFixed(2).replace(/\.?0+$/, '');
+                }
+                
+                const lengthStr = `${wholeFeet}'${inchStr}"`;
+                options.push(lengthStr);
+                
+                if (wholeFeet === 45 && remainingInches === 0) break;
+            }
+        }
+        return options;
+    }
+
     // Render cart
     function renderCart() {
         const $body = $('#cart-modal-body');
@@ -253,20 +298,32 @@
             return;
         }
 
+        const lengthOptions = generateLengthOptions();
+        
         let html = '';
         cart.forEach(item => {
+            const isPanel = item.tags.includes('Panels');
+            const currentLength = item.length || "8'0\"";
+            
             html += `
                 <div class="cart-item" data-product-id="${item.id}">
                     <img src="${item.image}" alt="${escapeHtml(item.title)}" class="cart-item-image">
                     <div class="cart-item-info">
                         <h4 class="cart-item-title">${escapeHtml(item.title)}</h4>
-                        <div class="cart-item-tags">
-                            ${item.tags.map(tag => `<span class="steel-product-tag">${escapeHtml(tag)}</span>`).join('')}
-                        </div>
                         <div class="cart-item-quantity">
                             <label>Quantity:</label>
                             <input type="number" class="cart-quantity-input" data-product-id="${item.id}" value="${item.quantity}" min="1">
                         </div>
+                        ${isPanel ? `
+                        <div class="cart-item-length">
+                            <label>Length:</label>
+                            <select class="cart-length-select" data-product-id="${item.id}">
+                                ${lengthOptions.map(opt => 
+                                    `<option value="${opt}" ${opt === currentLength ? 'selected' : ''}>${opt}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                        ` : ''}
                     </div>
                     <div class="cart-item-actions">
                         <button class="btn-remove-item" data-product-id="${item.id}">Remove</button>
@@ -287,6 +344,12 @@
             const productId = parseInt($(this).data('product-id'));
             const quantity = $(this).val();
             updateQuantity(productId, quantity);
+        });
+
+        $('.cart-length-select').on('change', function() {
+            const productId = parseInt($(this).data('product-id'));
+            const length = $(this).val();
+            updateLength(productId, length);
         });
     }
 

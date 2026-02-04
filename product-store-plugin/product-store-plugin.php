@@ -3,7 +3,7 @@
  * Plugin Name: Product Store Plugin
  * Plugin URI: https://www.brightidea.media
  * Description: Modern online store for steel products with cart functionality and email submission. Use shortcode [steel_store].
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Bright Idea Marketing
  * Author URI: https://www.brightidea.media
  * License: GPL-2.0+
@@ -12,7 +12,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('STEEL_STORE_VERSION', '1.0.1');
+define('STEEL_STORE_VERSION', '1.0.2');
 define('STEEL_STORE_FILE', __FILE__);
 define('STEEL_STORE_DIR', plugin_dir_path(__FILE__));
 define('STEEL_STORE_URL', plugin_dir_url(__FILE__));

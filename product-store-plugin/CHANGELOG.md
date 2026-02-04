@@ -2,6 +2,23 @@
 
 All notable changes to the Product Store Plugin will be documented in this file.
 
+## [1.0.2] - 2026-02-04
+
+### Added
+- Length field for Panel products in cart (3'0" to 45'0" with quarter-inch increments)
+- Support for custom lengths like 15'5.5" or 5'3.25" for panel items
+- Quarter-inch measurement increments (0", 0.25", 0.5", 0.75")
+
+### Changed
+- Moved cart button from bottom-left to top-right
+- Updated cart button styling to gray/white theme matching site design
+- Removed product tags from store display (now shows only name, picture, and add to cart)
+- Cleaned product titles by removing leading numbers and symbols
+- Improved cart layout for panel items with quantity and length fields
+
+### Removed
+- Product tags no longer display under items in the store grid
+
 ## [1.0.1] - 2026-02-04
 
 ### Fixed
