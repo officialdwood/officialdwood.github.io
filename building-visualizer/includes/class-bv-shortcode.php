@@ -89,13 +89,13 @@ class BV_Shortcode {
                         <div class="bv-control-row">
                             <div class="bv-control-group">
                                 <label for="bv-rotation-y">Rotation (Horizontal)</label>
-                                <input type="range" id="bv-rotation-y" min="0" max="360" value="30" step="5" />
-                                <span id="bv-rotation-y-value">30°</span>
+                                <input type="range" id="bv-rotation-y" min="0" max="360" value="330" step="5" />
+                                <span id="bv-rotation-y-value">330°</span>
                             </div>
                             <div class="bv-control-group">
                                 <label for="bv-rotation-x">Tilt (Vertical)</label>
-                                <input type="range" id="bv-rotation-x" min="-45" max="45" value="15" step="5" />
-                                <span id="bv-rotation-x-value">15°</span>
+                                <input type="range" id="bv-rotation-x" min="-45" max="45" value="20" step="5" />
+                                <span id="bv-rotation-x-value">20°</span>
                             </div>
                         </div>
                         <div class="bv-control-row">

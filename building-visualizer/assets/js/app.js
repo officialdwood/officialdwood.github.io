@@ -26,8 +26,8 @@
                 wainscottColor: null,
                 wainscottEnabled: true,
                 wainscottHeight: 3,
-                rotationY: 30, // degrees - horizontal rotation (30 = professional viewing angle)
-                rotationX: 15, // degrees - vertical tilt (15 = looking slightly down, shows roof well)
+                rotationY: 330, // degrees - horizontal rotation (330 = front-left corner view like reference image)
+                rotationX: 20, // degrees - vertical tilt (20 = looking down, shows roof well)
                 zoom: 1 // scale factor
             };
             
