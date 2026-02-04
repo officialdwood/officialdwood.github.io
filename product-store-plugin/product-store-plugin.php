@@ -1,13 +1,13 @@
 <?php
 /**
- * Plugin Name: Steel Store
+ * Plugin Name: Product Store Plugin
  * Plugin URI: https://www.brightidea.media
  * Description: Modern online store for steel products with cart functionality and email submission. Use shortcode [steel_store].
  * Version: 1.0.0
  * Author: Bright Idea Marketing
  * Author URI: https://www.brightidea.media
  * License: GPL-2.0+
- * Text Domain: steel-store
+ * Text Domain: product-store-plugin
  */
 
 if (!defined('ABSPATH')) exit;

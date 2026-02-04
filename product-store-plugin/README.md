@@ -1,4 +1,4 @@
-# Steel Store - WordPress Plugin
+# Product Store Plugin - WordPress Plugin
 
 A modern, minimal WordPress plugin for displaying and managing steel products with cart functionality and email-based order submission.
 
@@ -18,10 +18,12 @@ A modern, minimal WordPress plugin for displaying and managing steel products wi
 
 ## Installation
 
-1. Upload the `wp-steel-store` folder to `/wp-content/plugins/`
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Configure settings under **Steel Store > Settings**
-4. Add products under **Steel Store > All Products**
+1. Download the `product-store-plugin.zip` file
+2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
+3. Choose the zip file and click "Install Now"
+4. Click "Activate Plugin"
+5. Configure settings under **Steel Store > Settings**
+6. Add products under **Steel Store > All Products**
 5. Use shortcode `[steel_store]` on any page or in Elementor
 
 ## Usage
