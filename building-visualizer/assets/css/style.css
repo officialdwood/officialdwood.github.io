@@ -1,4 +1,4 @@
-/* Building Visualizer Styles */
+/* Building Visualizer Styles - Grayscale Theme */
 .bv-wrap {
     max-width: 1400px;
     margin: 0 auto;
@@ -14,7 +14,7 @@
 .bv-header h2 {
     margin: 0 0 10px 0;
     font-size: 32px;
-    color: #333;
+    color: #2a2a2a;
 }
 
 .bv-header p {
@@ -31,10 +31,11 @@
 
 .bv-controls {
     flex: 0 0 300px;
-    background: #f8f9fa;
+    background: #f5f5f5;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #ddd;
 }
 
 .bv-preview {
@@ -44,6 +45,7 @@
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #ddd;
 }
 
 .bv-section {
@@ -57,8 +59,8 @@
 .bv-section h3 {
     margin: 0 0 15px 0;
     font-size: 18px;
-    color: #333;
-    border-bottom: 2px solid #007cba;
+    color: #2a2a2a;
+    border-bottom: 2px solid #555;
     padding-bottom: 8px;
 }
 
@@ -74,7 +76,7 @@
     display: block;
     margin-bottom: 5px;
     font-weight: 600;
-    color: #555;
+    color: #2a2a2a;
     font-size: 14px;
 }
 
@@ -83,10 +85,11 @@
 .bv-control-group select {
     width: 100%;
     padding: 8px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 14px;
     transition: border-color 0.2s;
+    background: #fff;
 }
 
 .bv-control-group input[type="range"] {
@@ -103,15 +106,15 @@
 .bv-control-group input[type="range"]:focus,
 .bv-control-group select:focus {
     outline: none;
-    border-color: #007cba;
-    box-shadow: 0 0 0 1px #007cba;
+    border-color: #555;
+    box-shadow: 0 0 0 1px #555;
 }
 
 .bv-control-group span {
     display: inline-block;
     margin-left: 10px;
     font-weight: bold;
-    color: #007cba;
+    color: #2a2a2a;
 }
 
 .bv-button-group {
@@ -127,21 +130,35 @@
 .bv-button {
     width: 100%;
     padding: 12px 20px;
-    border: none;
+    border: 2px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
+    transition: all 0.2s;
+    background: #fff;
+    color: #2a2a2a;
+}
+
+.bv-button:hover {
+    background: #e8e8e8;
+    border-color: #999;
+    transform: translateY(-1px);
+}
+
+.bv-button:active {
+    transform: translateY(0);
 }
 
 .bv-button.primary {
-    background: #007cba;
+    background: #4a4a4a;
     color: #fff;
+    border-color: #4a4a4a;
 }
 
 .bv-button.primary:hover {
-    background: #005a87;
+    background: #2a2a2a;
+    border-color: #2a2a2a;
     transform: translateY(-1px);
 }
 
@@ -152,24 +169,25 @@
 #bv-canvas {
     width: 100%;
     height: auto;
-    border: 2px solid #e0e0e0;
+    border: 2px solid #ccc;
     border-radius: 4px;
-    background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+    background: #f8f8f8;
     margin-bottom: 20px;
 }
 
 .bv-view-controls {
-    background: #f8f9fa;
+    background: #f5f5f5;
     padding: 15px;
     border-radius: 4px;
     margin-bottom: 20px;
+    border: 1px solid #ddd;
 }
 
 .bv-view-controls h3 {
     margin: 0 0 15px 0;
     font-size: 16px;
-    color: #333;
-    border-bottom: 2px solid #007cba;
+    color: #2a2a2a;
+    border-bottom: 2px solid #555;
     padding-bottom: 8px;
 }
 
@@ -191,9 +209,10 @@
 .bv-info {
     margin-top: 20px;
     padding: 15px;
-    background: #f8f9fa;
+    background: #f5f5f5;
     border-radius: 4px;
-    border-left: 4px solid #007cba;
+    border-left: 4px solid #555;
+    border: 1px solid #ddd;
 }
 
 .bv-info-item {
@@ -206,12 +225,12 @@
 }
 
 .bv-info-item strong {
-    color: #333;
+    color: #2a2a2a;
     margin-right: 8px;
 }
 
 .bv-info-item span {
-    color: #666;
+    color: #555;
 }
 
 /* Responsive Design */

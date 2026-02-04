@@ -26,8 +26,8 @@
                 wainscottColor: null,
                 wainscottEnabled: true,
                 wainscottHeight: 3,
-                rotationY: 45, // degrees - horizontal rotation (around vertical axis)
-                rotationX: 20, // degrees - vertical tilt (pitch)
+                rotationY: 0, // degrees - horizontal rotation (0 = looking at gable wall)
+                rotationX: 20, // degrees - vertical tilt (pitch) - looking down slightly
                 zoom: 1 // scale factor
             };
             
@@ -229,9 +229,9 @@
                 rotY = tempY * Math.cos(rotationXRad) - tempZ * Math.sin(rotationXRad);
                 rotZ = tempY * Math.sin(rotationXRad) + tempZ * Math.cos(rotationXRad);
                 
-                // Isometric projection - NOTE: using -rotZ for correct orientation (roof up, ground down)
+                // Isometric projection - FIXED: using +rotZ for CORRECT orientation (roof UP, ground DOWN)
                 const isoX = rotX * Math.cos(isoAngle) - rotY * Math.cos(isoAngle);
-                const isoY = rotX * Math.sin(isoAngle) + rotY * Math.sin(isoAngle) - rotZ;
+                const isoY = rotX * Math.sin(isoAngle) + rotY * Math.sin(isoAngle) + rotZ;
                 
                 return {
                     x: offsetX + isoX,
