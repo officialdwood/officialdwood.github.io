@@ -56,7 +56,7 @@ class Steel_Store_Shortcode {
                 $query->the_post();
                 $post_id = get_the_ID();
                 $image_id = get_post_meta($post_id, '_steel_product_image_id', true);
-                $image_url = $image_id ? wp_get_attachment_url($image_id) : STEEL_STORE_ASSETS . '/img/placeholder.png';
+                $image_url = $image_id ? wp_get_attachment_url($image_id) : STEEL_STORE_ASSETS . '/img/placeholder.svg';
                 
                 $terms = wp_get_post_terms($post_id, 'steel_product_tag');
                 $tags = [];
