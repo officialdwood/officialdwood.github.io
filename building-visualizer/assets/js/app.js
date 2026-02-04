@@ -26,8 +26,8 @@
                 wainscottColor: null,
                 wainscottEnabled: true,
                 wainscottHeight: 3,
-                rotationY: 0, // degrees - horizontal rotation (0 = looking at gable wall)
-                rotationX: 20, // degrees - vertical tilt (pitch) - looking down slightly
+                rotationY: 45, // degrees - horizontal rotation (45 = nice 3D angle)
+                rotationX: 0, // degrees - vertical tilt (0 = building sits square/flat)
                 zoom: 1 // scale factor
             };
             
