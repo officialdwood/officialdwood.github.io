@@ -52,12 +52,21 @@ class ComingSoonAdvanced {
         // Get settings
         $logo_url = get_option('csa_logo_url', '');
         $bg_image_url = get_option('csa_bg_image_url', '');
+        $bg_color = get_option('csa_bg_color', '#1a1a1a');
         $description = get_option('csa_description', 'Home Of The Most Advanced Basketball Player Database and Player Portal.');
+        $description_color = get_option('csa_description_color', '#ffd700');
+        $description_size = get_option('csa_description_size', 40);
+        $coming_soon_color = get_option('csa_coming_soon_color', '#ffd700');
+        $coming_soon_size = get_option('csa_coming_soon_size', 48);
+        $button_text = get_option('csa_button_text', 'Email Us');
+        $button_email = get_option('csa_button_email', '');
+        $button_bg_color = get_option('csa_button_bg_color', '#ffd700');
+        $button_text_color = get_option('csa_button_text_color', '#1a1a1a');
         
-        // Set default background to matte black
-        $bg_style = 'background-color: #1a1a1a;';
+        // Set background style
+        $bg_style = 'background-color: ' . esc_attr($bg_color) . ';';
         if (!empty($bg_image_url)) {
-            $bg_style = 'background-image: url(' . esc_url($bg_image_url) . '); background-size: cover; background-position: center;';
+            $bg_style = 'background-image: url(' . esc_url($bg_image_url) . '); background-size: cover; background-position: center; background-color: ' . esc_attr($bg_color) . ';';
         }
         
         ?>
@@ -67,6 +76,19 @@ class ComingSoonAdvanced {
             <meta charset="<?php bloginfo('charset'); ?>">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <title><?php bloginfo('name'); ?> - Coming Soon</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@1,700&display=swap" rel="stylesheet">
+            <style>
+                :root {
+                    --desc-color: <?php echo esc_attr($description_color); ?>;
+                    --desc-size: <?php echo esc_attr($description_size); ?>px;
+                    --cs-color: <?php echo esc_attr($coming_soon_color); ?>;
+                    --cs-size: <?php echo esc_attr($coming_soon_size); ?>px;
+                    --btn-bg: <?php echo esc_attr($button_bg_color); ?>;
+                    --btn-text: <?php echo esc_attr($button_text_color); ?>;
+                }
+            </style>
             <?php wp_head(); ?>
         </head>
         <body class="csa-coming-soon-page">
@@ -88,6 +110,14 @@ class ComingSoonAdvanced {
                     <div class="csa-coming-soon">
                         Coming Soon...
                     </div>
+                    
+                    <?php if (!empty($button_email) && !empty($button_text)): ?>
+                        <div class="csa-button-wrapper">
+                            <a href="mailto:<?php echo esc_attr($button_email); ?>" class="csa-email-button">
+                                <?php echo esc_html($button_text); ?>
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
             <?php wp_footer(); ?>

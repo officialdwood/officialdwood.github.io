@@ -1,7 +1,8 @@
 jQuery(document).ready(function($) {
-    var mediaUploader;
+    // Initialize WordPress color pickers
+    $('.csa-color-picker').wpColorPicker();
     
-    // Handle upload button clicks
+    // Handle upload button clicks - create separate uploader for each button
     $('.csa-upload-button').on('click', function(e) {
         e.preventDefault();
         
@@ -9,14 +10,8 @@ jQuery(document).ready(function($) {
         var targetInputId = button.data('target');
         var previewId = button.data('preview');
         
-        // If the uploader object has already been created, reopen the dialog
-        if (mediaUploader) {
-            mediaUploader.open();
-            return;
-        }
-        
-        // Extend the wp.media object
-        mediaUploader = wp.media({
+        // Create a new media uploader instance for this specific button
+        var mediaUploader = wp.media({
             title: 'Choose Image',
             button: {
                 text: 'Choose Image'
