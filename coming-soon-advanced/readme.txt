@@ -3,11 +3,11 @@ Contributors: DWood
 Tags: coming soon, maintenance, under construction, landing page
 Requires at least: 5.0
 Tested up to: 6.4
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Advanced coming soon page with customizable colors, sizes, glow rates, and Poppins font styling.
+Advanced coming soon page with customizable colors, sizes, glow rates, glow intensity, and Poppins font styling.
 
 == Description ==
 
@@ -76,6 +76,12 @@ All text uses Poppins Italic Bold, loaded from Google Fonts.
 
 == Changelog ==
 
+= 2.2.0 =
+* NEW: Description glow intensity control (0-10 scale)
+* NEW: "Coming Soon" glow intensity control (0-10 scale)
+* IMPROVED: Full control over glow brightness from no glow to maximum glow
+* ENHANCED: Dynamic CSS calculations for precise glow control
+
 = 2.1.0 =
 * NEW: Description glow rate control (animation speed 0.5-10 seconds)
 * NEW: "Coming Soon" glow rate control (animation speed 0.5-10 seconds)
@@ -110,6 +116,9 @@ All text uses Poppins Italic Bold, loaded from Google Fonts.
 * Responsive design
 
 == Upgrade Notice ==
+
+= 2.2.0 =
+Added glow intensity controls (0-10 scale) for precise control over text glow brightness.
 
 = 2.1.0 =
 Added glow rate controls to adjust the speed of text animations.

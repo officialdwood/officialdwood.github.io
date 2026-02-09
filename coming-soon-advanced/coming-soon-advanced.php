@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Coming Soon Advanced
  * Description: Advanced coming soon page with golden metallic text, smoke effects, and customizable settings.
- * Version: 2.1.0
+ * Version: 2.2.0
  * Author: DWood
  * License: GPL-2.0+
  * Text Domain: coming-soon-advanced
@@ -10,7 +10,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('CSA_VERSION', '2.1.0');
+define('CSA_VERSION', '2.2.0');
 define('CSA_URL', plugin_dir_url(__FILE__));
 define('CSA_PATH', plugin_dir_path(__FILE__));
 
@@ -57,9 +57,11 @@ class ComingSoonAdvanced {
         $description_color = get_option('csa_description_color', '#ffd700');
         $description_size = get_option('csa_description_size', 40);
         $description_glow_rate = get_option('csa_description_glow_rate', 3);
+        $description_glow_intensity = get_option('csa_description_glow_intensity', 10);
         $coming_soon_color = get_option('csa_coming_soon_color', '#ffd700');
         $coming_soon_size = get_option('csa_coming_soon_size', 48);
         $coming_soon_glow_rate = get_option('csa_coming_soon_glow_rate', 2.5);
+        $coming_soon_glow_intensity = get_option('csa_coming_soon_glow_intensity', 10);
         $button_text = get_option('csa_button_text', 'Email Us');
         $button_email = get_option('csa_button_email', '');
         $button_bg_color = get_option('csa_button_bg_color', '#ffd700');
@@ -86,9 +88,11 @@ class ComingSoonAdvanced {
                     --desc-color: <?php echo esc_attr($description_color); ?>;
                     --desc-size: <?php echo esc_attr($description_size); ?>px;
                     --desc-glow-rate: <?php echo esc_attr($description_glow_rate); ?>s;
+                    --desc-glow-intensity: <?php echo esc_attr($description_glow_intensity); ?>;
                     --cs-color: <?php echo esc_attr($coming_soon_color); ?>;
                     --cs-size: <?php echo esc_attr($coming_soon_size); ?>px;
                     --cs-glow-rate: <?php echo esc_attr($coming_soon_glow_rate); ?>s;
+                    --cs-glow-intensity: <?php echo esc_attr($coming_soon_glow_intensity); ?>;
                     --btn-bg: <?php echo esc_attr($button_bg_color); ?>;
                     --btn-text: <?php echo esc_attr($button_text_color); ?>;
                 }
