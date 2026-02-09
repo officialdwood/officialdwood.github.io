@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Coming Soon Advanced
  * Description: Advanced coming soon page with golden metallic text, smoke effects, and customizable settings.
- * Version: 2.2.0
+ * Version: 2.3.0
  * Author: DWood
  * License: GPL-2.0+
  * Text Domain: coming-soon-advanced
@@ -10,7 +10,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('CSA_VERSION', '2.2.0');
+define('CSA_VERSION', '2.3.0');
 define('CSA_URL', plugin_dir_url(__FILE__));
 define('CSA_PATH', plugin_dir_path(__FILE__));
 
@@ -52,6 +52,7 @@ class ComingSoonAdvanced {
         // Get settings
         $logo_url = get_option('csa_logo_url', '');
         $bg_image_url = get_option('csa_bg_image_url', '');
+        $bg_video_url = get_option('csa_bg_video_url', '');
         $bg_color = get_option('csa_bg_color', '#1a1a1a');
         $description = get_option('csa_description', 'Home Of The Most Advanced Basketball Player Database and Player Portal.');
         $description_color = get_option('csa_description_color', '#ffd700');
@@ -67,9 +68,11 @@ class ComingSoonAdvanced {
         $button_bg_color = get_option('csa_button_bg_color', '#ffd700');
         $button_text_color = get_option('csa_button_text_color', '#1a1a1a');
         
-        // Set background style
+        // Set background style - video takes priority over image
         $bg_style = 'background-color: ' . esc_attr($bg_color) . ';';
-        if (!empty($bg_image_url)) {
+        $has_video = !empty($bg_video_url);
+        
+        if (!$has_video && !empty($bg_image_url)) {
             $bg_style = 'background-image: url(' . esc_url($bg_image_url) . '); background-size: cover; background-position: center; background-color: ' . esc_attr($bg_color) . ';';
         }
         
@@ -101,6 +104,13 @@ class ComingSoonAdvanced {
         </head>
         <body class="csa-coming-soon-page">
             <div class="csa-container" style="<?php echo esc_attr($bg_style); ?>">
+                <?php if ($has_video): ?>
+                    <!-- Background Video -->
+                    <video class="csa-bg-video" autoplay loop muted playsinline>
+                        <source src="<?php echo esc_url($bg_video_url); ?>" type="video/mp4">
+                    </video>
+                <?php endif; ?>
+                
                 <!-- Smoke overlay -->
                 <div class="csa-smoke-overlay"></div>
                 

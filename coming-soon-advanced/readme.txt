@@ -3,11 +3,11 @@ Contributors: DWood
 Tags: coming soon, maintenance, under construction, landing page
 Requires at least: 5.0
 Tested up to: 6.4
-Stable tag: 2.2.0
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Advanced coming soon page with customizable colors, sizes, glow rates, glow intensity, and Poppins font styling.
+Advanced coming soon page with customizable colors, sizes, glow rates, glow intensity, video/image backgrounds, and Poppins font styling.
 
 == Description ==
 
@@ -76,6 +76,13 @@ All text uses Poppins Italic Bold, loaded from Google Fonts.
 
 == Changelog ==
 
+= 2.3.0 =
+* NEW: Background video support (.mp4 files)
+* NEW: Video upload field in admin settings
+* NEW: Autoplay, loop, muted video background
+* ENHANCED: Video takes priority over background image when both are set
+* IMPROVED: Video covers full screen with object-fit
+
 = 2.2.0 =
 * NEW: Description glow intensity control (0-10 scale)
 * NEW: "Coming Soon" glow intensity control (0-10 scale)
@@ -116,6 +123,9 @@ All text uses Poppins Italic Bold, loaded from Google Fonts.
 * Responsive design
 
 == Upgrade Notice ==
+
+= 2.3.0 =
+Added video background support! Upload .mp4 files to use as animated backgrounds.
 
 = 2.2.0 =
 Added glow intensity controls (0-10 scale) for precise control over text glow brightness.

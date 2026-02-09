@@ -49,6 +49,12 @@ function csa_register_settings() {
         'default' => ''
     ]);
     
+    register_setting('csa_settings', 'csa_bg_video_url', [
+        'type' => 'string',
+        'sanitize_callback' => 'esc_url_raw',
+        'default' => ''
+    ]);
+    
     register_setting('csa_settings', 'csa_bg_color', [
         'type' => 'string',
         'sanitize_callback' => 'sanitize_hex_color',
@@ -145,6 +151,7 @@ function csa_render_settings_page() {
         update_option('csa_enabled', isset($_POST['csa_enabled']) ? '1' : '0');
         update_option('csa_logo_url', sanitize_text_field($_POST['csa_logo_url']));
         update_option('csa_bg_image_url', sanitize_text_field($_POST['csa_bg_image_url']));
+        update_option('csa_bg_video_url', sanitize_text_field($_POST['csa_bg_video_url']));
         update_option('csa_bg_color', sanitize_hex_color($_POST['csa_bg_color']));
         update_option('csa_description', sanitize_textarea_field($_POST['csa_description']));
         update_option('csa_description_color', sanitize_hex_color($_POST['csa_description_color']));
@@ -166,6 +173,7 @@ function csa_render_settings_page() {
     $enabled = get_option('csa_enabled', '0');
     $logo_url = get_option('csa_logo_url', '');
     $bg_image_url = get_option('csa_bg_image_url', '');
+    $bg_video_url = get_option('csa_bg_video_url', '');
     $bg_color = get_option('csa_bg_color', '#1a1a1a');
     $description = get_option('csa_description', 'Home Of The Most Advanced Basketball Player Database and Player Portal.');
     $description_color = get_option('csa_description_color', '#ffd700');
@@ -261,6 +269,36 @@ function csa_render_settings_page() {
                         <?php endif; ?>
                         <p class="description">
                             <?php _e('Upload a custom background image (optional).', 'coming-soon-advanced'); ?>
+                        </p>
+                    </td>
+                </tr>
+                
+                <!-- Background Video Upload -->
+                <tr>
+                    <th scope="row">
+                        <label for="csa_bg_video_url"><?php _e('Background Video', 'coming-soon-advanced'); ?></label>
+                    </th>
+                    <td>
+                        <div class="csa-media-upload-wrapper">
+                            <input type="text" id="csa_bg_video_url" name="csa_bg_video_url" value="<?php echo esc_attr($bg_video_url); ?>" class="regular-text" readonly>
+                            <button type="button" class="button csa-upload-video-button" data-target="csa_bg_video_url" data-preview="csa_video_preview">
+                                <?php _e('Choose Video', 'coming-soon-advanced'); ?>
+                            </button>
+                            <button type="button" class="button csa-remove-button" data-target="csa_bg_video_url" data-preview="csa_video_preview">
+                                <?php _e('Remove', 'coming-soon-advanced'); ?>
+                            </button>
+                        </div>
+                        <?php if (!empty($bg_video_url)): ?>
+                            <div class="csa-video-preview" id="csa_video_preview">
+                                <video src="<?php echo esc_url($bg_video_url); ?>" style="max-width: 300px; margin-top: 10px;" controls></video>
+                            </div>
+                        <?php else: ?>
+                            <div class="csa-video-preview" id="csa_video_preview" style="display: none;">
+                                <video src="" style="max-width: 300px; margin-top: 10px;" controls></video>
+                            </div>
+                        <?php endif; ?>
+                        <p class="description">
+                            <?php _e('Upload a background video (.mp4). Video takes priority over background image if both are set.', 'coming-soon-advanced'); ?>
                         </p>
                     </td>
                 </tr>
