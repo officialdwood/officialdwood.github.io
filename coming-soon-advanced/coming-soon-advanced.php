@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Coming Soon Advanced
  * Description: Advanced coming soon page with golden metallic text, smoke effects, and customizable settings.
- * Version: 1.0.0
+ * Version: 2.0.0
  * Author: DWood
  * License: GPL-2.0+
  * Text Domain: coming-soon-advanced
@@ -10,7 +10,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('CSA_VERSION', '1.0.0');
+define('CSA_VERSION', '2.0.0');
 define('CSA_URL', plugin_dir_url(__FILE__));
 define('CSA_PATH', plugin_dir_path(__FILE__));
 
