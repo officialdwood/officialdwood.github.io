@@ -1,0 +1,108 @@
+/* WyoHoops Game Database - Admin Styles */
+
+.wyohoops-admin {
+    background: #fff;
+    padding: 20px;
+}
+
+.wyohoops-admin-content {
+    max-width: 1400px;
+}
+
+.wyohoops-form-section {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 5px;
+}
+
+.wyohoops-list-section {
+    margin-bottom: 30px;
+}
+
+.wyohoops-filters {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.wyohoops-filters form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.wyohoops-filters input[type="text"],
+.wyohoops-filters select {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+.wyohoops-color-picker {
+    width: 100px;
+}
+
+.wyohoops-color-swatch {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 2px solid #ddd;
+    border-radius: 3px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.wyohoops-upload-button {
+    margin-bottom: 10px;
+}
+
+.wyohoops-image-preview {
+    margin-top: 10px;
+    max-width: 200px;
+}
+
+.wyohoops-image-preview img {
+    max-width: 100%;
+    height: auto;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+}
+
+.wyohoops-tools-section {
+    max-width: 900px;
+}
+
+.wyohoops-result-message {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 3px;
+}
+
+.wyohoops-result-message .success {
+    color: #46b450;
+    font-weight: bold;
+}
+
+.wyohoops-result-message .error {
+    color: #dc3232;
+    font-weight: bold;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .wyohoops-filters form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .wyohoops-filters input[type="text"],
+    .wyohoops-filters select,
+    .wyohoops-filters button {
+        width: 100%;
+    }
+}
