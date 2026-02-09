@@ -73,6 +73,12 @@ function csa_register_settings() {
         'default' => 40
     ]);
     
+    register_setting('csa_settings', 'csa_description_glow_rate', [
+        'type' => 'number',
+        'sanitize_callback' => 'floatval',
+        'default' => 3
+    ]);
+    
     register_setting('csa_settings', 'csa_coming_soon_color', [
         'type' => 'string',
         'sanitize_callback' => 'sanitize_hex_color',
@@ -83,6 +89,12 @@ function csa_register_settings() {
         'type' => 'number',
         'sanitize_callback' => 'absint',
         'default' => 48
+    ]);
+    
+    register_setting('csa_settings', 'csa_coming_soon_glow_rate', [
+        'type' => 'number',
+        'sanitize_callback' => 'floatval',
+        'default' => 2.5
     ]);
     
     register_setting('csa_settings', 'csa_button_text', [
@@ -125,8 +137,10 @@ function csa_render_settings_page() {
         update_option('csa_description', sanitize_textarea_field($_POST['csa_description']));
         update_option('csa_description_color', sanitize_hex_color($_POST['csa_description_color']));
         update_option('csa_description_size', absint($_POST['csa_description_size']));
+        update_option('csa_description_glow_rate', floatval($_POST['csa_description_glow_rate']));
         update_option('csa_coming_soon_color', sanitize_hex_color($_POST['csa_coming_soon_color']));
         update_option('csa_coming_soon_size', absint($_POST['csa_coming_soon_size']));
+        update_option('csa_coming_soon_glow_rate', floatval($_POST['csa_coming_soon_glow_rate']));
         update_option('csa_button_text', sanitize_text_field($_POST['csa_button_text']));
         update_option('csa_button_email', sanitize_email($_POST['csa_button_email']));
         update_option('csa_button_bg_color', sanitize_hex_color($_POST['csa_button_bg_color']));
@@ -142,8 +156,10 @@ function csa_render_settings_page() {
     $description = get_option('csa_description', 'Home Of The Most Advanced Basketball Player Database and Player Portal.');
     $description_color = get_option('csa_description_color', '#ffd700');
     $description_size = get_option('csa_description_size', 40);
+    $description_glow_rate = get_option('csa_description_glow_rate', 3);
     $coming_soon_color = get_option('csa_coming_soon_color', '#ffd700');
     $coming_soon_size = get_option('csa_coming_soon_size', 48);
+    $coming_soon_glow_rate = get_option('csa_coming_soon_glow_rate', 2.5);
     $button_text = get_option('csa_button_text', 'Email Us');
     $button_email = get_option('csa_button_email', '');
     $button_bg_color = get_option('csa_button_bg_color', '#ffd700');
@@ -286,6 +302,20 @@ function csa_render_settings_page() {
                     </td>
                 </tr>
                 
+                <!-- Description Glow Rate -->
+                <tr>
+                    <th scope="row">
+                        <label for="csa_description_glow_rate"><?php _e('Description Glow Rate', 'coming-soon-advanced'); ?></label>
+                    </th>
+                    <td>
+                        <input type="number" id="csa_description_glow_rate" name="csa_description_glow_rate" value="<?php echo esc_attr($description_glow_rate); ?>" min="0.5" max="10" step="0.1" />
+                        <span>seconds</span>
+                        <p class="description">
+                            <?php _e('Set the speed of the glow pulse animation in seconds (0.5-10). Lower is faster.', 'coming-soon-advanced'); ?>
+                        </p>
+                    </td>
+                </tr>
+                
                 <!-- Coming Soon Color -->
                 <tr>
                     <th scope="row">
@@ -309,6 +339,20 @@ function csa_render_settings_page() {
                         <span>px</span>
                         <p class="description">
                             <?php _e('Set the size of the "Coming Soon" text in pixels (12-120).', 'coming-soon-advanced'); ?>
+                        </p>
+                    </td>
+                </tr>
+                
+                <!-- Coming Soon Glow Rate -->
+                <tr>
+                    <th scope="row">
+                        <label for="csa_coming_soon_glow_rate"><?php _e('"Coming Soon" Glow Rate', 'coming-soon-advanced'); ?></label>
+                    </th>
+                    <td>
+                        <input type="number" id="csa_coming_soon_glow_rate" name="csa_coming_soon_glow_rate" value="<?php echo esc_attr($coming_soon_glow_rate); ?>" min="0.5" max="10" step="0.1" />
+                        <span>seconds</span>
+                        <p class="description">
+                            <?php _e('Set the speed of the loading sheen animation in seconds (0.5-10). Lower is faster.', 'coming-soon-advanced'); ?>
                         </p>
                     </td>
                 </tr>

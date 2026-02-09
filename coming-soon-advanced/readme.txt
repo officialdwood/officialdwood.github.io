@@ -3,11 +3,11 @@ Contributors: DWood
 Tags: coming soon, maintenance, under construction, landing page
 Requires at least: 5.0
 Tested up to: 6.4
-Stable tag: 2.0.0
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Advanced coming soon page with customizable colors, sizes, and Poppins font styling.
+Advanced coming soon page with customizable colors, sizes, glow rates, and Poppins font styling.
 
 == Description ==
 
@@ -76,6 +76,11 @@ All text uses Poppins Italic Bold, loaded from Google Fonts.
 
 == Changelog ==
 
+= 2.1.0 =
+* NEW: Description glow rate control (animation speed 0.5-10 seconds)
+* NEW: "Coming Soon" glow rate control (animation speed 0.5-10 seconds)
+* IMPROVED: Customizable animation speeds for both text elements
+
 = 2.0.0 =
 * FIXED: Logo and background image now separate (can be changed independently)
 * NEW: Background color picker (used when no background image)
@@ -105,6 +110,9 @@ All text uses Poppins Italic Bold, loaded from Google Fonts.
 * Responsive design
 
 == Upgrade Notice ==
+
+= 2.1.0 =
+Added glow rate controls to adjust the speed of text animations.
 
 = 2.0.0 =
 Major update with full color and size customization, Poppins font, email button, and fixed logo/background separation issue.

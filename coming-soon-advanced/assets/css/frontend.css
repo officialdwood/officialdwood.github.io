@@ -91,7 +91,7 @@ body.csa-coming-soon-page {
         0 0 30px currentColor,
         0 0 40px currentColor;
     
-    animation: fadeInUp 1.5s ease-out, textPulse 3s ease-in-out infinite;
+    animation: fadeInUp 1.5s ease-out, textPulse var(--desc-glow-rate, 3s) ease-in-out infinite;
 }
 
 .csa-coming-soon {
@@ -124,7 +124,7 @@ body.csa-coming-soon-page {
     
     /* Loading animation - sheen passes by repeatedly */
     animation: fadeInUp 1.5s ease-out 0.3s backwards, 
-               loadingSheen 2.5s ease-in-out infinite;
+               loadingSheen var(--cs-glow-rate, 2.5s) ease-in-out infinite;
 }
 
 /* Button styling */
