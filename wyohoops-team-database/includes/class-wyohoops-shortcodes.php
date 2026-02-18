@@ -39,7 +39,7 @@ class WyoHoops_Shortcodes {
         $girls = $this->functions->get_teams( array( 'gender' => 'girls', 'rank_max' => 5, 'limit' => 5 ) );
 
         ob_start();
-        ?> 
+        ?>
         <div class="wyohoops-wrapper" style="--wyohoops-frame: <?php echo esc_attr( $options['frame_color'] ); ?>; --wyohoops-bg: <?php echo esc_attr( $options['background_color'] ); ?>; --wyohoops-text: <?php echo esc_attr( $options['text_color'] ); ?>;">
             <div class="wyohoops-toggle">
                 <button class="wyohoops-tab <?php echo 'boys' === $default_gender ? 'is-active' : ''; ?>" data-target="boys"><?php esc_html_e( 'Boys', 'wyohoops-team-database' ); ?></button>

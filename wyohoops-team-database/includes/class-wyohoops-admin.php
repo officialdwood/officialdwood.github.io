@@ -250,7 +250,7 @@ class WyoHoops_Admin {
                         if ( $height_ft > 0 ) {
                             $height_display = $height_in > 0 ? sprintf( "%d' %d\"", $height_ft, $height_in ) : sprintf( "%d'", $height_ft );
                         } elseif ( $height_in > 0 ) {
-                            $height_display = sprintf( '%d"', $height_in );
+                            $height_display = sprintf( "%d\"", $height_in );
                         } else {
                             $height_display = '—';
                         }

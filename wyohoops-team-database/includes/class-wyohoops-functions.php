@@ -125,7 +125,7 @@ class WyoHoops_Functions {
         $data['state']          = strtoupper( sanitize_text_field( $data['state'] ) );
         $data['classification'] = strtoupper( sanitize_text_field( $data['classification'] ) );
         $data['gender']         = sanitize_text_field( strtolower( $data['gender'] ) );
-        $data['slug']           = sanitize_title( $data['slug'] ?: $data['school_name'] . '-' . $data['gender'] );
+        $data['slug']           = sanitize_title( $data['slug'] ?? ( $data['school_name'] . '-' . $data['gender'] ) );
 
         $data['logo_attachment_id'] = $data['logo_attachment_id'] ? absint( $data['logo_attachment_id'] ) : null;
         $data['primary_color']      = $this->sanitize_hex( $data['primary_color'] );
