@@ -101,7 +101,7 @@ class WyoHoops_REST {
             'slug'           => $team['slug'],
             'logo'           => ! empty( $team['logo_attachment_id'] ) ? wp_get_attachment_url( $team['logo_attachment_id'] ) : '',
             'primary_color'  => $team['primary_color'],
-            'secondary_color'=> $team['secondary_color'],
+            'secondary_color' => $team['secondary_color'],
             'rank'           => $team['rank'],
             'team_rating'    => $team['team_rating'],
             'def_rating'     => $team['def_rating'],
@@ -128,4 +128,3 @@ class WyoHoops_REST {
         );
     }
 }
-
