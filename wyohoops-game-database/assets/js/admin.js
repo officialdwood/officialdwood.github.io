@@ -11,6 +11,57 @@
             $('.wyohoops-color-picker').wpColorPicker();
         }
         
+        // Logo Upload
+        $('#upload_logo_button').on('click', function(e) {
+            e.preventDefault();
+            
+            var mediaUploader = wp.media({
+                title: 'Select WyoHoops Logo',
+                button: {
+                    text: 'Use this logo'
+                },
+                multiple: false
+            });
+            
+            mediaUploader.on('select', function() {
+                var attachment = mediaUploader.state().get('selection').first().toJSON();
+                $('#logo_attachment_id').val(attachment.id);
+                $('#logo_preview').html('<img src="' + attachment.url + '" style="max-width: 300px; height: auto;">');
+                $('#remove_logo_button').show();
+            });
+            
+            mediaUploader.open();
+        });
+        
+        // Remove Logo
+        $('#remove_logo_button').on('click', function(e) {
+            e.preventDefault();
+            $('#logo_attachment_id').val('0');
+            $('#logo_preview').html('');
+            $(this).hide();
+        });
+        
+        // Player Photo Upload
+        $('#upload_photo_button').on('click', function(e) {
+            e.preventDefault();
+            
+            var mediaUploader = wp.media({
+                title: 'Select Player Photo',
+                button: {
+                    text: 'Use this photo'
+                },
+                multiple: false
+            });
+            
+            mediaUploader.on('select', function() {
+                var attachment = mediaUploader.state().get('selection').first().toJSON();
+                $('#photo_attachment_id').val(attachment.id);
+                $('#photo_preview').html('<img src="' + attachment.url + '" style="max-width: 200px; margin-top: 10px;">');
+            });
+            
+            mediaUploader.open();
+        });
+        
         // Media uploader
         $('.wyohoops-upload-button').on('click', function(e) {
             e.preventDefault();
