@@ -444,4 +444,255 @@ class WyoHoops_Admin {
             array('name' => 'Upton', 'abbreviation' => 'UPT', 'classification' => '1A', 'location_city' => 'Upton'),
         );
     }
+
+    /**
+     * AJAX: Import sample game records.
+     */
+    public function ajax_import_sample_games() {
+        check_ajax_referer('wyohoops_admin_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+        
+        $games_data = $this->get_sample_games_data();
+        $imported = 0;
+        $errors = array();
+        
+        foreach ($games_data as $game) {
+            $game_id = $this->games_repo->save_game($game);
+            if ($game_id) {
+                $imported++;
+            } else {
+                $errors[] = "Failed to import game: {$game['home_team_name']} vs {$game['away_team_name']}";
+            }
+        }
+        
+        if ($imported > 0) {
+            wp_send_json_success(array(
+                'imported' => $imported,
+                'errors' => $errors
+            ));
+        } else {
+            wp_send_json_error('No games were imported. ' . implode(', ', $errors));
+        }
+    }
+
+    /**
+     * Get sample game records data.
+     * This represents typical Wyoming high school basketball game records.
+     */
+    private function get_sample_games_data() {
+        // First, get team IDs by name
+        $teams = $this->teams_repo->get_teams(array('is_active' => 1));
+        $team_map = array();
+        foreach ($teams as $team) {
+            $team_map[$team->name] = $team->id;
+        }
+        
+        // Helper function to get team ID
+        $get_team_id = function($name) use ($team_map) {
+            return isset($team_map[$name]) ? $team_map[$name] : null;
+        };
+        
+        // Sample game records for 2025-2026 season
+        // Format: game_date, home_team, away_team, home_score, away_score, gender, level
+        $games = array();
+        
+        // 4A Boys Games - December 2025
+        if ($sheridan = $get_team_id('Sheridan')) {
+            if ($thunder_basin = $get_team_id('Thunder Basin')) {
+                $games[] = array(
+                    'game_date' => '2025-12-06',
+                    'game_time' => '19:00:00',
+                    'season_label' => '2025-2026',
+                    'gender' => 'B',
+                    'level' => 'Varsity',
+                    'home_team_id' => $sheridan,
+                    'away_team_id' => $thunder_basin,
+                    'home_score' => 68,
+                    'away_score' => 62,
+                    'location_text' => 'Sheridan High School',
+                    'week_label' => 'Week 1',
+                    'conference_game' => 0,
+                );
+            }
+        }
+        
+        if ($campbell = $get_team_id('Campbell County')) {
+            if ($natrona = $get_team_id('Natrona County')) {
+                $games[] = array(
+                    'game_date' => '2025-12-07',
+                    'game_time' => '18:30:00',
+                    'season_label' => '2025-2026',
+                    'gender' => 'B',
+                    'level' => 'Varsity',
+                    'home_team_id' => $campbell,
+                    'away_team_id' => $natrona,
+                    'home_score' => 71,
+                    'away_score' => 65,
+                    'location_text' => 'Campbell County High School',
+                    'week_label' => 'Week 1',
+                    'conference_game' => 1,
+                );
+            }
+        }
+        
+        if ($kelly_walsh = $get_team_id('Kelly Walsh')) {
+            if ($cheyenne_east = $get_team_id('Cheyenne East')) {
+                $games[] = array(
+                    'game_date' => '2025-12-10',
+                    'game_time' => '19:00:00',
+                    'season_label' => '2025-2026',
+                    'gender' => 'B',
+                    'level' => 'Varsity',
+                    'home_team_id' => $kelly_walsh,
+                    'away_team_id' => $cheyenne_east,
+                    'home_score' => 58,
+                    'away_score' => 61,
+                    'location_text' => 'Kelly Walsh High School',
+                    'week_label' => 'Week 2',
+                    'conference_game' => 1,
+                );
+            }
+        }
+        
+        if ($laramie = $get_team_id('Laramie')) {
+            if ($rock_springs = $get_team_id('Rock Springs')) {
+                $games[] = array(
+                    'game_date' => '2025-12-13',
+                    'game_time' => '19:00:00',
+                    'season_label' => '2025-2026',
+                    'gender' => 'B',
+                    'level' => 'Varsity',
+                    'home_team_id' => $laramie,
+                    'away_team_id' => $rock_springs,
+                    'home_score' => 72,
+                    'away_score' => 68,
+                    'location_text' => 'Laramie High School',
+                    'week_label' => 'Week 2',
+                    'conference_game' => 1,
+                );
+            }
+        }
+        
+        // 3A Boys Games
+        if ($cody = $get_team_id('Cody')) {
+            if ($powell = $get_team_id('Powell')) {
+                $games[] = array(
+                    'game_date' => '2025-12-08',
+                    'game_time' => '18:00:00',
+                    'season_label' => '2025-2026',
+                    'gender' => 'B',
+                    'level' => 'Varsity',
+                    'home_team_id' => $cody,
+                    'away_team_id' => $powell,
+                    'home_score' => 65,
+                    'away_score' => 59,
+                    'location_text' => 'Cody High School',
+                    'week_label' => 'Week 1',
+                    'conference_game' => 1,
+                );
+            }
+        }
+        
+        if ($buffalo = $get_team_id('Buffalo')) {
+            if ($worland = $get_team_id('Worland')) {
+                $games[] = array(
+                    'game_date' => '2025-12-12',
+                    'game_time' => '19:00:00',
+                    'season_label' => '2025-2026',
+                    'gender' => 'B',
+                    'level' => 'Varsity',
+                    'home_team_id' => $buffalo,
+                    'away_team_id' => $worland,
+                    'home_score' => 54,
+                    'away_score' => 58,
+                    'location_text' => 'Buffalo High School',
+                    'week_label' => 'Week 2',
+                    'conference_game' => 1,
+                );
+            }
+        }
+        
+        // Girls Games
+        if ($sheridan) {
+            if ($campbell) {
+                $games[] = array(
+                    'game_date' => '2025-12-07',
+                    'game_time' => '17:00:00',
+                    'season_label' => '2025-2026',
+                    'gender' => 'G',
+                    'level' => 'Varsity',
+                    'home_team_id' => $sheridan,
+                    'away_team_id' => $campbell,
+                    'home_score' => 52,
+                    'away_score' => 48,
+                    'location_text' => 'Sheridan High School',
+                    'week_label' => 'Week 1',
+                    'conference_game' => 1,
+                );
+            }
+        }
+        
+        if ($cheyenne_east) {
+            if ($laramie) {
+                $games[] = array(
+                    'game_date' => '2025-12-09',
+                    'game_time' => '17:30:00',
+                    'season_label' => '2025-2026',
+                    'gender' => 'G',
+                    'level' => 'Varsity',
+                    'home_team_id' => $cheyenne_east,
+                    'away_team_id' => $laramie,
+                    'home_score' => 61,
+                    'away_score' => 55,
+                    'location_text' => 'Cheyenne East High School',
+                    'week_label' => 'Week 1',
+                    'conference_game' => 1,
+                );
+            }
+        }
+        
+        // Upcoming games (no scores)
+        if ($natrona) {
+            if ($kelly_walsh) {
+                $games[] = array(
+                    'game_date' => '2026-01-15',
+                    'game_time' => '19:00:00',
+                    'season_label' => '2025-2026',
+                    'gender' => 'B',
+                    'level' => 'Varsity',
+                    'home_team_id' => $natrona,
+                    'away_team_id' => $kelly_walsh,
+                    'home_score' => null,
+                    'away_score' => null,
+                    'location_text' => 'Natrona County High School',
+                    'week_label' => 'Week 6',
+                    'conference_game' => 1,
+                );
+            }
+        }
+        
+        if ($cody) {
+            if ($buffalo) {
+                $games[] = array(
+                    'game_date' => '2026-01-17',
+                    'game_time' => '18:00:00',
+                    'season_label' => '2025-2026',
+                    'gender' => 'B',
+                    'level' => 'Varsity',
+                    'home_team_id' => $cody,
+                    'away_team_id' => $buffalo,
+                    'home_score' => null,
+                    'away_score' => null,
+                    'location_text' => 'Cody High School',
+                    'week_label' => 'Week 6',
+                    'conference_game' => 1,
+                );
+            }
+        }
+        
+        return $games;
+    }
 }
