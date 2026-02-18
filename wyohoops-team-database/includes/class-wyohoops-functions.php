@@ -256,23 +256,30 @@ class WyoHoops_Functions {
     }
 }
 
+if ( ! function_exists( 'wyohoops_functions_instance' ) ) {
+    function wyohoops_functions_instance() {
+        static $instance = null;
+        if ( null === $instance ) {
+            $instance = new WyoHoops_Functions();
+        }
+        return $instance;
+    }
+}
+
 if ( ! function_exists( 'wyohoops_get_team' ) ) {
     function wyohoops_get_team( $team_id ) {
-        $functions = new WyoHoops_Functions();
-        return $functions->get_team( $team_id );
+        return wyohoops_functions_instance()->get_team( $team_id );
     }
 }
 
 if ( ! function_exists( 'wyohoops_get_teams' ) ) {
     function wyohoops_get_teams( $args = array() ) {
-        $functions = new WyoHoops_Functions();
-        return $functions->get_teams( $args );
+        return wyohoops_functions_instance()->get_teams( $args );
     }
 }
 
 if ( ! function_exists( 'wyohoops_get_roster' ) ) {
     function wyohoops_get_roster( $team_id ) {
-        $functions = new WyoHoops_Functions();
-        return $functions->get_roster( $team_id );
+        return wyohoops_functions_instance()->get_roster( $team_id );
     }
 }

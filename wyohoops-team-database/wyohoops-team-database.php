@@ -54,4 +54,3 @@ final class WyoHoops_Team_Database {
 }
 
 new WyoHoops_Team_Database();
-

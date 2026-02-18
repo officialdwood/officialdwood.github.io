@@ -90,4 +90,3 @@ class WyoHoops_Settings {
         exit;
     }
 }
-

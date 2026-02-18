@@ -402,4 +402,3 @@ class WyoHoops_Admin {
         exit;
     }
 }
-

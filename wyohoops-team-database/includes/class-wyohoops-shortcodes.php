@@ -90,4 +90,3 @@ class WyoHoops_Shortcodes {
         return ob_get_clean();
     }
 }
-
