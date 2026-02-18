@@ -9,11 +9,13 @@ class WyoHoops_REST_API {
 
     private $teams_repo;
     private $games_repo;
+    private $players_repo;
     private $stats_service;
 
     public function __construct() {
         $this->teams_repo = new WyoHoops_Repository_Teams();
         $this->games_repo = new WyoHoops_Repository_Games();
+        $this->players_repo = new WyoHoops_Repository_Players();
         $this->stats_service = new WyoHoops_Stats_Service();
     }
 
@@ -54,6 +56,24 @@ class WyoHoops_REST_API {
         register_rest_route('wyohoops/v1', '/compare', array(
             'methods' => 'GET',
             'callback' => array($this, 'compare_teams'),
+            'permission_callback' => '__return_true'
+        ));
+        
+        register_rest_route('wyohoops/v1', '/players', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_players'),
+            'permission_callback' => '__return_true'
+        ));
+        
+        register_rest_route('wyohoops/v1', '/players/(?P<id>\d+)', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_player'),
+            'permission_callback' => '__return_true'
+        ));
+        
+        register_rest_route('wyohoops/v1', '/stats', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_team_stats'),
             'permission_callback' => '__return_true'
         ));
     }
@@ -236,5 +256,97 @@ class WyoHoops_REST_API {
         );
         
         return rest_ensure_response($comparison);
+    }
+
+    /**
+     * Get players endpoint.
+     */
+    public function get_players($request) {
+        $params = $request->get_params();
+        
+        $args = array(
+            'team_id' => isset($params['team_id']) ? absint($params['team_id']) : null,
+            'has_profile' => isset($params['has_profile']) ? absint($params['has_profile']) : 1,
+            'is_active' => isset($params['is_active']) ? absint($params['is_active']) : 1,
+            'orderby' => isset($params['orderby']) ? sanitize_text_field($params['orderby']) : 'overall_rating',
+            'order' => isset($params['order']) ? sanitize_text_field($params['order']) : 'DESC',
+            'limit' => isset($params['limit']) ? absint($params['limit']) : 100
+        );
+        
+        $players = $this->players_repo->get_players($args);
+        
+        // Enrich with team information
+        foreach ($players as &$player) {
+            if ($player['team_id']) {
+                $team = $this->teams_repo->get_team($player['team_id']);
+                if ($team) {
+                    $player['team'] = $team;
+                }
+            }
+        }
+        
+        return rest_ensure_response($players);
+    }
+
+    /**
+     * Get single player endpoint.
+     */
+    public function get_player($request) {
+        $player_id = $request['id'];
+        
+        $player = $this->players_repo->get_player($player_id);
+        
+        if (!$player) {
+            return new WP_Error('not_found', 'Player not found', array('status' => 404));
+        }
+        
+        // Enrich with team information
+        if ($player['team_id']) {
+            $team = $this->teams_repo->get_team($player['team_id']);
+            if ($team) {
+                $player['team'] = $team;
+            }
+        }
+        
+        return rest_ensure_response($player);
+    }
+
+    /**
+     * Get team stats endpoint.
+     */
+    public function get_team_stats($request) {
+        $params = $request->get_params();
+        
+        $classification = isset($params['classification']) ? sanitize_text_field($params['classification']) : '';
+        $gender = isset($params['gender']) ? sanitize_text_field($params['gender']) : 'B';
+        $level = isset($params['level']) ? sanitize_text_field($params['level']) : 'Varsity';
+        
+        // Get teams
+        $team_args = array(
+            'is_active' => 1,
+            'orderby' => 'name',
+            'order' => 'ASC'
+        );
+        
+        if ($classification) {
+            $team_args['classification'] = $classification;
+        }
+        
+        $teams = $this->teams_repo->get_teams($team_args);
+        
+        // Calculate stats for each team
+        $stats = array();
+        foreach ($teams as $team) {
+            $team_stats = $this->stats_service->get_team_stats($team['id'], $gender, $level);
+            
+            if ($team_stats['games_played'] > 0) {
+                $stats[] = array(
+                    'team' => $team,
+                    'stats' => $team_stats
+                );
+            }
+        }
+        
+        return rest_ensure_response($stats);
     }
 }
