@@ -65,7 +65,7 @@ class WyoHoops_Activator {
             height_ft int(11) NULL,
             height_in int(11) NULL,
             player_rating int(11) NULL,
-            jersey_number varchar(10) NULL,
+            jersey_number int(11) NULL,
             created_at datetime NOT NULL,
             updated_at datetime NOT NULL,
             PRIMARY KEY  (id),

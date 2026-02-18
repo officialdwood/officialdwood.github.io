@@ -84,7 +84,7 @@ class WyoHoops_Settings {
         );
 
         update_option( 'wyohoops_display_options', $options );
-        update_option( 'wyohoops_remove_on_uninstall', isset( $_POST['wyohoops_remove_on_uninstall'] ) );
+        update_option( 'wyohoops_remove_on_uninstall', isset( $_POST['wyohoops_remove_on_uninstall'] ) ? true : false );
 
         wp_safe_redirect( admin_url( 'admin.php?page=wyohoops_settings&updated=true' ) );
         exit;

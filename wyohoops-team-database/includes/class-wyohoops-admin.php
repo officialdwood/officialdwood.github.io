@@ -248,7 +248,7 @@ class WyoHoops_Admin {
                         $height_ft      = isset( $player['height_ft'] ) ? absint( $player['height_ft'] ) : 0;
                         $height_in      = isset( $player['height_in'] ) ? absint( $player['height_in'] ) : 0;
                         if ( $height_ft > 0 ) {
-                            $height_display = sprintf( "%d'%s", $height_ft, $height_in >= 0 ? ' ' . $height_in . '"' : '' );
+                            $height_display = $height_in > 0 ? sprintf( "%d' %d\"", $height_ft, $height_in ) : sprintf( "%d'", $height_ft );
                         } elseif ( $height_in > 0 ) {
                             $height_display = sprintf( '%d"', $height_in );
                         } else {

@@ -180,7 +180,7 @@ class WyoHoops_Functions {
             return array();
         }
 
-        $sql = $this->db->prepare( "SELECT * FROM {$this->players_table} WHERE team_id = %d ORDER BY CAST(jersey_number AS UNSIGNED), last_name", $team_id );
+        $sql = $this->db->prepare( "SELECT * FROM {$this->players_table} WHERE team_id = %d ORDER BY jersey_number, last_name", $team_id );
         return $this->db->get_results( $sql, ARRAY_A );
     }
 
@@ -209,11 +209,11 @@ class WyoHoops_Functions {
             'height_ft'     => absint( $data['height_ft'] ),
             'height_in'     => absint( $data['height_in'] ),
             'player_rating' => $this->sanitize_rating( $data['player_rating'] ),
-            'jersey_number' => sanitize_text_field( $data['jersey_number'] ),
+            'jersey_number' => absint( $data['jersey_number'] ),
             'updated_at'    => current_time( 'mysql' ),
         );
 
-        $formats = array( '%d', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', '%s' );
+        $formats = array( '%d', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%d', '%s' );
 
         if ( empty( $data['id'] ) ) {
             $payload['created_at'] = current_time( 'mysql' );
