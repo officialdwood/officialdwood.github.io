@@ -152,11 +152,12 @@ class WyoHoops_Functions {
             'updated_at'         => $now,
         );
 
-        $formats = array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%d', '%d', '%d', '%s' );
+        $formats        = array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%d', '%d', '%d', '%s' );
+        $insert_formats = array_merge( $formats, array( '%s' ) );
 
         if ( empty( $data['id'] ) ) {
             $payload['created_at'] = $now;
-            $result                = $this->db->insert( $this->teams_table, $payload, $formats );
+            $result                = $this->db->insert( $this->teams_table, $payload, $insert_formats );
             return $result ? $this->db->insert_id : false;
         }
 
