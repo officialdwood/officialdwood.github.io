@@ -133,7 +133,7 @@ class WyoHoops_Admin {
                             <td>
                                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=wyohoops_teams&action=edit&team_id=' . absint( $team['id'] ) ) ); ?>"><?php esc_html_e( 'Edit', 'wyohoops-team-database' ); ?></a>
                                 |
-                                <form style="display:inline" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Delete this team and its roster?', 'wyohoops-team-database' ) ); ?>');">
+                                <form style="display:inline" class="wyohoops-delete-form" data-confirm="<?php echo esc_attr( __( 'Delete this team and its roster?', 'wyohoops-team-database' ) ); ?>" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                                     <?php wp_nonce_field( 'wyohoops_delete_team' ); ?>
                                     <input type="hidden" name="action" value="wyohoops_delete_team" />
                                     <input type="hidden" name="team_id" value="<?php echo esc_attr( $team['id'] ); ?>" />
@@ -264,7 +264,7 @@ class WyoHoops_Admin {
                             <td><?php echo esc_html( $player['player_rating'] ); ?></td>
                             <td>
                                     <a href="#" class="wyohoops-toggle-player" data-target="player-<?php echo esc_attr( $player['id'] ); ?>"><?php esc_html_e( 'Edit', 'wyohoops-team-database' ); ?></a> |
-                                    <form style="display:inline" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Delete this player?', 'wyohoops-team-database' ) ); ?>');">
+                                    <form style="display:inline" class="wyohoops-delete-form" data-confirm="<?php echo esc_attr( __( 'Delete this player?', 'wyohoops-team-database' ) ); ?>" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
                                         <?php wp_nonce_field( 'wyohoops_delete_player' ); ?>
                                         <input type="hidden" name="action" value="wyohoops_delete_player" />
                                         <input type="hidden" name="player_id" value="<?php echo esc_attr( $player['id'] ); ?>" />

@@ -152,7 +152,23 @@ class WyoHoops_Functions {
             'updated_at'         => $now,
         );
 
-        $formats        = array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%d', '%d', '%d', '%s' );
+        $format_map = array(
+            'school_name'        => '%s',
+            'city'               => '%s',
+            'state'              => '%s',
+            'classification'     => '%s',
+            'gender'             => '%s',
+            'slug'               => '%s',
+            'logo_attachment_id' => '%d',
+            'primary_color'      => '%s',
+            'secondary_color'    => '%s',
+            'rank'               => '%d',
+            'team_rating'        => '%d',
+            'def_rating'         => '%d',
+            'updated_at'         => '%s',
+        );
+
+        $formats        = array_values( $format_map );
         $insert_formats = array_merge( $formats, array( '%s' ) );
 
         if ( empty( $data['id'] ) ) {
@@ -213,11 +229,25 @@ class WyoHoops_Functions {
             'updated_at'    => current_time( 'mysql' ),
         );
 
-        $formats = array( '%d', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%d', '%s' );
+        $format_map = array(
+            'team_id'       => '%d',
+            'first_name'    => '%s',
+            'last_name'     => '%s',
+            'position'      => '%s',
+            'grade'         => '%d',
+            'height_ft'     => '%d',
+            'height_in'     => '%d',
+            'player_rating' => '%d',
+            'jersey_number' => '%d',
+            'updated_at'    => '%s',
+        );
+
+        $formats        = array_values( $format_map );
+        $insert_formats = array_merge( $formats, array( '%s' ) );
 
         if ( empty( $data['id'] ) ) {
             $payload['created_at'] = current_time( 'mysql' );
-            $inserted              = $this->db->insert( $this->players_table, $payload, $formats );
+            $inserted              = $this->db->insert( $this->players_table, $payload, $insert_formats );
             return $inserted ? $this->db->insert_id : false;
         }
 

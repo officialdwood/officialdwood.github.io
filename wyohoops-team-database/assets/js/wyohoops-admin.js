@@ -22,5 +22,12 @@
             var target = $('#' + $(this).data('target'));
             target.toggle();
         });
+
+        $(document).on('submit', '.wyohoops-delete-form', function (e) {
+            var message = $(this).data('confirm') || 'Are you sure?';
+            if (!window.confirm(message)) {
+                e.preventDefault();
+            }
+        });
     });
 })(jQuery);

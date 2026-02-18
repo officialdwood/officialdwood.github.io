@@ -110,10 +110,27 @@ class WyoHoops_Activator {
                     'updated_at'         => $now,
                 );
 
+                $format_map = array(
+                    'school_name'        => '%s',
+                    'city'               => '%s',
+                    'state'              => '%s',
+                    'classification'     => '%s',
+                    'gender'             => '%s',
+                    'slug'               => '%s',
+                    'logo_attachment_id' => '%d',
+                    'primary_color'      => '%s',
+                    'secondary_color'    => '%s',
+                    'rank'               => '%d',
+                    'team_rating'        => '%d',
+                    'def_rating'         => '%d',
+                    'created_at'         => '%s',
+                    'updated_at'         => '%s',
+                );
+
                 $wpdb->insert(
                     $teams_table,
                     $payload,
-                    array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%d', '%d', '%d', '%s', '%s' )
+                    array_values( $format_map )
                 );
             }
         }
