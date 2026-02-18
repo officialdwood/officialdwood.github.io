@@ -16,6 +16,32 @@ if (!defined('ABSPATH')) exit;
     <form method="post" action="">
         <?php wp_nonce_field('wyohoops_save_settings', 'wyohoops_save_settings_nonce'); ?>
         
+        <h2><?php _e('Branding', 'wyohoops-gamedb'); ?></h2>
+        <p class="description"><?php _e('Customize the appearance of your WyoHoops database.', 'wyohoops-gamedb'); ?></p>
+        
+        <table class="form-table">
+            <tr>
+                <th scope="row"><?php _e('WyoHoops Logo', 'wyohoops-gamedb'); ?></th>
+                <td>
+                    <?php 
+                    $logo_id = get_option('wyohoops_logo_attachment_id', 0);
+                    $logo_url = $logo_id ? wp_get_attachment_image_url($logo_id, 'medium') : '';
+                    ?>
+                    <input type="hidden" name="logo_attachment_id" id="logo_attachment_id" value="<?php echo esc_attr($logo_id); ?>">
+                    <button type="button" class="button" id="upload_logo_button">
+                        <?php echo $logo_url ? 'Change Logo' : 'Upload Logo'; ?>
+                    </button>
+                    <button type="button" class="button" id="remove_logo_button" style="<?php echo $logo_url ? '' : 'display:none;'; ?>">Remove Logo</button>
+                    <div id="logo_preview" style="margin-top: 10px;">
+                        <?php if ($logo_url): ?>
+                            <img src="<?php echo esc_url($logo_url); ?>" style="max-width: 300px; height: auto;">
+                        <?php endif; ?>
+                    </div>
+                    <p class="description"><?php _e('This logo will appear at the top of the front-end database display.', 'wyohoops-gamedb'); ?></p>
+                </td>
+            </tr>
+        </table>
+        
         <h2><?php _e('Efficiency Score Baselines', 'wyohoops-gamedb'); ?></h2>
         <p class="description"><?php _e('Configure how offensive and defensive efficiency scores are calculated.', 'wyohoops-gamedb'); ?></p>
         

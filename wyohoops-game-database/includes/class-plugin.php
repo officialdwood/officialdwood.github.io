@@ -62,6 +62,7 @@ class WyoHoops_Plugin {
         add_action('wp_ajax_wyohoops_delete_team', array($admin, 'ajax_delete_team'));
         add_action('wp_ajax_wyohoops_save_game', array($admin, 'ajax_save_game'));
         add_action('wp_ajax_wyohoops_delete_game', array($admin, 'ajax_delete_game'));
+        add_action('wp_ajax_wyohoops_get_team_roster', array($admin, 'ajax_get_team_roster'));
         add_action('wp_ajax_wyohoops_import_default_teams', array($admin, 'ajax_import_default_teams'));
         add_action('wp_ajax_wyohoops_import_wyoming_records', array($admin, 'ajax_import_wyoming_records'));
         add_action('wp_ajax_wyohoops_recalculate_stats', array($admin, 'ajax_recalculate_stats'));

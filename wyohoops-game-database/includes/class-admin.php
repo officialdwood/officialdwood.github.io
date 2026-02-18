@@ -11,6 +11,7 @@ class WyoHoops_Admin {
     private $version;
     private $teams_repo;
     private $games_repo;
+    private $players_repo;
     private $stats_service;
 
     public function __construct($plugin_name, $version) {
@@ -18,6 +19,7 @@ class WyoHoops_Admin {
         $this->version = $version;
         $this->teams_repo = new WyoHoops_Repository_Teams();
         $this->games_repo = new WyoHoops_Repository_Games();
+        $this->players_repo = new WyoHoops_Repository_Players();
         $this->stats_service = new WyoHoops_Stats_Service();
     }
 
@@ -85,6 +87,15 @@ class WyoHoops_Admin {
             'manage_options',
             'wyohoops-games',
             array($this, 'render_games_page')
+        );
+        
+        add_submenu_page(
+            'wyohoops-gamedb',
+            __('Players', 'wyohoops-gamedb'),
+            __('Players', 'wyohoops-gamedb'),
+            'manage_options',
+            'wyohoops-players',
+            array($this, 'render_players_page')
         );
         
         add_submenu_page(
@@ -234,6 +245,7 @@ class WyoHoops_Admin {
      * Handle save settings form submission.
      */
     private function handle_save_settings() {
+        update_option('wyohoops_logo_attachment_id', isset($_POST['logo_attachment_id']) ? absint($_POST['logo_attachment_id']) : 0);
         update_option('wyohoops_off_eff_baseline_points', absint($_POST['off_eff_baseline_points']));
         update_option('wyohoops_off_eff_baseline_score', absint($_POST['off_eff_baseline_score']));
         update_option('wyohoops_def_eff_baseline_points', absint($_POST['def_eff_baseline_points']));
@@ -963,5 +975,122 @@ class WyoHoops_Admin {
         }
         
         return $opponents;
+    }
+
+    /**
+     * Render players admin page.
+     */
+    public function render_players_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('You do not have sufficient permissions to access this page.'));
+        }
+        
+        // Handle form submission
+        if (isset($_POST['wyohoops_save_player_nonce']) && wp_verify_nonce($_POST['wyohoops_save_player_nonce'], 'wyohoops_save_player')) {
+            $this->handle_save_player();
+        }
+        
+        // Handle delete
+        if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['player_id']) && isset($_GET['_wpnonce'])) {
+            if (wp_verify_nonce($_GET['_wpnonce'], 'wyohoops_delete_player_' . $_GET['player_id'])) {
+                $this->players_repo->delete_player(absint($_GET['player_id']));
+                wp_redirect(admin_url('admin.php?page=wyohoops-players&deleted=1'));
+                exit;
+            }
+        }
+        
+        // Get players with filters
+        $team_id = isset($_GET['team_id']) ? absint($_GET['team_id']) : null;
+        $has_profile = isset($_GET['has_profile']) ? absint($_GET['has_profile']) : null;
+        
+        $args = array();
+        if ($team_id) {
+            $args['team_id'] = $team_id;
+        }
+        if ($has_profile !== null) {
+            $args['has_profile'] = $has_profile;
+        }
+        
+        $players = $this->players_repo->get_players($args);
+        
+        // Get all teams for dropdowns
+        $teams = $this->teams_repo->get_teams(array('orderby' => 'name', 'order' => 'ASC'));
+        
+        // Get single player for editing
+        $edit_player = null;
+        if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['player_id'])) {
+            $edit_player = $this->players_repo->get_player(absint($_GET['player_id']));
+        }
+        
+        include WYOHOOPS_PLUGIN_DIR . 'templates/admin-players.php';
+    }
+
+    /**
+     * Handle save player form submission.
+     */
+    private function handle_save_player() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        
+        $player_data = array(
+            'team_id' => isset($_POST['team_id']) ? absint($_POST['team_id']) : 0,
+            'first_name' => isset($_POST['first_name']) ? sanitize_text_field($_POST['first_name']) : '',
+            'last_name' => isset($_POST['last_name']) ? sanitize_text_field($_POST['last_name']) : '',
+            'jersey_number' => isset($_POST['jersey_number']) ? sanitize_text_field($_POST['jersey_number']) : null,
+            'position' => isset($_POST['position']) ? sanitize_text_field($_POST['position']) : null,
+            'year' => isset($_POST['year']) ? sanitize_text_field($_POST['year']) : null,
+            'height' => isset($_POST['height']) ? sanitize_text_field($_POST['height']) : null,
+            'weight' => isset($_POST['weight']) ? sanitize_text_field($_POST['weight']) : null,
+            'photo_attachment_id' => isset($_POST['photo_attachment_id']) ? absint($_POST['photo_attachment_id']) : null,
+            'has_profile' => isset($_POST['has_profile']) ? 1 : 0,
+            'offensive_rating' => isset($_POST['offensive_rating']) ? floatval($_POST['offensive_rating']) : 0,
+            'defensive_rating' => isset($_POST['defensive_rating']) ? floatval($_POST['defensive_rating']) : 0,
+            'overall_rating' => isset($_POST['overall_rating']) ? floatval($_POST['overall_rating']) : 0,
+            'efficiency_rating' => isset($_POST['efficiency_rating']) ? floatval($_POST['efficiency_rating']) : 0,
+            'points_per_game' => isset($_POST['points_per_game']) ? floatval($_POST['points_per_game']) : 0,
+            'rebounds_per_game' => isset($_POST['rebounds_per_game']) ? floatval($_POST['rebounds_per_game']) : 0,
+            'assists_per_game' => isset($_POST['assists_per_game']) ? floatval($_POST['assists_per_game']) : 0,
+            'steals_per_game' => isset($_POST['steals_per_game']) ? floatval($_POST['steals_per_game']) : 0,
+            'blocks_per_game' => isset($_POST['blocks_per_game']) ? floatval($_POST['blocks_per_game']) : 0,
+            'field_goal_pct' => isset($_POST['field_goal_pct']) ? floatval($_POST['field_goal_pct']) : 0,
+            'three_point_pct' => isset($_POST['three_point_pct']) ? floatval($_POST['three_point_pct']) : 0,
+            'free_throw_pct' => isset($_POST['free_throw_pct']) ? floatval($_POST['free_throw_pct']) : 0,
+            'games_played' => isset($_POST['games_played']) ? absint($_POST['games_played']) : 0,
+            'bio' => isset($_POST['bio']) ? wp_kses_post($_POST['bio']) : null,
+            'is_active' => isset($_POST['is_active']) ? 1 : 0,
+        );
+        
+        if (!empty($_POST['player_id'])) {
+            $player_data['id'] = absint($_POST['player_id']);
+        }
+        
+        $player_id = $this->players_repo->save_player($player_data);
+        
+        if ($player_id) {
+            wp_redirect(admin_url('admin.php?page=wyohoops-players&updated=1'));
+            exit;
+        }
+    }
+
+    /**
+     * AJAX: Get team roster.
+     */
+    public function ajax_get_team_roster() {
+        check_ajax_referer('wyohoops_admin_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+        
+        $team_id = isset($_POST['team_id']) ? absint($_POST['team_id']) : 0;
+        
+        if (!$team_id) {
+            wp_send_json_error('Invalid team ID');
+        }
+        
+        $players = $this->players_repo->get_team_roster($team_id);
+        
+        wp_send_json_success($players);
     }
 }
