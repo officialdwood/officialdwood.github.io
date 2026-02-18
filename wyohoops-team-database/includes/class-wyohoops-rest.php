@@ -60,7 +60,7 @@ class WyoHoops_REST {
             'gender'         => $request->get_param( 'gender' ),
             'rank_min'       => $request->get_param( 'rank_min' ),
             'rank_max'       => $request->get_param( 'rank_max' ),
-            'limit'          => $request->get_param( 'limit' ) ?: 100,
+            'limit'          => null !== $request->get_param( 'limit' ) ? absint( $request->get_param( 'limit' ) ) : 100,
         );
 
         $teams = $this->functions->get_teams( $args );
