@@ -247,7 +247,17 @@ class WyoHoops_Admin {
                         <?php
                         $height_ft      = isset( $player['height_ft'] ) ? absint( $player['height_ft'] ) : 0;
                         $height_in      = isset( $player['height_in'] ) ? absint( $player['height_in'] ) : 0;
-                        $height_display = ( $height_ft || $height_in ) ? sprintf( "%d' %d\"", $height_ft, $height_in ) : '—';
+                        if ( $height_ft || $height_in ) {
+                            if ( $height_ft && ( $height_in || 0 === $height_in ) ) {
+                                $height_display = sprintf( "%d' %d\"", $height_ft, $height_in );
+                            } elseif ( $height_ft ) {
+                                $height_display = sprintf( "%d'", $height_ft );
+                            } else {
+                                $height_display = sprintf( '%d"', $height_in );
+                            }
+                        } else {
+                            $height_display = '—';
+                        }
                         ?>
                         <tr>
                             <td><?php echo esc_html( $player['jersey_number'] ); ?></td>

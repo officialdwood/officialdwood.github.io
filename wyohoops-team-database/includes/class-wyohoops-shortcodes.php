@@ -64,6 +64,9 @@ class WyoHoops_Shortcodes {
         ob_start();
         foreach ( $teams as $team ) {
             $logo = ! empty( $team['logo_attachment_id'] ) ? wp_get_attachment_image_url( $team['logo_attachment_id'], 'medium' ) : '';
+            $rank_display = isset( $team['rank'] ) && '' !== $team['rank'] ? $team['rank'] : '—';
+            $rating_display = isset( $team['team_rating'] ) && '' !== $team['team_rating'] ? $team['team_rating'] : '—';
+            $def_display = isset( $team['def_rating'] ) && '' !== $team['def_rating'] ? $team['def_rating'] : '—';
             ?>
             <div class="wyohoops-card">
                 <div class="wyohoops-card-inner">
@@ -77,10 +80,10 @@ class WyoHoops_Shortcodes {
                     <div class="wyohoops-meta">
                         <h3><?php echo esc_html( $team['school_name'] ); ?></h3>
                         <p class="wyohoops-subtext"><?php echo esc_html( $team['city'] . ', ' . $team['state'] . ' – Class ' . $team['classification'] ); ?></p>
-                        <p class="wyohoops-rank"><?php printf( esc_html__( 'Rank #%s', 'wyohoops-team-database' ), esc_html( $team['rank'] ?? '—' ) ); ?></p>
+                        <p class="wyohoops-rank"><?php printf( esc_html__( 'Rank #%s', 'wyohoops-team-database' ), esc_html( $rank_display ) ); ?></p>
                         <div class="wyohoops-ratings">
-                            <span><?php printf( esc_html__( 'Rating %s', 'wyohoops-team-database' ), esc_html( $team['team_rating'] ?? '—' ) ); ?></span>
-                            <span><?php printf( esc_html__( 'Def %s', 'wyohoops-team-database' ), esc_html( $team['def_rating'] ?? '—' ) ); ?></span>
+                            <span><?php printf( esc_html__( 'Rating %s', 'wyohoops-team-database' ), esc_html( $rating_display ) ); ?></span>
+                            <span><?php printf( esc_html__( 'Def %s', 'wyohoops-team-database' ), esc_html( $def_display ) ); ?></span>
                         </div>
                     </div>
                 </div>

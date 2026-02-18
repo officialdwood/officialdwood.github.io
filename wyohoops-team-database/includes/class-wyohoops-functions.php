@@ -252,7 +252,8 @@ class WyoHoops_Functions {
             return null;
         }
         $value = absint( $value );
-        return min( 100, $value );
+        $value = max( 0, min( 100, $value ) );
+        return $value;
     }
 }
 
