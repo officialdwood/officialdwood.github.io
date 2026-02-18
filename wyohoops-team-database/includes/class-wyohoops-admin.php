@@ -247,14 +247,10 @@ class WyoHoops_Admin {
                         <?php
                         $height_ft      = isset( $player['height_ft'] ) ? absint( $player['height_ft'] ) : 0;
                         $height_in      = isset( $player['height_in'] ) ? absint( $player['height_in'] ) : 0;
-                        if ( $height_ft || $height_in ) {
-                            if ( $height_ft && ( $height_in || 0 === $height_in ) ) {
-                                $height_display = sprintf( "%d' %d\"", $height_ft, $height_in );
-                            } elseif ( $height_ft ) {
-                                $height_display = sprintf( "%d'", $height_ft );
-                            } else {
-                                $height_display = sprintf( '%d"', $height_in );
-                            }
+                        if ( $height_ft > 0 ) {
+                            $height_display = sprintf( "%d'%s", $height_ft, $height_in >= 0 ? ' ' . $height_in . '"' : '' );
+                        } elseif ( $height_in > 0 ) {
+                            $height_display = sprintf( '%d"', $height_in );
                         } else {
                             $height_display = '—';
                         }
@@ -335,8 +331,8 @@ class WyoHoops_Admin {
             'classification'     => sanitize_text_field( wp_unslash( $_POST['classification'] ?? '' ) ),
             'gender'             => sanitize_text_field( wp_unslash( $_POST['gender'] ?? '' ) ),
             'logo_attachment_id' => absint( $_POST['logo_attachment_id'] ?? 0 ),
-            'primary_color'      => sanitize_hex_color( $_POST['primary_color'] ?? '' ),
-            'secondary_color'    => sanitize_hex_color( $_POST['secondary_color'] ?? '' ),
+            'primary_color'      => sanitize_hex_color( wp_unslash( $_POST['primary_color'] ?? '' ) ),
+            'secondary_color'    => sanitize_hex_color( wp_unslash( $_POST['secondary_color'] ?? '' ) ),
             'rank'               => isset( $_POST['rank'] ) ? absint( $_POST['rank'] ) : null,
             'team_rating'        => isset( $_POST['team_rating'] ) ? absint( $_POST['team_rating'] ) : null,
             'def_rating'         => isset( $_POST['def_rating'] ) ? absint( $_POST['def_rating'] ) : null,

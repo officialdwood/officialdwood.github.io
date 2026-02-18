@@ -78,9 +78,9 @@ class WyoHoops_Settings {
         check_admin_referer( 'wyohoops_save_settings' );
 
         $options = array(
-            'frame_color'      => sanitize_hex_color( $_POST['frame_color'] ?? '#d4af37' ),
-            'background_color' => sanitize_hex_color( $_POST['background_color'] ?? '#000000' ),
-            'text_color'       => sanitize_hex_color( $_POST['text_color'] ?? '#ffffff' ),
+            'frame_color'      => sanitize_hex_color( wp_unslash( $_POST['frame_color'] ?? '#d4af37' ) ),
+            'background_color' => sanitize_hex_color( wp_unslash( $_POST['background_color'] ?? '#000000' ) ),
+            'text_color'       => sanitize_hex_color( wp_unslash( $_POST['text_color'] ?? '#ffffff' ) ),
         );
 
         update_option( 'wyohoops_display_options', $options );
