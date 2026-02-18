@@ -19,6 +19,7 @@ class WyoHoops_Activator {
         // Table names
         $teams_table = $wpdb->prefix . 'wyohoops_teams';
         $games_table = $wpdb->prefix . 'wyohoops_games';
+        $players_table = $wpdb->prefix . 'wyohoops_players';
         
         // Teams table SQL
         $sql_teams = "CREATE TABLE $teams_table (
@@ -33,6 +34,9 @@ class WyoHoops_Activator {
             secondary_color varchar(20) DEFAULT '#111111',
             logo_attachment_id bigint(20) DEFAULT NULL,
             school_photo_attachment_id bigint(20) DEFAULT NULL,
+            offensive_rating decimal(5,2) DEFAULT 0,
+            defensive_rating decimal(5,2) DEFAULT 0,
+            overall_rating decimal(5,2) DEFAULT 0,
             is_active tinyint(1) DEFAULT 1,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -69,11 +73,50 @@ class WyoHoops_Activator {
             KEY season_label (season_label)
         ) $charset_collate;";
         
+        // Players table SQL
+        $sql_players = "CREATE TABLE $players_table (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            team_id bigint(20) NOT NULL,
+            first_name varchar(100) NOT NULL,
+            last_name varchar(100) NOT NULL,
+            jersey_number varchar(10) DEFAULT NULL,
+            position varchar(20) DEFAULT NULL,
+            year varchar(20) DEFAULT NULL,
+            height varchar(10) DEFAULT NULL,
+            weight varchar(10) DEFAULT NULL,
+            photo_attachment_id bigint(20) DEFAULT NULL,
+            has_profile tinyint(1) DEFAULT 0,
+            offensive_rating decimal(5,2) DEFAULT 0,
+            defensive_rating decimal(5,2) DEFAULT 0,
+            overall_rating decimal(5,2) DEFAULT 0,
+            efficiency_rating decimal(5,2) DEFAULT 0,
+            points_per_game decimal(5,2) DEFAULT 0,
+            rebounds_per_game decimal(5,2) DEFAULT 0,
+            assists_per_game decimal(5,2) DEFAULT 0,
+            steals_per_game decimal(5,2) DEFAULT 0,
+            blocks_per_game decimal(5,2) DEFAULT 0,
+            field_goal_pct decimal(5,2) DEFAULT 0,
+            three_point_pct decimal(5,2) DEFAULT 0,
+            free_throw_pct decimal(5,2) DEFAULT 0,
+            games_played int(11) DEFAULT 0,
+            bio text DEFAULT NULL,
+            is_active tinyint(1) DEFAULT 1,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY team_id (team_id),
+            KEY has_profile (has_profile),
+            KEY overall_rating (overall_rating),
+            KEY is_active (is_active)
+        ) $charset_collate;";
+        
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql_teams);
         dbDelta($sql_games);
+        dbDelta($sql_players);
         
         // Set default options
+        add_option('wyohoops_logo_attachment_id', 0);
         add_option('wyohoops_off_eff_baseline_points', 80);
         add_option('wyohoops_off_eff_baseline_score', 98);
         add_option('wyohoops_def_eff_baseline_points', 40);
@@ -83,7 +126,7 @@ class WyoHoops_Activator {
         add_option('wyohoops_enable_caching', 1);
         add_option('wyohoops_ui_view_mode', 'table');
         add_option('wyohoops_show_meters', 1);
-        add_option('wyohoops_db_version', '1.0.0');
+        add_option('wyohoops_db_version', '1.1.0');
         
         // Flush rewrite rules
         flush_rewrite_rules();

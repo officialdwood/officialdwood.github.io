@@ -97,10 +97,13 @@ class WyoHoops_Repository_Teams {
             'secondary_color' => !empty($data['secondary_color']) ? sanitize_hex_color($data['secondary_color']) : '#111111',
             'logo_attachment_id' => !empty($data['logo_attachment_id']) ? absint($data['logo_attachment_id']) : null,
             'school_photo_attachment_id' => !empty($data['school_photo_attachment_id']) ? absint($data['school_photo_attachment_id']) : null,
+            'offensive_rating' => isset($data['offensive_rating']) ? floatval($data['offensive_rating']) : 0,
+            'defensive_rating' => isset($data['defensive_rating']) ? floatval($data['defensive_rating']) : 0,
+            'overall_rating' => isset($data['overall_rating']) ? floatval($data['overall_rating']) : 0,
             'is_active' => isset($data['is_active']) ? absint($data['is_active']) : 1,
         );
         
-        $format = array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d');
+        $format = array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%f', '%f', '%f', '%d');
         
         if (!empty($data['id'])) {
             // Update existing team

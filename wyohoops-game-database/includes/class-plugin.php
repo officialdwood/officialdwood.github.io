@@ -40,6 +40,7 @@ class WyoHoops_Plugin {
     private function load_dependencies() {
         require_once WYOHOOPS_PLUGIN_DIR . 'includes/class-repository-teams.php';
         require_once WYOHOOPS_PLUGIN_DIR . 'includes/class-repository-games.php';
+        require_once WYOHOOPS_PLUGIN_DIR . 'includes/class-repository-players.php';
         require_once WYOHOOPS_PLUGIN_DIR . 'includes/class-stats-service.php';
         require_once WYOHOOPS_PLUGIN_DIR . 'includes/class-admin.php';
         require_once WYOHOOPS_PLUGIN_DIR . 'includes/class-public.php';
