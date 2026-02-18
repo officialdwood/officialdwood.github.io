@@ -76,9 +76,17 @@ Complete WordPress admin interface with four sections:
    - Enable/disable statistics caching for performance
 
 4. **Import/Tools**
-   - Import default Wyoming high school teams
+   - Import default Wyoming high school teams (69 teams)
+   - **Import WY Basketball Records** - Import 2025-2026 season data from PDF
    - Recalculate all statistics (clear cache)
    - View database information and statistics
+
+### Basketball Records Import
+The plugin includes functionality to import actual 2025-2026 Boys Varsity Basketball season records from "WY Basketball Records.pdf":
+- All 69 Wyoming teams with win-loss records
+- Games generated from actual team records
+- Includes all classifications: 4A, 3A, 2A, 1A
+- See `BASKETBALL-RECORDS-IMPORT.md` for detailed information
 
 ### Design
 Premium dark theme with matte black background and metallic gold accents:

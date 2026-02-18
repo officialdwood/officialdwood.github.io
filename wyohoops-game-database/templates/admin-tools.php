@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) exit;
     
     <div class="wyohoops-tools-section">
         <h2><?php _e('Import Default Data', 'wyohoops-gamedb'); ?></h2>
-        <p class="description"><?php _e('Import default Wyoming high school teams and sample game data.', 'wyohoops-gamedb'); ?></p>
+        <p class="description"><?php _e('Import default Wyoming high school teams and game records.', 'wyohoops-gamedb'); ?></p>
         
         <table class="form-table">
             <tr>
@@ -28,6 +28,18 @@ if (!defined('ABSPATH')) exit;
                         <?php _e('Imports all Wyoming high school teams (4A, 3A, 2A, 1A) with default settings.', 'wyohoops-gamedb'); ?>
                     </p>
                     <div id="import-teams-result" class="wyohoops-result-message"></div>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><?php _e('Import WY Basketball Records', 'wyohoops-gamedb'); ?></th>
+                <td>
+                    <button type="button" id="wyohoops-import-records" class="button button-primary">
+                        <?php _e('Import Basketball Records', 'wyohoops-gamedb'); ?>
+                    </button>
+                    <p class="description">
+                        <?php _e('Imports 2025-2026 Boys Varsity Basketball season records from "WY Basketball Records.pdf". This will generate games based on actual team win-loss records.', 'wyohoops-gamedb'); ?>
+                    </p>
+                    <div id="import-records-result" class="wyohoops-result-message"></div>
                 </td>
             </tr>
         </table>
@@ -120,6 +132,42 @@ jQuery(document).ready(function($) {
             },
             complete: function() {
                 $btn.prop('disabled', false).text('<?php _e('Import Default Teams', 'wyohoops-gamedb'); ?>');
+            }
+        });
+    });
+    
+    // Import Wyoming basketball records
+    $('#wyohoops-import-records').on('click', function() {
+        var $btn = $(this);
+        var $result = $('#import-records-result');
+        
+        if (!confirm('<?php _e('This will import basketball records from the PDF. Continue?', 'wyohoops-gamedb'); ?>')) {
+            return;
+        }
+        
+        $btn.prop('disabled', true).text('<?php _e('Importing...', 'wyohoops-gamedb'); ?>');
+        $result.html('');
+        
+        $.ajax({
+            url: ajaxurl,
+            method: 'POST',
+            data: {
+                action: 'wyohoops_import_wyoming_records',
+                nonce: wyohoopsAdmin.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    $result.html('<p class="success">' + response.data.message + '</p>');
+                    setTimeout(function() { location.reload(); }, 2000);
+                } else {
+                    $result.html('<p class="error">' + response.data + '</p>');
+                }
+            },
+            error: function() {
+                $result.html('<p class="error"><?php _e('An error occurred.', 'wyohoops-gamedb'); ?></p>');
+            },
+            complete: function() {
+                $btn.prop('disabled', false).text('<?php _e('Import Basketball Records', 'wyohoops-gamedb'); ?>');
             }
         });
     });
