@@ -89,6 +89,7 @@ class WyoHoops_Repository_Teams {
         $team_data = array(
             'name' => sanitize_text_field($data['name']),
             'abbreviation' => sanitize_text_field($data['abbreviation']),
+            'mascot' => !empty($data['mascot']) ? sanitize_text_field($data['mascot']) : null,
             'classification' => sanitize_text_field($data['classification']),
             'location_city' => !empty($data['location_city']) ? sanitize_text_field($data['location_city']) : null,
             'location_notes' => !empty($data['location_notes']) ? sanitize_textarea_field($data['location_notes']) : null,
@@ -99,7 +100,7 @@ class WyoHoops_Repository_Teams {
             'is_active' => isset($data['is_active']) ? absint($data['is_active']) : 1,
         );
         
-        $format = array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d');
+        $format = array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d');
         
         if (!empty($data['id'])) {
             // Update existing team

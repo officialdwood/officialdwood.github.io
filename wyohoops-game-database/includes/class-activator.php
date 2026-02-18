@@ -25,6 +25,7 @@ class WyoHoops_Activator {
             id bigint(20) NOT NULL AUTO_INCREMENT,
             name varchar(255) NOT NULL,
             abbreviation varchar(10) NOT NULL,
+            mascot varchar(50) DEFAULT NULL,
             classification varchar(2) NOT NULL,
             location_city varchar(120) DEFAULT NULL,
             location_notes varchar(255) DEFAULT NULL,
