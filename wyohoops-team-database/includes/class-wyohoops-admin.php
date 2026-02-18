@@ -243,15 +243,20 @@ class WyoHoops_Admin {
                     <?php if ( empty( $roster ) ) : ?>
                         <tr><td colspan="7"><?php esc_html_e( 'No players yet.', 'wyohoops-team-database' ); ?></td></tr>
                     <?php else : ?>
-                        <?php foreach ( $roster as $player ) : ?>
-                            <tr>
-                                <td><?php echo esc_html( $player['jersey_number'] ); ?></td>
-                                <td><?php echo esc_html( trim( $player['first_name'] . ' ' . $player['last_name'] ) ); ?></td>
-                                <td><?php echo esc_html( $player['position'] ); ?></td>
-                                <td><?php echo esc_html( $player['grade'] ); ?></td>
-                                <td><?php echo esc_html( $player['height_ft'] . "' " . $player['height_in'] . '"' ); ?></td>
-                                <td><?php echo esc_html( $player['player_rating'] ); ?></td>
-                                <td>
+                    <?php foreach ( $roster as $player ) : ?>
+                        <?php
+                        $height_ft      = isset( $player['height_ft'] ) ? absint( $player['height_ft'] ) : 0;
+                        $height_in      = isset( $player['height_in'] ) ? absint( $player['height_in'] ) : 0;
+                        $height_display = ( $height_ft || $height_in ) ? sprintf( "%d' %d\"", $height_ft, $height_in ) : '—';
+                        ?>
+                        <tr>
+                            <td><?php echo esc_html( $player['jersey_number'] ); ?></td>
+                            <td><?php echo esc_html( trim( $player['first_name'] . ' ' . $player['last_name'] ) ); ?></td>
+                            <td><?php echo esc_html( $player['position'] ); ?></td>
+                            <td><?php echo esc_html( $player['grade'] ); ?></td>
+                            <td><?php echo esc_html( $height_display ); ?></td>
+                            <td><?php echo esc_html( $player['player_rating'] ); ?></td>
+                            <td>
                                     <a href="#" class="wyohoops-toggle-player" data-target="player-<?php echo esc_attr( $player['id'] ); ?>"><?php esc_html_e( 'Edit', 'wyohoops-team-database' ); ?></a> |
                                     <form style="display:inline" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Delete this player?', 'wyohoops-team-database' ) ); ?>');">
                                         <?php wp_nonce_field( 'wyohoops_delete_player' ); ?>

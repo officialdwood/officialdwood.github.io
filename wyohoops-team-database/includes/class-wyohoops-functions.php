@@ -179,7 +179,7 @@ class WyoHoops_Functions {
             return array();
         }
 
-        $sql = $this->db->prepare( "SELECT * FROM {$this->players_table} WHERE team_id = %d ORDER BY jersey_number+0, last_name", $team_id );
+        $sql = $this->db->prepare( "SELECT * FROM {$this->players_table} WHERE team_id = %d ORDER BY CAST(jersey_number AS UNSIGNED), last_name", $team_id );
         return $this->db->get_results( $sql, ARRAY_A );
     }
 
