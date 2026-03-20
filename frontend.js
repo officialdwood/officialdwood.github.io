@@ -1,0 +1,261 @@
+/* Coming Soon Advanced - Frontend Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body.csa-coming-soon-page {
+    font-family: 'Poppins', sans-serif;
+    font-style: italic;
+    font-weight: 700;
+    overflow: hidden;
+}
+
+.csa-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #1a1a1a; /* Fallback */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    overflow: hidden;
+}
+
+/* Background Video */
+.csa-bg-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    object-fit: cover;
+}
+
+/* Smoke overlay effect */
+.csa-smoke-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at 20% 30%, rgba(100, 100, 100, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(80, 80, 80, 0.25) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(90, 90, 90, 0.2) 0%, transparent 60%),
+        radial-gradient(ellipse at 30% 80%, rgba(70, 70, 70, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 20%, rgba(85, 85, 85, 0.18) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: 2;
+    animation: smokeFloat 20s ease-in-out infinite;
+}
+
+@keyframes smokeFloat {
+    0%, 100% {
+        opacity: 0.6;
+        transform: scale(1) translateY(0);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.05) translateY(-10px);
+    }
+}
+
+.csa-content {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    max-width: 90%;
+    padding: 20px;
+}
+
+.csa-logo {
+    margin-bottom: 40px;
+    animation: fadeInDown 1.5s ease-out;
+}
+
+.csa-logo img {
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+}
+
+.csa-description {
+    font-family: 'Poppins', sans-serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: var(--desc-size, 40px);
+    line-height: 1.4;
+    margin-bottom: 30px;
+    color: var(--desc-color, #ffd700);
+    
+    /* Glowing effect based on text color */
+    text-shadow: 
+        0 0 calc(10px * var(--desc-glow-intensity, 10) / 10) currentColor,
+        0 0 calc(20px * var(--desc-glow-intensity, 10) / 10) currentColor,
+        0 0 calc(30px * var(--desc-glow-intensity, 10) / 10) currentColor,
+        0 0 calc(40px * var(--desc-glow-intensity, 10) / 10) currentColor;
+    
+    animation: fadeInUp 1.5s ease-out, textPulse var(--desc-glow-rate, 3s) ease-in-out infinite;
+}
+
+.csa-coming-soon {
+    font-family: 'Poppins', sans-serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: var(--cs-size, 48px);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+    
+    /* Use gradient for the loading animation effect */
+    background: linear-gradient(
+        90deg,
+        var(--cs-color, #ffd700) 0%,
+        var(--cs-color, #ffd700) 30%,
+        rgba(255, 255, 255, 0.8) 50%,
+        var(--cs-color, #ffd700) 70%,
+        var(--cs-color, #ffd700) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    
+    /* Enhanced glowing effect */
+    filter: drop-shadow(0 0 calc(15px * var(--cs-glow-intensity, 10) / 10) var(--cs-color, #ffd700))
+            drop-shadow(0 0 calc(25px * var(--cs-glow-intensity, 10) / 10) var(--cs-color, #ffd700))
+            drop-shadow(0 0 calc(35px * var(--cs-glow-intensity, 10) / 10) var(--cs-color, #ffd700));
+    
+    /* Loading animation - sheen passes by repeatedly */
+    animation: fadeInUp 1.5s ease-out 0.3s backwards, 
+               loadingSheen var(--cs-glow-rate, 2.5s) ease-in-out infinite;
+}
+
+/* Button styling */
+.csa-button-wrapper {
+    margin-top: 30px;
+    animation: fadeInUp 1.5s ease-out 0.5s backwards;
+}
+
+.csa-email-button {
+    font-family: 'Poppins', sans-serif;
+    font-style: italic;
+    font-weight: 700;
+    display: inline-block;
+    padding: 15px 40px;
+    background-color: var(--btn-bg, #ffd700);
+    color: var(--btn-text, #1a1a1a);
+    text-decoration: none;
+    border-radius: 50px;
+    font-size: 18px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.csa-email-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+}
+
+/* Pulse animation for description */
+@keyframes textPulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.85;
+    }
+}
+
+/* Loading sheen animation for "Coming Soon..." */
+@keyframes loadingSheen {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+/* Fade in animations */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .csa-description {
+        font-size: calc(var(--desc-size, 40px) * 0.7);
+        margin-bottom: 25px;
+    }
+    
+    .csa-coming-soon {
+        font-size: calc(var(--cs-size, 48px) * 0.65);
+        letter-spacing: 2px;
+    }
+    
+    .csa-logo img {
+        max-width: 200px;
+    }
+    
+    .csa-email-button {
+        font-size: 16px;
+        padding: 12px 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .csa-description {
+        font-size: calc(var(--desc-size, 40px) * 0.5);
+        margin-bottom: 20px;
+    }
+    
+    .csa-coming-soon {
+        font-size: calc(var(--cs-size, 48px) * 0.5);
+        letter-spacing: 1px;
+    }
+    
+    .csa-logo img {
+        max-width: 150px;
+    }
+    
+    .csa-logo {
+        margin-bottom: 30px;
+    }
+    
+    .csa-email-button {
+        font-size: 14px;
+        padding: 10px 25px;
+    }
+}
