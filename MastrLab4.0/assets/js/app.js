@@ -11,9 +11,14 @@
 
   const formatTime = s => {
     if (!isFinite(s)) return "0:00";
-    const m = Math.floor(s/60);
-    const ss = Math.floor(s%60).toString().padStart(2,'0');
-    return `${m}:${ss}`;
+    const hours = Math.floor(s / 3600);
+    const minutes = Math.floor((s % 3600) / 60);
+    const seconds = Math.floor(s % 60);
+    
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+    }
+    return `${minutes}:${seconds.toString().padStart(2,'0')}`;
   };
 
   let wavesurfer, timeline;
