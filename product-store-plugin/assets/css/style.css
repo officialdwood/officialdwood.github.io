@@ -1,0 +1,643 @@
+/* Steel Store - Modern, Minimal Design */
+
+/* Reset and Base */
+.steel-store-container {
+    font-family: 'Montserrat', sans-serif;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background: #ffffff;
+}
+
+/* Tabs */
+.steel-store-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 10px;
+}
+
+.steel-store-tab {
+    background: transparent;
+    border: none;
+    padding: 12px 24px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 6px 6px 0 0;
+}
+
+.steel-store-tab:hover {
+    color: #111827;
+    background: #f9fafb;
+}
+
+.steel-store-tab.active {
+    color: #111827;
+    background: #f3f4f6;
+    border-bottom: 3px solid #111827;
+}
+
+/* Search Bar */
+.steel-store-search {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    max-width: 500px;
+}
+
+#steel-store-search-input {
+    flex: 1;
+    padding: 12px 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #111827;
+    transition: all 0.3s ease;
+}
+
+#steel-store-search-input:focus {
+    outline: none;
+    border-color: #6b7280;
+    box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+}
+
+#steel-store-search-btn {
+    padding: 12px 30px;
+    background: #111827;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#steel-store-search-btn:hover {
+    background: #374151;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(17, 24, 39, 0.15);
+}
+
+/* Products Grid */
+.steel-store-products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 30px;
+    margin-bottom: 60px;
+}
+
+.steel-store-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: #6b7280;
+}
+
+.steel-product-card {
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.steel-product-card:hover {
+    border-color: #6b7280;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+}
+
+.steel-product-image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 75%;
+    overflow: hidden;
+    background: #f9fafb;
+}
+
+.steel-product-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.3s ease;
+}
+
+.steel-product-card:hover .steel-product-image {
+    transform: scale(1.03);
+    filter: brightness(1.05);
+}
+
+.steel-product-card:hover .steel-product-image-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: inset 0 0 40px rgba(107, 114, 128, 0.2);
+    pointer-events: none;
+}
+
+.steel-product-info {
+    padding: 20px;
+}
+
+.steel-product-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: #111827;
+    margin: 0 0 10px 0;
+    line-height: 1.3;
+}
+
+.steel-product-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 15px;
+}
+
+.steel-product-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #f3f4f6;
+    color: #6b7280;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+}
+
+.steel-product-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-add-to-cart {
+    flex: 1;
+    padding: 10px 20px;
+    background: #111827;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-add-to-cart:hover {
+    background: #374151;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(17, 24, 39, 0.2);
+}
+
+/* Cart Button (Fixed) */
+.steel-store-cart-btn {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    width: 70px;
+    height: 70px;
+    background: #6b7280; /* Gray */
+    color: #ffffff;
+    border: 2px solid #d1d5db;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.steel-store-cart-btn:hover {
+    background: #9ca3af; /* Lighter gray */
+    border-color: #9ca3af;
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(107, 114, 128, 0.4);
+}
+
+.steel-store-cart-btn .cart-icon {
+    font-size: 24px;
+}
+
+.steel-store-cart-btn .cart-count {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #ef4444;
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+    padding: 3px 7px;
+    border-radius: 12px;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Modals */
+.steel-store-cart-modal,
+.steel-store-order-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(17, 24, 39, 0.7);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.steel-store-cart-modal.active,
+.steel-store-order-modal.active {
+    display: flex;
+}
+
+.cart-modal-content,
+.order-modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 700px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(17, 24, 39, 0.3);
+}
+
+.cart-modal-header,
+.order-modal-header {
+    padding: 25px 30px;
+    border-bottom: 2px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cart-modal-header h2,
+.order-modal-header h2 {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 24px;
+    color: #111827;
+}
+
+.cart-modal-close,
+.order-modal-close {
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: #6b7280;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    transition: all 0.3s ease;
+}
+
+.cart-modal-close:hover,
+.order-modal-close:hover {
+    color: #111827;
+    transform: scale(1.1);
+}
+
+.cart-modal-body {
+    padding: 30px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.cart-empty-message {
+    text-align: center;
+    padding: 60px 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: #6b7280;
+}
+
+.cart-item {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.cart-item:hover {
+    background: #f3f4f6;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.cart-item-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #e5e7eb;
+}
+
+.cart-item-info {
+    flex: 1;
+}
+
+.cart-item-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: #111827;
+    margin: 0 0 8px 0;
+}
+
+.cart-item-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.cart-item-quantity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.cart-item-quantity label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.cart-item-quantity input {
+    width: 60px;
+    padding: 6px 10px;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+}
+
+.cart-item-length {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.cart-item-length label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.cart-item-length select {
+    padding: 6px 10px;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.cart-item-actions {
+    display: flex;
+    align-items: center;
+}
+
+.btn-remove-item {
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-remove-item:hover {
+    background: #dc2626;
+    transform: scale(1.05);
+}
+
+.cart-modal-footer,
+.order-modal-footer {
+    padding: 25px 30px;
+    border-top: 2px solid #e5e7eb;
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: #111827;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: #374151;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(17, 24, 39, 0.2);
+}
+
+.btn-secondary {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.btn-secondary:hover {
+    background: #d1d5db;
+    transform: translateY(-1px);
+}
+
+/* Order Form */
+#steel-store-order-form {
+    padding: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: #111827;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #111827;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #6b7280;
+    box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Print Styles */
+@media print {
+    .steel-store-container {
+        max-width: 100%;
+    }
+    
+    .steel-store-tabs,
+    .steel-store-search,
+    .steel-store-cart-btn,
+    .cart-modal-header,
+    .cart-modal-footer,
+    .cart-item-actions {
+        display: none !important;
+    }
+    
+    .steel-store-cart-modal {
+        position: static;
+        background: none;
+        display: block !important;
+    }
+    
+    .cart-modal-content {
+        box-shadow: none;
+        max-height: none;
+    }
+    
+    .cart-item {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .steel-store-container {
+        padding: 20px 15px;
+    }
+    
+    .steel-store-tabs {
+        gap: 5px;
+    }
+    
+    .steel-store-tab {
+        padding: 10px 16px;
+        font-size: 12px;
+    }
+    
+    .steel-store-products {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    
+    .steel-store-cart-btn {
+        width: 60px;
+        height: 60px;
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .cart-modal-content,
+    .order-modal-content {
+        max-width: 100%;
+        max-height: 95vh;
+    }
+}
+
+/* Success/Error Messages */
+.steel-store-message {
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.steel-store-message.success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 2px solid #6ee7b7;
+}
+
+.steel-store-message.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 2px solid #fca5a5;
+}
