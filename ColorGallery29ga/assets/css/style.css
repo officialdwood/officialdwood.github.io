@@ -1,0 +1,293 @@
+/* Color Gallery 29ga Styles */
+
+.cg29ga-gallery {
+    width: 100%;
+    margin: 20px auto;
+    padding: 0;
+}
+
+.cg29ga-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(6, 1fr); /* Default 6 columns */
+}
+
+.cg29ga-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.cg29ga-chip {
+    width: 100%;
+    padding-bottom: 100%; /* Creates square aspect ratio */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: none;
+    border-radius: 0; /* Sharp edges, no rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    min-height: 0; /* Ensures consistent sizing */
+}
+
+.cg29ga-tile:hover .cg29ga-chip {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+.cg29ga-name {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 12px;
+    color: #333;
+    font-weight: normal;
+    word-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Modal styles */
+.cg29ga-modal {
+    display: none;
+    position: fixed !important; /* Force fixed positioning */
+    z-index: 999999; /* Very high z-index to be above Elementor and other page builders */
+    left: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.7);
+    animation: fadeIn 0.3s ease;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important; /* Prevent any transforms from affecting positioning */
+}
+
+.cg29ga-modal.active {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.cg29ga-modal-content {
+    position: relative;
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: zoomIn 0.3s ease;
+}
+
+.cg29ga-modal-chip {
+    width: 85vmin; /* Increased from 80vmin to take up more screen space */
+    height: 85vmin;
+    max-width: 95vw;
+    max-height: 95vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 0;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+.cg29ga-modal-name {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.cg29ga-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    transition: opacity 0.3s ease;
+    z-index: 10000;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    opacity: 0.8;
+}
+
+.cg29ga-close:hover,
+.cg29ga-close:focus {
+    opacity: 1;
+}
+
+/* Navigation arrows */
+.cg29ga-nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 60px;
+    font-weight: 300;
+    cursor: pointer;
+    padding: 20px;
+    line-height: 1;
+    transition: opacity 0.3s ease;
+    z-index: 10001;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    opacity: 0.6;
+    user-select: none;
+}
+
+.cg29ga-nav-arrow:hover {
+    opacity: 1;
+}
+
+.cg29ga-nav-arrow.prev {
+    left: 30px;
+}
+
+.cg29ga-nav-arrow.next {
+    right: 30px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .cg29ga-grid {
+        grid-template-columns: repeat(5, 1fr) !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .cg29ga-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+    
+    .cg29ga-nav-arrow {
+        font-size: 50px;
+        padding: 15px;
+    }
+    
+    .cg29ga-nav-arrow.prev {
+        left: 20px;
+    }
+    
+    .cg29ga-nav-arrow.next {
+        right: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .cg29ga-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+    
+    .cg29ga-modal-name {
+        font-size: 16px;
+        margin-top: 15px;
+    }
+    
+    .cg29ga-close {
+        font-size: 35px;
+        right: 15px;
+        top: 15px;
+    }
+    
+    .cg29ga-nav-arrow {
+        font-size: 40px;
+        padding: 10px;
+    }
+    
+    .cg29ga-nav-arrow.prev {
+        left: 10px;
+    }
+    
+    .cg29ga-nav-arrow.next {
+        right: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cg29ga-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .cg29ga-name {
+        font-size: 10px;
+    }
+}
+
+/* Hidden tiles for pagination */
+.cg29ga-tile.cg29ga-hidden {
+    display: none;
+}
+
+/* See More button container */
+.cg29ga-see-more-container {
+    display: flex;
+    justify-content: flex-start;
+    padding: 20px 0;
+    margin-top: 10px;
+}
+
+.cg29ga-see-more-btn {
+    background: transparent;
+    border: none;
+    color: #333;
+    font-size: 14px;
+    padding: 8px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s, opacity 0.2s;
+}
+
+.cg29ga-see-more-btn:hover {
+    color: #000;
+    opacity: 0.8;
+}
+
+.cg29ga-see-more-btn .cg29ga-arrow {
+    font-size: 18px;
+    transition: transform 0.2s;
+}
+
+.cg29ga-see-more-btn.expanded .cg29ga-arrow {
+    transform: rotate(180deg);
+}
