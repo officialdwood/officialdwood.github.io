@@ -53,14 +53,18 @@ class TCM_Admin_Settings
                 <h2>Live Preview</h2>
                 <p>This is how your clock form will look with the current settings:</p>
 
+                <link rel="preconnect" href="https://fonts.googleapis.com">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+
                 <div class="tcm-clock-form" style="max-width: 400px; margin: 20px 0; background: white; padding: 30px; border: 1px solid #e1e1e1; border-radius: 8px; text-align: center;">
                     <p>Hello, <strong>Preview User</strong></p>
                     <button class="tcm-button tcm-preview-button" style="margin: 8px;">Clock In</button>
                     <button class="tcm-button tcm-preview-button" style="margin: 8px;">Clock Out</button>
                     <p style="color: #00a32a; padding: 10px;">✅ You are currently clocked in.</p>
-                    <div class="tcm-preview-timer" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid #2271b1; border-radius: 8px; padding: 15px; margin: 20px 0; font-family: 'Courier New', monospace; font-weight: bold;">
-                        <div style="font-size: 24px; margin-bottom: 8px; letter-spacing: 2px;">⏱️ 01:23:45</div>
-                        <div style="font-size: 14px; font-weight: normal;">Total: 1.40 hours</div>
+                    <div class="tcm-preview-timer" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid #2271b1; border-radius: 8px; padding: 15px; margin: 20px 0; font-family: 'Montserrat', sans-serif; font-weight: 700;">
+                        <div style="font-size: 24px; margin-bottom: 8px; letter-spacing: 1px; font-family: 'Montserrat', sans-serif; font-weight: 700;">⏱️ 01:23:45</div>
+                        <div style="font-size: 14px; font-weight: 600; font-family: 'Montserrat', sans-serif;">Total: 1.40 hours</div>
                     </div>
                 </div>
             </div>
@@ -177,6 +181,21 @@ class TCM_Admin_Settings
             'tcm-settings-admin', // Page
             'tcm_timer_settings' // Section
         );
+
+        add_settings_section(
+            'tcm_notification_settings', // ID
+            'Notification Settings', // Title
+            [$this, 'notification_info'], // Callback
+            'tcm-settings-admin' // Page
+        );
+
+        add_settings_field(
+            'time_request_email', // ID
+            'Time Request Notification Email', // Title
+            [$this, 'time_request_email_callback'], // Callback
+            'tcm-settings-admin', // Page
+            'tcm_notification_settings' // Section
+        );
     }
 
     public function sanitize($input)
@@ -200,6 +219,10 @@ class TCM_Admin_Settings
             $new_input['timer_text_color'] = sanitize_hex_color($input['timer_text_color']);
         }
 
+        if (isset($input['time_request_email'])) {
+            $new_input['time_request_email'] = sanitize_email($input['time_request_email']);
+        }
+
         return $new_input;
     }
 
@@ -211,6 +234,11 @@ class TCM_Admin_Settings
     public function timer_info()
     {
         print 'Customize the appearance of the timer display:';
+    }
+
+    public function notification_info()
+    {
+        print 'Configure email notifications for time change requests:';
     }
 
     public function button_bg_color_callback()
@@ -246,6 +274,15 @@ class TCM_Admin_Settings
             '<input type="color" id="timer_text_color" name="tcm_settings[timer_text_color]" value="%s" />
                 <p class="description">Choose the text color for the timer display. Default: #2271b1</p>',
             isset($this->options['timer_text_color']) ? esc_attr($this->options['timer_text_color']) : '#2271b1'
+        );
+    }
+
+    public function time_request_email_callback()
+    {
+        printf(
+            '<input type="email" id="time_request_email" name="tcm_settings[time_request_email]" value="%s" class="regular-text" />
+                <p class="description">Email address where time change requests will be sent. Default: info@protechsteel.com</p>',
+            isset($this->options['time_request_email']) ? esc_attr($this->options['time_request_email']) : 'info@protechsteel.com'
         );
     }
 

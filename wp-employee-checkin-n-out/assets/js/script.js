@@ -42,10 +42,10 @@ jQuery(document).ready(function ($) {
 
   
   function renderIdleSummary() {
-    const weekly = weeklyTotalDecimal !== null ? weeklyTotalDecimal.toFixed(2) + " hours" : "--";
+    const weekly = weeklyTotalDecimal !== null ? weeklyTotalDecimal.toFixed(2) + " hours" : "0.00 hours";
     $("#tcm-timer").html(
-      '<div class="timer-main">Not clocked in</div>' +
-      '<div class="timer-sub">Weekly Total: ' + weekly + '</div>'
+      '<div class="timer-main">📊 Your Hours This Week</div>' +
+      '<div class="timer-sub">Total: ' + weekly + '</div>'
     ).addClass('active');
   }
 
@@ -53,8 +53,11 @@ jQuery(document).ready(function ($) {
     const $container = $("#tcm-daily-breakdown");
     if (!$container.length) return;
 
+    // Preserve the header if it exists
+    const header = '<div class="tcm-daily-header">Daily Breakdown</div>';
+
     if (!Array.isArray(dailyTotals) || !dailyTotals.length) {
-      $container.html('<div class="tcm-daily-empty">Daily totals unavailable.</div>');
+      $container.html(header + '<div class="tcm-daily-empty">Daily totals unavailable.</div>');
       return;
     }
 
@@ -70,7 +73,7 @@ jQuery(document).ready(function ($) {
       })
       .join('');
 
-    $container.html('<div class="tcm-daily-grid">' + items + '</div>');
+    $container.html(header + '<div class="tcm-daily-grid">' + items + '</div>');
   }
 
   function fetchWeeklyTotal() {
@@ -177,7 +180,7 @@ jQuery(document).ready(function ($) {
         fetchWeeklyTotal();
         
         if (response.success) {
-          $("#tcm-message").html(`<span style="color: #00a32a;">✅ ${response.data.message}</span>`);
+          $("#tcm-message").html(`<span class="tcm-msg-success">✅ ${response.data.message}</span>`);
           button.text('Clock In').prop('disabled', true);
           $("#tcm-clock-out").prop('disabled', false);
           
@@ -191,12 +194,12 @@ jQuery(document).ready(function ($) {
             startTimer();
           }
         } else {
-          $("#tcm-message").html(`<span style="color: #d63638;">❌ Error: ${response.data}</span>`);
+          $("#tcm-message").html(`<span class="tcm-msg-error">❌ Error: ${response.data}</span>`);
           button.text('Clock In').prop('disabled', false);
         }
       }
     ).fail(function() {
-      $("#tcm-message").html(`<span style="color: #d63638;">❌ Network error. Please try again.</span>`);
+      $("#tcm-message").html(`<span class="tcm-msg-error">❌ Network error. Please try again.</span>`);
       button.text('Clock In').prop('disabled', false);
     });
   });
@@ -216,20 +219,47 @@ jQuery(document).ready(function ($) {
         fetchWeeklyTotal();
         
         if (response.success) {
-          $("#tcm-message").html(`<span style="color: #00a32a;">✅ ${response.data.message}</span>`);
+          $("#tcm-message").html(`<span class="tcm-msg-success">✅ ${response.data.message}</span>`);
           $("#tcm-clock-in").prop('disabled', false);
           button.text('Clock Out').prop('disabled', true);
           stopTimer();
         } else {
-          $("#tcm-message").html(`<span style="color: #d63638;">❌ Error: ${response.data}</span>`);
+          $("#tcm-message").html(`<span class="tcm-msg-error">❌ Error: ${response.data}</span>`);
           button.text('Clock Out').prop('disabled', false);
         }
       }
     ).fail(function() {
-      $("#tcm-message").html(`<span style="color: #d63638;">❌ Network error. Please try again.</span>`);
+      $("#tcm-message").html(`<span class="tcm-msg-error">❌ Network error. Please try again.</span>`);
       button.text('Clock Out').prop('disabled', false);
     });
   });
+
+  // Helper function to fetch and display weekly totals
+  function loadWeeklyTotalsAndCheckSession() {
+    $.post(
+      tcm_ajax_object.ajaxurl,
+      { action: "tcm_get_weekly_total" },
+      function (resp) {
+        if (resp && resp.success && resp.data) {
+          weeklyTotalDecimal = parseFloat(resp.data.total_decimal || 0);
+          weeklyTotalFormatted = resp.data.total_formatted || (weeklyTotalDecimal.toFixed ? (weeklyTotalDecimal.toFixed(2) + " hours") : "0.00 hours");
+          dailyTotals = Array.isArray(resp.data.daily_totals) ? resp.data.daily_totals : [];
+        } else {
+          weeklyTotalDecimal = null;
+          weeklyTotalFormatted = null;
+          dailyTotals = [];
+        }
+        renderDailyTotals();
+        // Now check for existing active session
+        checkActiveSession();
+      }
+    ).fail(function(){
+      dailyTotals = [];
+      renderDailyTotals();
+      // Even if weekly fetch fails, still check session
+      checkActiveSession();
+    });
+  }
 
   // Get current server time first to calculate offset
   function initializeTimer() {
@@ -243,14 +273,14 @@ jQuery(document).ready(function ($) {
           calculateServerTimeOffset(response.data.server_time);
         }
         
-        // Now check for existing active session
-        checkActiveSession();
-      fetchWeeklyTotal();
+        // Fetch weekly totals first, then check active session
+        // This ensures weekly data is available before rendering idle state
+        loadWeeklyTotalsAndCheckSession();
       }
     ).fail(function() {
       console.warn('Could not get server time, proceeding without offset');
-      checkActiveSession();
-      fetchWeeklyTotal();
+      // Still try to fetch weekly totals and check session even if server time fails
+      loadWeeklyTotalsAndCheckSession();
     });
   }
 
@@ -271,11 +301,11 @@ jQuery(document).ready(function ($) {
           console.log('Resuming timer from clock-in time:', response.data.clock_in);
           startTimer(response.data.clock_in);
           
-          $("#tcm-message").html(`<span style="color: #00a32a;">✅ You are currently clocked in.</span>`);
+          $("#tcm-message").html(`<span class="tcm-msg-success">✅ You are currently clocked in.</span>`);
         } else {
           $("#tcm-clock-in").prop('disabled', false);
           $("#tcm-clock-out").prop('disabled', true);
-          $("#tcm-message").html(`<span style="color: #646970;">Ready to clock in.</span>`);
+          $("#tcm-message").html(`<span class="tcm-msg-info">👋 Welcome! View your hours below, then clock in when ready.</span>`);
           renderIdleSummary();
         }
       }
@@ -289,4 +319,169 @@ jQuery(document).ready(function ($) {
 
   // Initialize timer system
   initializeTimer();
+
+  // Time Change Request Modal Functionality
+  const $modal = $("#tcm-request-modal");
+  const $requestLink = $("#tcm-request-link");
+  const $closeBtn = $(".tcm-modal-close");
+  const $cancelBtn = $("#tcm-request-cancel");
+  const $form = $("#tcm-request-form");
+  const $message = $("#tcm-request-message");
+
+  console.log('TimeClock: Initializing request modal functionality');
+  console.log('Modal element:', $modal.length, 'Link element:', $requestLink.length);
+  console.log('tcm_ajax_object available:', typeof tcm_ajax_object !== 'undefined');
+  
+  if (typeof tcm_ajax_object !== 'undefined') {
+    console.log('tcm_ajax_object.ajaxurl:', tcm_ajax_object.ajaxurl);
+    console.log('tcm_ajax_object.time_request_nonce:', tcm_ajax_object.time_request_nonce ? 'present' : 'missing');
+  } else {
+    console.error('ERROR: tcm_ajax_object is not defined! Cannot submit time change requests.');
+  }
+
+  // Only initialize if modal and link exist AND tcm_ajax_object is defined
+  if ($modal.length && $requestLink.length && typeof tcm_ajax_object !== 'undefined') {
+    console.log('Modal and link found, attaching event handlers');
+
+    // Open modal
+    $requestLink.on('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Request Time Change link clicked');
+      
+      // Show modal with explicit display setting
+      $modal.css('display', 'block');
+      $modal.show();
+      
+      // Set today's date as default
+      const today = new Date().toISOString().split('T')[0];
+      $("#tcm-request-date").val(today);
+      
+      console.log('Modal should now be visible');
+    });
+
+    // Close modal functions
+    function closeModal() {
+      console.log('Closing modal');
+      $modal.fadeOut(200, function() {
+        $modal.css('display', 'none');
+      });
+      if ($form[0]) {
+        $form[0].reset();
+      }
+      $message.hide().removeClass('success error');
+    }
+
+    $closeBtn.on('click', function(e) {
+      e.preventDefault();
+      console.log('Close button clicked');
+      closeModal();
+    });
+    
+    $cancelBtn.on('click', function(e) {
+      e.preventDefault();
+      console.log('Cancel button clicked');
+      closeModal();
+    });
+
+    // Close when clicking outside modal
+    $modal.on('click', function(e) {
+      if (e.target === $modal[0]) {
+        console.log('Clicked outside modal content');
+        closeModal();
+      }
+    });
+
+    // Handle form submission
+    $form.on('submit', function(e) {
+      e.preventDefault();
+      console.log('Form submitted');
+      
+      // Check if tcm_ajax_object is available
+      if (typeof tcm_ajax_object === 'undefined') {
+        console.error('ERROR: tcm_ajax_object is not defined at submission time!');
+        $message.removeClass('success').addClass('error')
+          .text('✗ Configuration error. Please reload the page and try again.')
+          .show();
+        return;
+      }
+      
+      if (!tcm_ajax_object.ajaxurl) {
+        console.error('ERROR: tcm_ajax_object.ajaxurl is missing!');
+        $message.removeClass('success').addClass('error')
+          .text('✗ Configuration error. AJAX URL is missing.')
+          .show();
+        return;
+      }
+      
+      if (!tcm_ajax_object.time_request_nonce) {
+        console.error('ERROR: tcm_ajax_object.time_request_nonce is missing!');
+        $message.removeClass('success').addClass('error')
+          .text('✗ Security error. Please reload the page and try again.')
+          .show();
+        return;
+      }
+      
+      const formData = {
+        action: 'tcm_submit_time_request',
+        nonce: tcm_ajax_object.time_request_nonce,
+        request_type: $("#tcm-request-type").val(),
+        request_date: $("#tcm-request-date").val(),
+        request_time: $("#tcm-request-time").val(),
+        description: $("#tcm-request-description").val()
+      };
+
+      console.log('Form data:', formData);
+      console.log('Sending AJAX to:', tcm_ajax_object.ajaxurl);
+
+      // Disable submit button
+      const $submitBtn = $form.find('button[type="submit"]');
+      $submitBtn.prop('disabled', true).text('Submitting...');
+
+      $.post(tcm_ajax_object.ajaxurl, formData, function(response) {
+        console.log('Server response:', response);
+        $submitBtn.prop('disabled', false).text('Submit Request');
+        
+        if (response.success) {
+          $message.removeClass('error').addClass('success')
+            .text('✓ Your request has been submitted successfully.')
+            .show();
+          
+          // Clear form after short delay
+          setTimeout(function() {
+            closeModal();
+          }, 2000);
+        } else {
+          $message.removeClass('success').addClass('error')
+            .text('✗ ' + (response.data || 'Failed to submit request. Please try again.'))
+            .show();
+        }
+      }).fail(function(jqXHR, textStatus, errorThrown) {
+        console.error('AJAX error:', textStatus, errorThrown);
+        console.error('Response status:', jqXHR.status);
+        console.error('Response text:', jqXHR.responseText);
+        $submitBtn.prop('disabled', false).text('Submit Request');
+        
+        let errorMsg = '✗ Network error. Please try again.';
+        if (jqXHR.status === 0) {
+          errorMsg = '✗ Cannot connect to server. Please check your connection.';
+        } else if (jqXHR.status === 404) {
+          errorMsg = '✗ AJAX endpoint not found (404). Please contact support.';
+        } else if (jqXHR.status === 500) {
+          errorMsg = '✗ Server error (500). Please contact support.';
+        } else if (jqXHR.status === 403) {
+          errorMsg = '✗ Access denied (403). Please reload the page and try again.';
+        }
+        
+        $message.removeClass('success').addClass('error')
+          .text(errorMsg)
+          .show();
+      });
+    });
+  } else {
+    console.warn('Modal functionality not initialized:');
+    console.warn('- Modal exists:', $modal.length > 0);
+    console.warn('- Link exists:', $requestLink.length > 0);
+    console.warn('- tcm_ajax_object exists:', typeof tcm_ajax_object !== 'undefined');
+  }
 });
