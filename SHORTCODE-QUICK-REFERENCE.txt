@@ -1,0 +1,49 @@
+================================================================================
+WYOHOOPS GAME DATABASE - SHORTCODE
+================================================================================
+
+SHORTCODE: [wyohoops_gamedb]
+
+================================================================================
+USAGE
+================================================================================
+
+To display the WyoHoops Game Database on any WordPress page or post, simply add:
+
+[wyohoops_gamedb]
+
+That's it! The shortcode will render the full database interface with:
+- Teams tab (with rankings, records, statistics)
+- Schedule tab (past and upcoming games)
+- Compare tab (team-vs-team comparison)
+
+================================================================================
+OPTIONAL PARAMETERS
+================================================================================
+
+[wyohoops_gamedb default_tab="teams"]
+[wyohoops_gamedb default_tab="schedule"]
+[wyohoops_gamedb default_tab="compare"]
+
+[wyohoops_gamedb classification="4A"]
+[wyohoops_gamedb classification="3A"]
+[wyohoops_gamedb classification="2A"]
+[wyohoops_gamedb classification="1A"]
+
+[wyohoops_gamedb gender="B"]  (Boys)
+[wyohoops_gamedb gender="G"]  (Girls)
+
+================================================================================
+EXAMPLES
+================================================================================
+
+Show 4A teams by default:
+[wyohoops_gamedb default_tab="teams" classification="4A"]
+
+Show boys schedule:
+[wyohoops_gamedb default_tab="schedule" gender="B"]
+
+Show comparison tool:
+[wyohoops_gamedb default_tab="compare"]
+
+================================================================================
