@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Visualizer - Simple 2D Version</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div style="padding: 20px;">
+        <h1>Building Visualizer - Simplified 2D Version</h1>
+        <p>No more complex 3D rotation! Simple front view with color customization.</p>
+        
+        <div class="bv-wrap">
+            <div class="bv-header">
+                <h2>Building Visualizer</h2>
+                <p>Customize your building colors and dimensions!</p>
+            </div>
+            
+            <div class="bv-container">
+                <div class="bv-controls">
+                    <div class="bv-section">
+                        <h3>Dimensions</h3>
+                        <div class="bv-control-group">
+                            <label for="bv-width">Width (feet)</label>
+                            <input type="number" id="bv-width" value="30" min="10" max="100" step="1" />
+                        </div>
+                        <div class="bv-control-group">
+                            <label for="bv-length">Length (feet)</label>
+                            <input type="number" id="bv-length" value="40" min="10" max="100" step="1" />
+                        </div>
+                        <div class="bv-control-group">
+                            <label for="bv-wall-height">Wall Height (feet)</label>
+                            <input type="number" id="bv-wall-height" value="12" min="8" max="20" step="1" />
+                        </div>
+                        <div class="bv-control-group">
+                            <label for="bv-roof-pitch">Roof Pitch (rise per 12")</label>
+                            <input type="number" id="bv-roof-pitch" value="4" min="1" max="12" step="0.5" />
+                        </div>
+                    </div>
+                    
+                    <div class="bv-section">
+                        <h3>Colors</h3>
+                        <div class="bv-control-group">
+                            <label for="bv-roofing-color">Roofing Color</label>
+                            <select id="bv-roofing-color">
+                                <!-- Populated by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="bv-control-group">
+                            <label for="bv-siding-color">Siding Color</label>
+                            <select id="bv-siding-color">
+                                <!-- Populated by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="bv-control-group">
+                            <label>
+                                <input type="checkbox" id="bv-wainscott-enabled" checked />
+                                Enable Wainscott
+                            </label>
+                        </div>
+                        <div class="bv-control-group" id="bv-wainscott-controls">
+                            <label for="bv-wainscott-height">Wainscott Height (feet)</label>
+                            <input type="number" id="bv-wainscott-height" value="3" min="0" max="8" step="0.5" />
+                        </div>
+                        <div class="bv-control-group" id="bv-wainscott-color-group">
+                            <label for="bv-wainscott-color">Wainscott Color</label>
+                            <select id="bv-wainscott-color">
+                                <!-- Populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="bv-section">
+                        <h3>Actions</h3>
+                        <button id="bv-download" class="bv-button primary">Download Image</button>
+                    </div>
+                </div>
+                
+                <div class="bv-preview">
+                    <canvas id="bv-canvas" width="800" height="600"></canvas>
+                    
+                    <div class="bv-info">
+                        <div class="bv-info-item">
+                            <strong>Building Size:</strong> <span id="bv-info-size">-</span>
+                        </div>
+                        <div class="bv-info-item">
+                            <strong>Wall Height:</strong> <span id="bv-info-wall">-</span>
+                        </div>
+                        <div class="bv-info-item">
+                            <strong>Roof Pitch:</strong> <span id="bv-info-pitch">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration for colors
+        var BVConfig = {
+            colors: {
+                roofing: [
+                    { name: 'Charcoal Gray', rgb: '64,64,64', r: 64, g: 64, b: 64 },
+                    { name: 'Brown', rgb: '101,67,33', r: 101, g: 67, b: 33 },
+                    { name: 'Dark Green', rgb: '34,139,34', r: 34, g: 139, b: 34 },
+                    { name: 'Rustic Red', rgb: '139,0,0', r: 139, g: 0, b: 0 },
+                    { name: 'Black', rgb: '28,28,28', r: 28, g: 28, b: 28 }
+                ],
+                siding: [
+                    { name: 'White', rgb: '245,245,245', r: 245, g: 245, b: 245 },
+                    { name: 'Beige', rgb: '245,245,220', r: 245, g: 245, b: 220 },
+                    { name: 'Light Gray', rgb: '211,211,211', r: 211, g: 211, b: 211 },
+                    { name: 'Tan', rgb: '210,180,140', r: 210, g: 180, b: 140 },
+                    { name: 'Cream', rgb: '255,253,208', r: 255, g: 253, b: 208 }
+                ],
+                wainscott: [
+                    { name: 'Dark Brown', rgb: '101,67,33', r: 101, g: 67, b: 33 },
+                    { name: 'Charcoal', rgb: '54,69,79', r: 54, g: 69, b: 79 },
+                    { name: 'Forest Green', rgb: '34,139,34', r: 34, g: 139, b: 34 },
+                    { name: 'Barn Red', rgb: '124,10,2', r: 124, g: 10, b: 2 },
+                    { name: 'Black', rgb: '28,28,28', r: 28, g: 28, b: 28 }
+                ]
+            }
+        };
+    </script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

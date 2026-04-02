@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Visualizer - Test Orientation 225°</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin: 0 0 20px 0;
+            color: #2a2a2a;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            display: block;
+            margin: 20px auto;
+            background: #FAFAFA;
+        }
+        .info {
+            text-align: center;
+            color: #555;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Building Visualizer - New Orientation (225° horizontal, 25° vertical)</h1>
+        <div class="info">This should match the reference image with gable on LEFT and side wall on RIGHT</div>
+        <canvas id="canvas" width="800" height="600"></canvas>
+        <div class="info">
+            <strong>Rotation:</strong> 225° horizontal (left-front corner), 25° vertical (looking down)
+        </div>
+    </div>
+
+    <script>
+        // Simple 3D building renderer to test orientation
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Building parameters
+        const width = 30;  // feet (building width)
+        const length = 40; // feet (building length)
+        const wallHeight = 12; // feet
+        const roofPitch = 4; // 4:12 pitch
+        const wainscottHeight = 3; // feet
+
+        // View parameters - NEW VALUES TO MATCH REFERENCE
+        const rotationY = 225; // degrees - horizontal rotation (left-front corner)
+        const rotationX = 25;  // degrees - vertical tilt (looking down)
+        const zoom = 1.0;
+        const scale = 6; // pixels per foot
+
+        // Colors
+        const roofColor = 'rgb(80, 80, 80)';
+        const sidingColor = 'rgb(245, 245, 245)';
+        const wainscottColor = 'rgb(100, 100, 100)';
+        const backgroundColor = '#FAFAFA';
+        const groundColor = '#E8E8E8';
+
+        // Convert degrees to radians
+        const rotYRad = (rotationY * Math.PI) / 180;
+        const rotXRad = (rotationX * Math.PI) / 180;
+        const isoAngle = Math.atan(Math.sqrt(2));
+
+        // Project 3D point to 2D
+        function projectPoint(x, y, z) {
+            // Y-axis rotation (horizontal spin)
+            let rotX = x * Math.cos(rotYRad) - y * Math.sin(rotYRad);
+            let rotY = x * Math.sin(rotYRad) + y * Math.cos(rotYRad);
+            let rotZ = z;
+            
+            // X-axis rotation (vertical tilt)
+            const tempY = rotY;
+            const tempZ = rotZ;
+            rotY = tempY * Math.cos(rotXRad) - tempZ * Math.sin(rotXRad);
+            rotZ = tempY * Math.sin(rotXRad) + tempZ * Math.cos(rotXRad);
+            
+            // Isometric projection
+            const isoX = rotX * Math.cos(isoAngle) - rotY * Math.cos(isoAngle);
+            const isoY = rotX * Math.sin(isoAngle) + rotY * Math.sin(isoAngle) - rotZ;
+            
+            return {
+                x: canvas.width / 2 + isoX * scale * zoom,
+                y: canvas.height / 2 + isoY * scale * zoom
+            };
+        }
+
+        // Draw the building
+        function drawBuilding() {
+            // Clear canvas
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw ground plane
+            ctx.fillStyle = groundColor;
+            const groundSize = 100;
+            const g1 = projectPoint(-groundSize, -groundSize, 0);
+            const g2 = projectPoint(groundSize, -groundSize, 0);
+            const g3 = projectPoint(groundSize, groundSize, 0);
+            const g4 = projectPoint(-groundSize, groundSize, 0);
+            ctx.beginPath();
+            ctx.moveTo(g1.x, g1.y);
+            ctx.lineTo(g2.x, g2.y);
+            ctx.lineTo(g3.x, g3.y);
+            ctx.lineTo(g4.x, g4.y);
+            ctx.closePath();
+            ctx.fill();
+
+            // Building corners (ground level)
+            const w2 = width / 2;
+            const l2 = length / 2;
+            const ftl = projectPoint(-w2, -l2, 0); // front-top-left
+            const ftr = projectPoint(w2, -l2, 0);  // front-top-right
+            const fbl = projectPoint(-w2, l2, 0);  // front-bottom-left
+            const fbr = projectPoint(w2, l2, 0);   // front-bottom-right
+            
+            // Building corners (roof level)
+            const ftlr = projectPoint(-w2, -l2, -wallHeight);
+            const ftrr = projectPoint(w2, -l2, -wallHeight);
+            const fblr = projectPoint(-w2, l2, -wallHeight);
+            const fbrr = projectPoint(w2, l2, -wallHeight);
+
+            // Roof peak
+            const roofHeight = (width / 2) * (roofPitch / 12);
+            const frontPeak = projectPoint(0, -l2, -wallHeight - roofHeight);
+            const backPeak = projectPoint(0, l2, -wallHeight - roofHeight);
+
+            // Wainscott level
+            const ftlw = projectPoint(-w2, -l2, -wainscottHeight);
+            const ftrw = projectPoint(w2, -l2, -wainscottHeight);
+            const fblw = projectPoint(-w2, l2, -wainscottHeight);
+            const fbrw = projectPoint(w2, l2, -wainscottHeight);
+
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = '#000';
+
+            // Draw faces based on visibility
+            // Front wall (gable end) - should be on LEFT in view
+            ctx.fillStyle = sidingColor;
+            ctx.beginPath();
+            ctx.moveTo(ftlr.x, ftlr.y);
+            ctx.lineTo(frontPeak.x, frontPeak.y);
+            ctx.lineTo(ftrr.x, ftrr.y);
+            ctx.lineTo(ftrw.x, ftrw.y);
+            ctx.lineTo(ftlw.x, ftlw.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Front wainscott
+            ctx.fillStyle = wainscottColor;
+            ctx.beginPath();
+            ctx.moveTo(ftl.x, ftl.y);
+            ctx.lineTo(ftr.x, ftr.y);
+            ctx.lineTo(ftrw.x, ftrw.y);
+            ctx.lineTo(ftlw.x, ftlw.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Left side wall - should be on RIGHT in view
+            const darkerSiding = 'rgb(171, 171, 171)';
+            const darkerWainscott = 'rgb(75, 75, 75)';
+            
+            ctx.fillStyle = darkerSiding;
+            ctx.beginPath();
+            ctx.moveTo(ftlr.x, ftlr.y);
+            ctx.lineTo(fblr.x, fblr.y);
+            ctx.lineTo(fblw.x, fblw.y);
+            ctx.lineTo(ftlw.x, ftlw.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Left side wainscott
+            ctx.fillStyle = darkerWainscott;
+            ctx.beginPath();
+            ctx.moveTo(ftl.x, ftl.y);
+            ctx.lineTo(fbl.x, fbl.y);
+            ctx.lineTo(fblw.x, fblw.y);
+            ctx.lineTo(ftlw.x, ftlw.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Roof left plane
+            ctx.fillStyle = roofColor;
+            ctx.beginPath();
+            ctx.moveTo(ftlr.x, ftlr.y);
+            ctx.lineTo(frontPeak.x, frontPeak.y);
+            ctx.lineTo(backPeak.x, backPeak.y);
+            ctx.lineTo(fblr.x, fblr.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Roof right plane
+            ctx.beginPath();
+            ctx.moveTo(ftrr.x, ftrr.y);
+            ctx.lineTo(frontPeak.x, frontPeak.y);
+            ctx.lineTo(backPeak.x, backPeak.y);
+            ctx.lineTo(fbrr.x, fbrr.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Roof ridge line
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(frontPeak.x, frontPeak.y);
+            ctx.lineTo(backPeak.x, backPeak.y);
+            ctx.stroke();
+
+            // Add labels
+            ctx.fillStyle = '#000';
+            ctx.font = '14px Arial';
+            ctx.fillText('GABLE END (should be on LEFT)', 20, 30);
+            ctx.fillText('SIDE WALL (should be on RIGHT)', 20, 50);
+            ctx.fillText('Rotation: 225° horizontal, 25° vertical', 20, 70);
+        }
+
+        // Draw the building
+        drawBuilding();
+    </script>
+</body>
+</html>
